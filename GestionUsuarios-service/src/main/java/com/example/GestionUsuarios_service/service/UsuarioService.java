@@ -18,19 +18,24 @@ public class UsuarioService {
         return usuariosRepository.obtenerListaUsuarios();
     }
 
-    public Usuario getUsuario(String nombre) {
-        return usuariosRepository.buscarUsuario(nombre);
+    public Usuario getUsuarioPorNombre(String nombre) {
+        return usuariosRepository.buscarUsuarioPorNombre(nombre);
     }
 
-    public Usuario getUsuarioPorRut(String rut) {
-        return usuariosRepository.buscarUsuarioPorRut(rut);
+    public Usuario getUsuarioPorId(int id) {
+        return usuariosRepository.buscarUsuarioPorId(id);
     }
 
     public Usuario updateUsuario(Usuario usuario) {
         return usuariosRepository.modificarUsuario(usuario);
     }
-    public String deleteUsuario(String rut) {
-        usuariosRepository.eliminarUsuario(rut);
-        return "Usuario eliminado con exito";
+
+    public Usuario agregarUsuario(Usuario usuario) {
+        usuariosRepository.agregarUsuario(usuario);
+        return usuario;
+    }
+    public String deleteUsuario(int id) {
+        usuariosRepository.eliminarUsuario(id);
+        return "Usuario eliminado con éxito";
     }
 }

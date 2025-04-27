@@ -13,8 +13,7 @@ public class UsuariosRepository {
     public List <Usuario> obtenerListaUsuarios() {
         return listaUsuarios;
     }
-
-    public Usuario buscarUsuario(String nombre) {//buscar usuario por nombre
+    public Usuario buscarUsuarioPorNombre(String nombre) {//buscar usuario por nombre
         for (Usuario usuario : listaUsuarios) {
             if (usuario.getNombre().equals(nombre)) {
                 return usuario;
@@ -23,47 +22,58 @@ public class UsuariosRepository {
         return null;    
     }
 
-    public Usuario buscarUsuarioPorRut(String rut) {//buscar usuario por rut
+    public Usuario buscarUsuarioPorId(int id) {
         for (Usuario usuario : listaUsuarios) {
-            if (usuario.getRut().equals(rut)) {
+            if (usuario.getId() == id) {
                 return usuario;
             }
         }
-        return null;    
+        return null;
     }
 
-    public void eliminarUsuario(String rut) {//eliminar usuario por rut
-        Usuario usuario = buscarUsuarioPorRut(rut);
-        if (usuario != null) {
-            listaUsuarios.remove(usuario);
-        }
-    }
-    
-    public void agregarUsuario(Usuario usuario) {
-        listaUsuarios.add(usuario);
-    }
 
     public Usuario modificarUsuario(Usuario usuario) {
         for (int i = 0; i < listaUsuarios.size(); i++) {
-            // verifcar si el rut es el correcto y si el usuario existe
-            if (listaUsuarios.get(i).getRut().equals(usuario.getRut())) {
+            if (listaUsuarios.get(i).getId() == usuario.getId()) {
                 listaUsuarios.set(i, usuario);
-                Usuario usuarioModificado = new Usuario();
-                usuarioModificado.setRut(usuario.getRut());
-                usuarioModificado.setNombre(usuario.getNombre());
-                usuarioModificado.setApPaterno(usuario.getApPaterno());
-                usuarioModificado.setApMaterno(usuario.getApMaterno());
-                usuarioModificado.setCorreo(usuario.getCorreo());
-                usuarioModificado.setTelefono(usuario.getTelefono());
-                usuarioModificado.setContrasena(usuario.getContrasena());
-                usuarioModificado.setFechaNacimiento(usuario.getFechaNacimiento());
-                usuarioModificado.setActivo(usuario.isActivo());
-                listaUsuarios.set(i, usuarioModificado); // Actualiza el usuario en la lista
-                return usuario;  // usuario modificado
+                 return usuario;
             }
         }
-        // Si no encontramos el usuario
-        throw new RuntimeException("Usuario con el RUT " + usuario.getRut() + " no encontrado.");
+        throw new RuntimeException("Usuario con ID " + usuario.getId() + " no encontrado.");
     }
 
+
+    public void eliminarUsuario(int id) {
+        Usuario usuario = buscarUsuarioPorId(id);
+        if (usuario != null) {
+            listaUsuarios.remove(usuario);
+        } else {
+            throw new RuntimeException("Usuario con ID " + id + " no encontrado.");
+        }
+    }
+    
+
+    //controlar fallos
+    public void agregarUsuario(Usuario usuario) {
+        if (existeUsuarioPorRut(usuario.getRut())) {
+            throw new RuntimeException("Ya existe un usuario con el RUT: " + usuario.getRut());
+        }
+    
+        if (existeUsuarioPorCorreo(usuario.getCorreo())) {
+            throw new RuntimeException("Ya existe un usuario con el correo: " + usuario.getCorreo());
+        }
+    
+        listaUsuarios.add(usuario);
+    }
+    
+    // validar existencia
+    public boolean existeUsuarioPorRut(String rut) {
+        return listaUsuarios.stream()
+                .anyMatch(usuario -> usuario.getRut().equalsIgnoreCase(rut));
+    }
+    
+    public boolean existeUsuarioPorCorreo(String correo) {
+        return listaUsuarios.stream()
+                .anyMatch(usuario -> usuario.getCorreo().equalsIgnoreCase(correo));
+    }
 }
