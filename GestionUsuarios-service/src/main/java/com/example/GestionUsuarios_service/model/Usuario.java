@@ -11,7 +11,7 @@ public class Usuario {
     private int id;
     private String rut;
     private String nombre;
-    private String apPaterno;
+    private String apPaterno;//a
     private String apMaterno;
     private String correo;
     private String telefono;
