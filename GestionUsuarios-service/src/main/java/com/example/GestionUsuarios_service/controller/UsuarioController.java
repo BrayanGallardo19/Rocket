@@ -18,21 +18,25 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @GetMapping
-    public List<Usuario> obtenerListaUsuarios() {
-        return usuarioService.obtenerListaUsuarios();
+    public ResponseEntity<List<Usuario>> obtenerTodosLosUsuarios() {
+        List<Usuario> usuarios = usuarioService.getAllUsuarios();
+        if (usuarios.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204 No Content
+        } else {
+            return ResponseEntity.ok(usuarios); // 200 OK
+        }
     }
 
    
    @GetMapping("/nombre/{nombre}")
-   public ResponseEntity<Usuario> obtenerUsuarioPorNombre(@PathVariable String nombre) {
-       Usuario usuario = usuarioService.getUsuarioPorNombre(nombre);
-       if (usuario != null) {
-           return ResponseEntity.ok(usuario); // 200 OK
-       } else {
-           return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
-       }
-   }
-
+    public ResponseEntity<List<Usuario>> obtenerUsuariosPorNombre(@PathVariable String nombre) {
+         List<Usuario> usuarios = usuarioService.getUsuariosPorNombre(nombre);
+         if (usuarios.isEmpty()) {
+              return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204 No Content
+         } else {
+              return ResponseEntity.ok(usuarios); // 200 OK
+         }
+    }
    
    @GetMapping("/{id}")
    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable int id) {
@@ -69,12 +73,12 @@ public class UsuarioController {
 
 
    @DeleteMapping("/{id}")
-   public ResponseEntity<String> eliminarUsuario(@PathVariable int id) {
-       try {
-           String mensaje = usuarioService.deleteUsuario(id);
-           return ResponseEntity.ok(mensaje); // 200 OK
-       } catch (RuntimeException e) {
-           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado"); // 404 Not Found
-       }
-   }
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable int id) {
+         try {
+              usuarioService.deleteUsuarioPorId(id);
+              return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204 No Content
+         } catch (RuntimeException e) {
+              return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
+         }
+    }
 }

@@ -14,28 +14,34 @@ public class UsuarioService {
     private UsuariosRepository usuariosRepository;
 
 
-    public List<Usuario> obtenerListaUsuarios() {
-        return usuariosRepository.obtenerListaUsuarios();
-    }
-
-    public Usuario getUsuarioPorNombre(String nombre) {
-        return usuariosRepository.buscarUsuarioPorNombre(nombre);
+    public List<Usuario> getAllUsuarios() {
+        return usuariosRepository.findAll();
     }
 
     public Usuario getUsuarioPorId(int id) {
-        return usuariosRepository.buscarUsuarioPorId(id);
+        return usuariosRepository.findById(id).get();
     }
 
-    public Usuario updateUsuario(Usuario usuario) {
-        return usuariosRepository.modificarUsuario(usuario);
-    }
 
+    public List<Usuario> getUsuariosPorNombre(String nombre) {
+        return usuariosRepository.findAll().stream()
+                .filter(usuario -> usuario.getNombre().equalsIgnoreCase(nombre))
+                .toList();
+    }
+    
     public Usuario agregarUsuario(Usuario usuario) {
-        usuariosRepository.agregarUsuario(usuario);
-        return usuario;
+        return usuariosRepository.save(usuario);
     }
-    public String deleteUsuario(int id) {
-        usuariosRepository.eliminarUsuario(id);
-        return "Usuario eliminado con éxito";
+
+    public void deleteUsuarioPorId(int id) {
+        usuariosRepository.deleteById(id);
     }
+    
+    public Usuario updateUsuario(Usuario usuario) {
+        return usuariosRepository.save(usuario);
+    }
+
 }
+
+
+    
