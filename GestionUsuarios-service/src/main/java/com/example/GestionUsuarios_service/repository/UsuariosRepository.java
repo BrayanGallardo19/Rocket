@@ -11,7 +11,7 @@ public class UsuariosRepository {
     private List<Usuario> listaUsuarios = new ArrayList<>();
 
     public List <Usuario> obtenerListaUsuarios() {
-        return listaUsuarios;
+        return listaUsuarios; 
     }
     public Usuario buscarUsuarioPorNombre(String nombre) {//buscar usuario por nombre
         for (Usuario usuario : listaUsuarios) {
