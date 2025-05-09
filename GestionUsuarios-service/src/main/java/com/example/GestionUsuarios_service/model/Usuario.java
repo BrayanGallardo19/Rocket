@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @Column(nullable = false,unique = true)
     private String rut;
     @Column(nullable = false, length = 40)
@@ -32,11 +32,10 @@ public class Usuario {
     private String correo;
     @Column(nullable = false, length = 15)
     private String telefono;
+    @Column(nullable = false, length = 20)
+    private String username;
     @Column(nullable = false, length = 30)
     private String contrasena;
     @Column(nullable = false, length = 30)
-    private Date fechaNacimiento;
-    @Column
-    private boolean activo;
-
+    private String fechaNacimiento;
 }

@@ -6,36 +6,45 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.GestionUsuarios_service.model.Usuario;
-import com.example.GestionUsuarios_service.repository.UsuariosRepository;
+import com.example.GestionUsuarios_service.repository.UsuarioRepository;
+
 
 @Service
 public class UsuarioService {
     @Autowired
-    private UsuariosRepository usuariosRepository;
+    private UsuarioRepository usuarioRepository;
 
-
+    
     public List<Usuario> obtenerListaUsuarios() {
-        return usuariosRepository.obtenerListaUsuarios();
+        return usuarioRepository.findAll();
     }
 
-    public Usuario getUsuarioPorNombre(String nombre) {
-        return usuariosRepository.buscarUsuarioPorNombre(nombre);
+    public Usuario buscarUsuarioPorId(Integer id) {
+        return usuarioRepository.findById(id).orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
     }
 
-    public Usuario getUsuarioPorId(int id) {
-        return usuariosRepository.buscarUsuarioPorId(id);
-    }
+    public Usuario modificarUsuario(Usuario usuario) {
+        Usuario user = usuarioRepository.findById(usuario.getId()).orElseThrow(()-> new RuntimeException("No se encontró un usuario"));
 
-    public Usuario updateUsuario(Usuario usuario) {
-        return usuariosRepository.modificarUsuario(usuario);
+        return usuarioRepository.save(usuario);
     }
 
     public Usuario agregarUsuario(Usuario usuario) {
-        usuariosRepository.agregarUsuario(usuario);
-        return usuario;
+        return usuarioRepository.save(usuario);
+    
     }
-    public String deleteUsuario(int id) {
-        usuariosRepository.eliminarUsuario(id);
-        return "Usuario eliminado con éxito";
-    }
+    public String eliminarUsuario(Integer id) { 
+        if(!usuarioRepository.existsById(id)){
+            throw new RuntimeException("La id:" + id + "no existe");
+            
+        }
+        usuarioRepository.deleteById(id);
+        return "usuario eliminado correctamente";
+       }
+
+       public Usuario buscarPorUsername(String username){
+        return usuarioRepository.findByUsername(username).orElseThrow(()-> new RuntimeException("No se encontró el usuario" + username));
+       }
+
+
 }

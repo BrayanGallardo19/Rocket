@@ -48,7 +48,13 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		   <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.29</version> <!-- Usa la versión más reciente disponible -->
+    </dependency>
 	</dependencies>
+	
 
 	<build>
 		<plugins>

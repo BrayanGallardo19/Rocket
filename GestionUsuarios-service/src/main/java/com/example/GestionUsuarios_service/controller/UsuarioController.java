@@ -23,7 +23,7 @@ public class UsuarioController {
     }
 
    
-   @GetMapping("/nombre/{nombre}")
+  /* @GetMapping("/nombre/{nombre}")
    public ResponseEntity<Usuario> obtenerUsuarioPorNombre(@PathVariable String nombre) {
        Usuario usuario = usuarioService.getUsuarioPorNombre(nombre);
        if (usuario != null) {
@@ -31,12 +31,12 @@ public class UsuarioController {
        } else {
            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
        }
-   }
+    */
 
    
    @GetMapping("/{id}")
    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable int id) {
-       Usuario usuario = usuarioService.getUsuarioPorId(id);
+       Usuario usuario = usuarioService.buscarUsuarioPorId(id);
        if (usuario != null) {
            return ResponseEntity.ok(usuario); // 200 OK
        } else {
@@ -60,7 +60,7 @@ public class UsuarioController {
    public ResponseEntity<Usuario> modificarUsuario(@PathVariable int id, @RequestBody Usuario usuario) {
        try {
            usuario.setId(id);
-           Usuario usuarioModificado = usuarioService.updateUsuario(usuario);
+           Usuario usuarioModificado = usuarioService.modificarUsuario(usuario);
            return ResponseEntity.ok(usuarioModificado); 
        } catch (RuntimeException e) {
            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
@@ -71,7 +71,7 @@ public class UsuarioController {
    @DeleteMapping("/{id}")
    public ResponseEntity<String> eliminarUsuario(@PathVariable int id) {
        try {
-           String mensaje = usuarioService.deleteUsuario(id);
+           String mensaje = usuarioService.eliminarUsuario(id);
            return ResponseEntity.ok(mensaje); // 200 OK
        } catch (RuntimeException e) {
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado"); // 404 Not Found
