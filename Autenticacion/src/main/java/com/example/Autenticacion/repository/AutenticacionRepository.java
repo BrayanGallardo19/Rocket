@@ -1,6 +1,9 @@
 package com.example.Autenticacion.repository;
 
-public class AutenticacionRepository {
+import org.springframework.stereotype.Repository;
 
-  
+
+@Repository
+public interface AutenticacionRepository {
+
 }
