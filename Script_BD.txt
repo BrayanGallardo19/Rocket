@@ -1,0 +1,394 @@
+-- SQLINES FOR EVALUATION USE ONLY (14 DAYS)
+CREATE TABLE COMUNA 
+    ( 
+     id_comuna        INTEGER  NOT NULL , 
+     nombre           VARCHAR (20)  NOT NULL , 
+     REGION_id_region INTEGER  NOT NULL 
+    ) 
+;
+
+ALTER TABLE COMUNA 
+    ADD /* Name ignored: CONSTRAINT COMUNA_PK */ PRIMARY KEY ( id_comuna, REGION_id_region ) ;
+
+CREATE TABLE DETALLE_VENTA 
+    ( 
+     id_detalle_venta   INTEGER  NOT NULL , 
+     cantidad           INTEGER  NOT NULL , 
+     subtotal           INTEGER , 
+     VENTA_id_solicitud INTEGER  NOT NULL , 
+     EQUIPO_id_modelo   INTEGER  NOT NULL 
+    ) 
+;
+
+ALTER TABLE DETALLE_VENTA 
+    ADD /* Name ignored: CONSTRAINT DETALLE_VENTA_PK */ PRIMARY KEY ( id_detalle_venta, VENTA_id_solicitud, EQUIPO_id_modelo ) ;
+
+CREATE TABLE DIRECCION 
+    ( 
+     USUARIO_id_usuario      INTEGER  NOT NULL , 
+     id_direccion            INTEGER  NOT NULL , 
+     calle                   VARCHAR (20)  NOT NULL , 
+     numero                  INTEGER  NOT NULL , 
+     COMUNA_id_comuna        INTEGER  NOT NULL , 
+     COMUNA_REGION_id_region INTEGER  NOT NULL 
+    ) 
+;
+
+ALTER TABLE DIRECCION 
+    ADD /* Name ignored: CONSTRAINT DIRECCION_PK */ PRIMARY KEY ( id_direccion, COMUNA_id_comuna, COMUNA_REGION_id_region ) ;
+
+CREATE TABLE EQUIPO 
+    ( 
+     ESTADO_id_estado INTEGER  NOT NULL , 
+     MODELO_id_modelo INTEGER  NOT NULL , 
+     nombre           VARCHAR (20)  NOT NULL , 
+     p_venta          INTEGER , 
+     p_arriendo       INTEGER , 
+     patente          VARCHAR (6)  NOT NULL , 
+     reseña           VARCHAR (200) 
+    ) 
+;
+
+ALTER TABLE EQUIPO 
+    ADD /* Name ignored: CONSTRAINT EQUIPO_PK */ PRIMARY KEY ( MODELO_id_modelo ) ;
+
+CREATE TABLE ESTADO 
+    ( 
+     id_estado INTEGER  NOT NULL , 
+     nombre    VARCHAR (10)  NOT NULL 
+    ) 
+;
+
+ALTER TABLE ESTADO 
+    ADD /* Name ignored: CONSTRAINT ESTADO_PK */ PRIMARY KEY ( id_estado ) ;
+
+CREATE TABLE MANTENCION 
+    ( 
+     id_mantencion INTEGER  NOT NULL , 
+     nombre        VARCHAR (10)  NOT NULL , 
+     descripcion   VARCHAR (100) 
+    ) 
+;
+
+ALTER TABLE MANTENCION 
+    ADD /* Name ignored: CONSTRAINT MANTENCION_PK */ PRIMARY KEY ( id_mantencion ) ;
+
+CREATE TABLE MARCA 
+    ( 
+     id_marca INTEGER  NOT NULL , 
+     nombre   VARCHAR (10)  NOT NULL 
+    ) 
+;
+
+ALTER TABLE MARCA 
+    ADD /* Name ignored: CONSTRAINT MARCA_PK */ PRIMARY KEY ( id_marca ) ;
+
+CREATE TABLE MODELO 
+    ( 
+     id_modelo      INTEGER  NOT NULL , 
+     nombre         VARCHAR (10)  NOT NULL , 
+     MARCA_id_marca INTEGER  NOT NULL 
+    ) 
+;
+
+ALTER TABLE MODELO 
+    ADD /* Name ignored: CONSTRAINT MODELO_PK */ PRIMARY KEY ( id_modelo ) ;
+
+CREATE TABLE PROCESO 
+    ( 
+     id_usuario INTEGER  NOT NULL , 
+     id_proceso INTEGER  NOT NULL , 
+     comentario VARCHAR (100) , 
+     f_proceso  DATETIME  NOT NULL 
+    ) 
+;
+
+ALTER TABLE PROCESO 
+    ADD /* Name ignored: CONSTRAINT PROCESO_PK */ PRIMARY KEY ( id_proceso ) ;
+
+CREATE TABLE REGION 
+    ( 
+     id_region INTEGER  NOT NULL , 
+     nombre    VARCHAR (15)  NOT NULL 
+    ) 
+;
+
+ALTER TABLE REGION 
+    ADD /* Name ignored: CONSTRAINT REGION_PK */ PRIMARY KEY ( id_region ) ;
+
+CREATE TABLE ROL 
+    ( 
+     id_rol INTEGER  NOT NULL , 
+     nombre VARCHAR (10)  NOT NULL 
+    ) 
+;
+
+ALTER TABLE ROL 
+    ADD /* Name ignored: CONSTRAINT ROL_PK */ PRIMARY KEY ( id_rol ) ;
+
+CREATE TABLE SEGUIMIENTO 
+    ( 
+     id_seguimiento           INTEGER  NOT NULL , 
+     observacion              VARCHAR (100) , 
+     MANTENCION_id_mantencion INTEGER  NOT NULL , 
+     EQUIPO_id_modelo         INTEGER  NOT NULL , 
+     fecha_actualizacion      DATETIME  NOT NULL 
+    ) 
+;
+
+ALTER TABLE SEGUIMIENTO 
+    ADD /* Name ignored: CONSTRAINT SEGUIMIENTO_PK */ PRIMARY KEY ( id_seguimiento ) ;
+
+CREATE TABLE SOPORTE 
+    ( 
+     TICKET_id_ticket INTEGER  NOT NULL , 
+     id_soporte       INTEGER  NOT NULL , 
+     observacion      VARCHAR (100) , 
+     fec_soporte      DATETIME  NOT NULL 
+    ) 
+;
+
+ALTER TABLE SOPORTE 
+    ADD /* Name ignored: CONSTRAINT SOPORTE_PK */ PRIMARY KEY ( id_soporte ) ;
+
+CREATE TABLE TICKET 
+    ( 
+     USUARIO_id_usuario INTEGER  NOT NULL , 
+     id_ticket          INTEGER  NOT NULL , 
+     fec_inicio         DATETIME  NOT NULL , 
+     fec_cierre         DATETIME , 
+     descripcion        VARCHAR (100) 
+    ) 
+;
+
+ALTER TABLE TICKET 
+    ADD /* Name ignored: CONSTRAINT TICKET_PK */ PRIMARY KEY ( id_ticket ) ;
+
+CREATE TABLE TIPO 
+    ( 
+     id_tipo INTEGER  NOT NULL , 
+     nombre  VARCHAR (20) 
+    ) 
+;
+
+ALTER TABLE TIPO 
+    ADD /* Name ignored: CONSTRAINT TIPO_PK */ PRIMARY KEY ( id_tipo ) ;
+
+CREATE TABLE TIPO_SOP 
+    ( 
+     id_soporte       INTEGER  NOT NULL , 
+     nombre           VARCHAR (10)  NOT NULL , 
+     TICKET_id_ticket INTEGER  NOT NULL 
+    ) 
+;
+
+ALTER TABLE TIPO_SOP 
+    ADD /* Name ignored: CONSTRAINT TIPO_SOP_PK */ PRIMARY KEY ( id_soporte ) ;
+
+CREATE TABLE USUARIO 
+    ( 
+     id_usuario INTEGER  NOT NULL , 
+     nombre     VARCHAR (20)  NOT NULL , 
+     appaterno  VARCHAR (20)  NOT NULL , 
+     apmaterno  VARCHAR (20)  NOT NULL , 
+     rut        VARCHAR (12)  NOT NULL , 
+     ROL_id_rol INTEGER  NOT NULL 
+    ) 
+;
+
+ALTER TABLE USUARIO 
+    ADD /* Name ignored: CONSTRAINT USUARIO_PK */ PRIMARY KEY ( id_usuario ) ;
+
+CREATE TABLE VENTA 
+    ( 
+     USUARIO_id_usuario INTEGER  NOT NULL , 
+     TIPO_id_tipo       INTEGER  NOT NULL , 
+     id_solicitud       INTEGER  NOT NULL , 
+     fec_sol            DATETIME  NOT NULL , 
+     monto_total        INTEGER  NOT NULL , 
+     f_aprob            DATETIME 
+    ) 
+;
+
+ALTER TABLE VENTA 
+    ADD /* Name ignored: CONSTRAINT VENTA_PK */ PRIMARY KEY ( id_solicitud ) ;
+
+ALTER TABLE COMUNA 
+    ADD CONSTRAINT COMUNA_REGION_FK FOREIGN KEY 
+    ( 
+     REGION_id_region
+    ) 
+    REFERENCES REGION 
+    ( 
+     id_region
+    ) 
+;
+
+ALTER TABLE DETALLE_VENTA 
+    ADD CONSTRAINT DETALLE_VENTA_EQUIPO_FK FOREIGN KEY 
+    ( 
+     EQUIPO_id_modelo
+    ) 
+    REFERENCES EQUIPO 
+    ( 
+     MODELO_id_modelo
+    ) 
+;
+
+ALTER TABLE DETALLE_VENTA 
+    ADD CONSTRAINT DETALLE_VENTA_VENTA_FK FOREIGN KEY 
+    ( 
+     VENTA_id_solicitud
+    ) 
+    REFERENCES VENTA 
+    ( 
+     id_solicitud
+    ) 
+;
+
+ALTER TABLE DIRECCION 
+    ADD CONSTRAINT DIRECCION_COMUNA_FK FOREIGN KEY 
+    ( 
+     COMUNA_id_comuna,
+     COMUNA_REGION_id_region
+    ) 
+    REFERENCES COMUNA 
+    ( 
+     id_comuna,
+     REGION_id_region
+    ) 
+;
+
+ALTER TABLE DIRECCION 
+    ADD CONSTRAINT DIRECCION_USUARIO_FK FOREIGN KEY 
+    ( 
+     USUARIO_id_usuario
+    ) 
+    REFERENCES USUARIO 
+    ( 
+     id_usuario
+    ) 
+;
+
+ALTER TABLE EQUIPO 
+    ADD CONSTRAINT EQUIPO_ESTADO_FK FOREIGN KEY 
+    ( 
+     ESTADO_id_estado
+    ) 
+    REFERENCES ESTADO 
+    ( 
+     id_estado
+    ) 
+;
+
+ALTER TABLE EQUIPO 
+    ADD CONSTRAINT EQUIPO_MODELO_FK FOREIGN KEY 
+    ( 
+     MODELO_id_modelo
+    ) 
+    REFERENCES MODELO 
+    ( 
+     id_modelo
+    ) 
+;
+
+ALTER TABLE MODELO 
+    ADD CONSTRAINT MODELO_MARCA_FK FOREIGN KEY 
+    ( 
+     MARCA_id_marca
+    ) 
+    REFERENCES MARCA 
+    ( 
+     id_marca
+    ) 
+;
+
+-- SQLINES DEMO *** ey PROCESO_VENTA_FK has no columns
+
+ALTER TABLE SEGUIMIENTO 
+    ADD CONSTRAINT SEGUIMIENTO_EQUIPO_FK FOREIGN KEY 
+    ( 
+     EQUIPO_id_modelo
+    ) 
+    REFERENCES EQUIPO 
+    ( 
+     MODELO_id_modelo
+    ) 
+;
+
+ALTER TABLE SEGUIMIENTO 
+    ADD CONSTRAINT SEGUIMIENTO_MANTENCION_FK FOREIGN KEY 
+    ( 
+     MANTENCION_id_mantencion
+    ) 
+    REFERENCES MANTENCION 
+    ( 
+     id_mantencion
+    ) 
+;
+
+ALTER TABLE SOPORTE 
+    ADD CONSTRAINT SOPORTE_TICKET_FK FOREIGN KEY 
+    ( 
+     TICKET_id_ticket
+    ) 
+    REFERENCES TICKET 
+    ( 
+     id_ticket
+    ) 
+;
+
+ALTER TABLE TICKET 
+    ADD CONSTRAINT TICKET_USUARIO_FK FOREIGN KEY 
+    ( 
+     USUARIO_id_usuario
+    ) 
+    REFERENCES USUARIO 
+    ( 
+     id_usuario
+    ) 
+;
+
+ALTER TABLE TIPO_SOP 
+    ADD CONSTRAINT TIPO_SOP_TICKET_FK FOREIGN KEY 
+    ( 
+     TICKET_id_ticket
+    ) 
+    REFERENCES TICKET 
+    ( 
+     id_ticket
+    ) 
+;
+
+ALTER TABLE USUARIO 
+    ADD CONSTRAINT USUARIO_ROL_FK FOREIGN KEY 
+    ( 
+     ROL_id_rol
+    ) 
+    REFERENCES ROL 
+    ( 
+     id_rol
+    ) 
+;
+
+ALTER TABLE VENTA 
+    ADD CONSTRAINT VENTA_TIPO_FK FOREIGN KEY 
+    ( 
+     TIPO_id_tipo
+    ) 
+    REFERENCES TIPO 
+    ( 
+     id_tipo
+    ) 
+;
+
+ALTER TABLE VENTA 
+    ADD CONSTRAINT VENTA_USUARIO_FK FOREIGN KEY 
+    ( 
+     USUARIO_id_usuario
+    ) 
+    REFERENCES USUARIO 
+    ( 
+     id_usuario
+    ) 
+;
