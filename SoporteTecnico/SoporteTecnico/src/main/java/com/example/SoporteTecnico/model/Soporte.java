@@ -1,35 +1,35 @@
 package com.example.SoporteTecnico.model;
 
-import java.util.List;
+import java.sql.Date;
 
-import org.hibernate.annotations.Collate;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Entity
-@Table(name = "TipoSoporte")
+@Table(name = "soporte")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TipoSoporte {
+public class Soporte {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(nullable = false,length = 20)
-    private String nombre;
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Ticket> ticket; 
+    @Column(nullable = false, length = 150)
+    private String observacion;
+    @Column
+    private Date fecha_soporte;
+    @ManyToOne
+    @JoinColumn(name = "ticket_id")
+    private Ticket ticket;
+
+    //id_tecnico
 }
