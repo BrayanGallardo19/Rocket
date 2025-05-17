@@ -17,19 +17,14 @@ import jakarta.transaction.Transactional;
 @Service
 @Transactional
 public class InventarioService {
-    private final InventarioRepository inventarioRepository;
-    private final MarcaRepository marcaRepository;
-    private final ModeloRepository modeloRepository;
-
     @Autowired
-    public InventarioService(InventarioRepository inventarioRepository,
-                             MarcaRepository marcaRepository,
-                             ModeloRepository modeloRepository) {
-        this.inventarioRepository = inventarioRepository;// inicializa el repositorio
-        this.marcaRepository = marcaRepository;
-        this.modeloRepository = modeloRepository;
-    } 
-      // metodo para obtener todos los modelos
+    private InventarioRepository inventarioRepository;
+    @Autowired
+    private MarcaRepository marcaRepository;
+    @Autowired
+    private ModeloRepository modeloRepository;
+
+    // metodo para obtener todos los modelos
     public List<Modelo> obtenerTodosLosModelos() {
         return modeloRepository.findAll();
     }
@@ -38,12 +33,13 @@ public class InventarioService {
     public List<Marca> obtenerTodasLasMarcas() {
         return marcaRepository.findAll();
     }
+
     // buscar equipos por nombre de modelo
     public List<Inventario> buscarPorModeloNombre(String nombreModelo) {
         if (!modeloRepository.existsByNombreModelo(nombreModelo)) {
             throw new IllegalArgumentException("El modelo" + nombreModelo + " no existe");
         }
-        return inventarioRepository.findByModeloMarcaNombreMarca(nombreModelo);
+        return inventarioRepository.findByModeloNombreModelo(nombreModelo);
     }
 
     // buscar equipos por nombre de marca relacionada al modelo
@@ -53,5 +49,16 @@ public class InventarioService {
         }
         return inventarioRepository.findByModeloMarcaNombreMarca(nombreMarca);
     }
+
+
+    // metodo para agregar un nuevo equipo al inventario
+    public Inventario agregarEquipoPorNombre(Inventario equipo, String nombreModelo, String nombreMarca) {  
+        // validar que el modelo y la marca existan
+        Modelo modelo = modeloRepository.findByNombreModelo(nombreModelo)
+                .orElseThrow(() -> new IllegalArgumentException("El modelo " + nombreModelo + " no existe")); 
+        equipo.setModelo(modelo); // asignar el modelo al equipo
+        return inventarioRepository.save(equipo);
+    }
+
 
 }

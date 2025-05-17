@@ -8,8 +8,11 @@ import org.springframework.stereotype.Service;
 import com.example.GestionUsuarios_service.model.Usuario;
 import com.example.GestionUsuarios_service.repository.UsuarioRepository;
 
+import jakarta.transaction.Transactional;
+
 
 @Service
+@Transactional
 public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;

@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "inventario")
+@Table(name = "EQUIPO")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,8 +32,10 @@ public class Inventario {
 
     @Column(nullable = false, length = 40)
     private Integer precioVenta;
+
     @Column(nullable = false, length = 40)
     private Integer precioArriendo;
+    
     @Column(nullable = false, length = 40)
     private String patente;
 }

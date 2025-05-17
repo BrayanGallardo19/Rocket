@@ -23,17 +23,6 @@ public class UsuarioController {
     }
 
    
-  /* @GetMapping("/nombre/{nombre}")
-   public ResponseEntity<Usuario> obtenerUsuarioPorNombre(@PathVariable String nombre) {
-       Usuario usuario = usuarioService.getUsuarioPorNombre(nombre);
-       if (usuario != null) {
-           return ResponseEntity.ok(usuario); // 200 OK
-       } else {
-           return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
-       }
-    */
-
-   
    @GetMapping("/{id}")
    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable int id) {
        Usuario usuario = usuarioService.buscarUsuarioPorId(id);

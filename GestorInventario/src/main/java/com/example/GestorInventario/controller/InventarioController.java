@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.GestorInventario.model.Inventario;
@@ -19,13 +18,11 @@ import com.example.GestorInventario.service.InventarioService;
 @RestController
 @RequestMapping("api/v1/inventario")
 public class InventarioController {
-    private final InventarioService inventarioService;
-
     @Autowired
-    public InventarioController(InventarioService inventarioService) {
-        this.inventarioService = inventarioService; // inicializa el servicio
-    }
-      // obtener todos los modelos
+    private InventarioService inventarioService;
+
+    
+    // obtener todos los modelos
     @GetMapping("/modelos")
     public ResponseEntity<List<Modelo>> obtenerTodosLosModelos() {
         List<Modelo> modelos = inventarioService.obtenerTodosLosModelos();
@@ -46,21 +43,22 @@ public class InventarioController {
     }
 
     @GetMapping("/modelos/{nombreModelo}")
-    public List<Inventario> buscarPorModeloNombre(@RequestParam String nombreModelo) {
+    public ResponseEntity<?> buscarPorModeloNombre(@PathVariable String nombreModelo) {
         try {
-            return inventarioService.buscarPorModeloNombre(nombreModelo);
+            List<Inventario> inventarios = inventarioService.buscarPorModeloNombre(nombreModelo);
+            return ResponseEntity.ok(inventarios);
         } catch (IllegalArgumentException e) {
-            return inventarioService.buscarPorModeloNombre(nombreModelo);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        
     }
 
     @GetMapping("/marcas/{nombreMarca}")
     public ResponseEntity<?> buscarPorMarcaNombre(@PathVariable String nombreMarca) {
         try {
-            return ResponseEntity.ok(inventarioService.buscarPorMarcaNombre(nombreMarca));
+            List<Inventario> inventarios = inventarioService.buscarPorMarcaNombre(nombreMarca);
+            return ResponseEntity.ok(inventarios);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
        
     }

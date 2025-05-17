@@ -50,7 +50,7 @@ public class LoadDatabase {
                 casePuma.setNombreModelo("Puma 185");
                 casePuma.setMarca(caseIH);
                 modeloRepo.save(casePuma);
-
+                
                 System.out.println("Datos iniciales cargados");
             } else {
                 System.out.println("Datos ya existentes. No se cargaron nuevos datos");

@@ -1,5 +1,7 @@
 package com.example.GestorInventario.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,4 +10,6 @@ import com.example.GestorInventario.model.Modelo;
 public interface ModeloRepository extends JpaRepository<Modelo, Integer> {
     boolean existsByNombreModelo(String nombreModelo);
 
+    // buscar un unico modelo por nombre ignorando mayusculas
+    Optional<Modelo> findByNombreModelo(String nombreModelo);
 }

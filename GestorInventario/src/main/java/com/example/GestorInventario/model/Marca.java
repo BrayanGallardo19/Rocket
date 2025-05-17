@@ -18,7 +18,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
-@Table(name = "marca")
+@Table(name = "MARCA")
 @Entity
 @Data
 @AllArgsConstructor
@@ -29,10 +29,10 @@ public class Marca {
     private Integer idMarca;
 
     @Column(nullable = false, length = 40)
-    private String nombreMarca;
+    private String nombreMarca; // nombre de la marca 
 
     @OneToMany(mappedBy = "marca", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Modelo> modelos;
+    private List<Modelo> modelos; //lista de modelos asociados a la marca 
 
 }

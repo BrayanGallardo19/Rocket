@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 import com.example.GestorInventario.model.Inventario;
 @Repository
 public interface InventarioRepository extends JpaRepository<Inventario, Integer> {
-    //buscar por nombre de modelo
+    //buscar por nombre de modelo ignorando mayusculas 
     List<Inventario> findByModeloNombreModelo(String nombreModelo);
-    //buscar por nombre de marca
+    //buscar por nombre de marca ignorando mayusculas 
     List<Inventario> findByModeloMarcaNombreMarca(String nombreMarca);
     
 
