@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "RolesyPermisosApplication",
+            "request": "launch",
+            "mainClass": "com.example.RolesyPermisos.RolesyPermisosApplication",
+            "projectName": "RolesyPermisos"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-GestorInventarioApplication<GestorInventario>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
