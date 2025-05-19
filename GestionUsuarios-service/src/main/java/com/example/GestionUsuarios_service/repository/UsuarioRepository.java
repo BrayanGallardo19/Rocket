@@ -10,4 +10,5 @@ import com.example.GestionUsuarios_service.model.Usuario;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     Optional<Usuario> findByUsername(String username);
+    
 }

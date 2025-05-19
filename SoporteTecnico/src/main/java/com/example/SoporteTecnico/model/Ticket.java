@@ -1,4 +1,4 @@
-package com.example.SoporteTecnico.model;
+package main.java.com.example.SoporteTecnico.model;
 
 import java.util.Date;
 import java.util.List;
@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Ticket (
+public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -41,9 +41,9 @@ public class Ticket (
     @JoinColumn(name = "tiposoporte_id")
     private TipoSoporte tipoSoporte;
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    @Column(nullable = false)
+    private Integer id_usuario;
+    
     @OneToMany
     @JoinColumn(name = "estado_id")
     private Estado estado;
@@ -52,4 +52,4 @@ public class Ticket (
     @JsonIgnore
     private List<Soporte> soporte;
 
-)
+}
