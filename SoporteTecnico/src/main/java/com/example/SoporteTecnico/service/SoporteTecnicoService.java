@@ -45,7 +45,15 @@ public class SoporteTecnicoService {
      return ticketRepository.findById(id).orElseThrow(() -> new RuntimeException("Ticket no encontrado" + id));
     }
 
-    
-}
 
+        public boolean deleteTicketById(Integer id) {
+        if (ticketRepository.existsById(id)) {
+            ticketRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
+    
+    }
+}
 
