@@ -6,6 +6,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +23,7 @@ public class SoporteController {
     @Autowired 
     SoporteTecnicoService sopService;
 
-    @GetMapping("/Tickets")
+    @GetMapping("/tickets")
     public ResponseEntity<List<Ticket>> obtenerTickets(){
         List<Ticket> tickets = sopService.getTickets();
         if(tickets.isEmpty()){
@@ -29,5 +32,15 @@ public class SoporteController {
         }
         return ResponseEntity.ok(tickets);
     }
-
+    @PostMapping
+    public ResponseEntity<?> crearProyecto(@RequestBody Ticket nuevoTicket) {
+        try {
+            Ticket tk = sopService.saveTicket(nuevoTicket);
+            return ResponseEntity.status(201).body(tk);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+             return ResponseEntity.status(500).body("Error al crear Ticket: " + e.getMessage());
+        }
+    }
 }
