@@ -32,7 +32,7 @@ public class SoporteController {
         }
         return ResponseEntity.ok(tickets);
     }
-    @PostMapping
+    @PostMapping("/tickets")
     public ResponseEntity<?> crearProyecto(@RequestBody Ticket nuevoTicket) {
         try {
             Ticket tk = sopService.saveTicket(nuevoTicket);
