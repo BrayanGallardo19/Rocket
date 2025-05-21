@@ -10,6 +10,7 @@ import com.example.GestorInventario.model.Marca;
 public interface MarcaRepository extends JpaRepository<Marca, Integer> {
     boolean existsByNombreMarca(String nombreMarca); 
 
-    // buscar un unico modelo por nombre ignorando mayusculas
+    // buscar un unico modelo por nombre 
     Optional<Marca> findByNombreMarca(String nombreMarca); 
+    
 }

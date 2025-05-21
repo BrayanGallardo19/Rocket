@@ -19,13 +19,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Solicitud {
+public class Venta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_sol")
     private Integer idSolicitud;
 
-    @Column(name = "f_sol")
+    @Column(name = "fec_sol")
     private LocalDateTime fechaSolicitud;
 
     @ManyToOne  
@@ -38,7 +38,7 @@ public class Solicitud {
     @Column(name = "monto_total")
     private Double montoTotal;
 
-    @Column(name = "f_aprob")
+    @Column(name = "fec_aprob")
     private LocalDateTime fechaAprobacion;
 
     @Column(name = "id_direccion")

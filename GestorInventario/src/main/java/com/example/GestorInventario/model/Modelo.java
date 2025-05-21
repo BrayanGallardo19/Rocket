@@ -37,5 +37,5 @@ public class Modelo {
 
     @OneToMany(mappedBy = "modelo", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Inventario> equipo;
+    private List<Equipo> equipo;
 }

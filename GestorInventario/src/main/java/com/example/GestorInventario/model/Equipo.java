@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class Inventario {
+public class Equipo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idEquipo;
@@ -38,4 +38,5 @@ public class Inventario {
     
     @Column(nullable = false, length = 40)
     private String patente;
+    
 }
