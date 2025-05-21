@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "SoporteTecnicoApplication",
+            "request": "launch",
+            "mainClass": "com.example.SoporteTecnico.SoporteTecnicoApplication",
+            "projectName": "SoporteTecnico"
+        },
+        {
+            "type": "java",
             "name": "RolesyPermisosApplication",
             "request": "launch",
             "mainClass": "com.example.RolesyPermisos.RolesyPermisosApplication",
