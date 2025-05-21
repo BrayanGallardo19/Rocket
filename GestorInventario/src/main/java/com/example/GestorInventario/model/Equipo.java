@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class Equipo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idEquipo;
@@ -27,7 +28,7 @@ public class Equipo {
     private String nombre;
 
     @ManyToOne
-    @JoinColumn(name = "modelo_id")
+    @JoinColumn(name = "id_modelo")
     private Modelo modelo;
 
     @Column(nullable = false, length = 40)
@@ -35,8 +36,12 @@ public class Equipo {
 
     @Column(nullable = false, length = 40)
     private Integer precioArriendo;
-    
+
     @Column(nullable = false, length = 40)
     private String patente;
-    
+
+    @ManyToOne
+    @JoinColumn(name = "id_estado")
+    private Estado estado;
+
 }

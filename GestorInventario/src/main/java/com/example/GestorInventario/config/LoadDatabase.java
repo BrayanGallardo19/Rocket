@@ -5,9 +5,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.example.GestorInventario.model.Equipo;
+import com.example.GestorInventario.model.Estado;
 import com.example.GestorInventario.model.Marca;
 import com.example.GestorInventario.model.Modelo;
 import com.example.GestorInventario.repository.EquipoRepository;
+import com.example.GestorInventario.repository.EstadoRepository;
 import com.example.GestorInventario.repository.MarcaRepository;
 import com.example.GestorInventario.repository.ModeloRepository;
 
@@ -15,10 +17,11 @@ import com.example.GestorInventario.repository.ModeloRepository;
 public class LoadDatabase {
     @Bean
     CommandLineRunner initDatabase(MarcaRepository marcaRepo, ModeloRepository modeloRepo,
-            EquipoRepository equipoRepo) {
+            EquipoRepository equipoRepo, EstadoRepository estadoRepo) {
         return args -> {
             // si las tablas están vacías o no hay registros
-            if (marcaRepo.count() == 0 && modeloRepo.count() == 0 && equipoRepo.count() == 0) {
+            if (marcaRepo.count() == 0 && modeloRepo.count() == 0 && equipoRepo.count() == 0
+                    && estadoRepo.count() == 0) {
                 // cargar las marcas
                 Marca johnDeere = new Marca();
                 johnDeere.setNombreMarca("John Deere");
@@ -52,7 +55,43 @@ public class LoadDatabase {
                 casePuma.setNombreModelo("Puma 185");
                 casePuma.setMarca(caseIH);
                 modeloRepo.save(casePuma);
+                // cargar los estados
+                // cargar estados
+                Estado disponible = new Estado();
+                disponible.setNombreEstado("Disponible");
+                estadoRepo.save(disponible);
 
+                Estado arrendado = new Estado();
+                arrendado.setNombreEstado("Arrendado");
+                estadoRepo.save(arrendado);
+
+                Estado vendido = new Estado();
+                vendido.setNombreEstado("Vendido");
+                estadoRepo.save(vendido);
+
+                Estado enMantenimiento = new Estado();
+                enMantenimiento.setNombreEstado("En mantenimiento");
+                estadoRepo.save(enMantenimiento);
+
+                Estado enRevision = new Estado();
+                enRevision.setNombreEstado("En revisión");
+                estadoRepo.save(enRevision);
+
+                Estado danado = new Estado();
+                danado.setNombreEstado("Dañado");
+                estadoRepo.save(danado);
+
+                Estado enTransito = new Estado();
+                enTransito.setNombreEstado("En tránsito");
+                estadoRepo.save(enTransito);
+
+                Estado pendienteEntrega = new Estado();
+                pendienteEntrega.setNombreEstado("Pendiente de entrega");
+                estadoRepo.save(pendienteEntrega);
+
+                Estado pendienteRecoleccion = new Estado();
+                pendienteRecoleccion.setNombreEstado("Pendiente de recolección");
+                estadoRepo.save(pendienteRecoleccion);
                 // cargar los productos completos
                 // cargar equipos para John Deere 7200
 
@@ -70,6 +109,7 @@ public class LoadDatabase {
                 jd7200Cosechadora.setPrecioArriendo(5000);
                 jd7200Cosechadora.setPatente("JD7200-B");
                 jd7200Cosechadora.setModelo(jd7200);
+                jd7200Cosechadora.setEstado(arrendado);
                 equipoRepo.save(jd7200Cosechadora);
 
                 // cargar equipos para John Deere 5055E
@@ -79,6 +119,7 @@ public class LoadDatabase {
                 jd5055Tractor.setPrecioArriendo(2500);
                 jd5055Tractor.setPatente("JD5055E-A");
                 jd5055Tractor.setModelo(jd5055);
+                jd5055Tractor.setEstado(disponible);
                 equipoRepo.save(jd5055Tractor);
 
                 // cargar equipos para New Holland T6050
@@ -88,6 +129,7 @@ public class LoadDatabase {
                 nhT6050Tractor.setPrecioArriendo(2700);
                 nhT6050Tractor.setPatente("NHT6050-A");
                 nhT6050Tractor.setModelo(nhT6050);
+                nhT6050Tractor.setEstado(enMantenimiento);
                 equipoRepo.save(nhT6050Tractor);
 
                 // cargar equipos para Case IH Puma 185
