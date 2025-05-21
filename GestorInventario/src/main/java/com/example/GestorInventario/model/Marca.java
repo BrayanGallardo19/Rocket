@@ -34,5 +34,6 @@ public class Marca {
     @OneToMany(mappedBy = "marca", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Modelo> modelos; //lista de modelos asociados a la marca 
+    
 
 }
