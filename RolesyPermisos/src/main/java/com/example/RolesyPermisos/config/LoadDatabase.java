@@ -12,7 +12,7 @@ public class LoadDatabase {
     @Bean
     CommandLineRunner initDatabase(RoleRepository roleRepo) {
         return args -> {
-            // si las tablas están vacías o no hay registros
+            // si las tablas están vacías o no hay registros    
             if (roleRepo.count() == 0) {
                 Role Administrador = new Role();
                 Administrador.setNombre("Administrador");
