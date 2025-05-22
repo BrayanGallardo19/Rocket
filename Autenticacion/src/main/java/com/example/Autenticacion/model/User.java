@@ -1,4 +1,5 @@
 package com.example.Autenticacion.model;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,7 +34,7 @@ public class User {
     private String telefono;
 
     @Column(name = "fecha_nacimiento", nullable = false)
-    private String fechaNacimiento; // Si es VARCHAR en BD. Si fuera DATE, se usa LocalDate.
+    private String fechaNacimiento; // Considera LocalDate si usas DATE en BD.
 
     @Column(name = "username", nullable = false)
     private String username;

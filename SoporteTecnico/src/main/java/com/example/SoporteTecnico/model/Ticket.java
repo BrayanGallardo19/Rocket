@@ -33,7 +33,8 @@ public class Ticket {
     @Column(nullable = true)
     private String descripcion;
     @Column(nullable = false)
-    private Integer id_usuario;
+    private Integer idUsuario;
+
     
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
     @JsonIgnore
