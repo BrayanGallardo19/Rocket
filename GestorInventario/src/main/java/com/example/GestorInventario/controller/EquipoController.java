@@ -45,7 +45,7 @@ public class EquipoController {
         }
         return ResponseEntity.ok(marcas);
     }
-
+    // buscar los modelos por nombre
     @GetMapping("/modelos/{nombreModelo}")
     public ResponseEntity<?> buscarPorModeloNombre(@PathVariable String nombreModelo) {
         try {
@@ -55,7 +55,18 @@ public class EquipoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());//404
         }
     }
-
+    // buscar los equipos por id
+    @GetMapping("/{id}")
+    public ResponseEntity<Equipo> obtenerEquipoPorId(@PathVariable Integer id) {
+        try {
+            Equipo equipo = equipoService.buscarPorId(id);
+            return ResponseEntity.ok(equipo);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+    
+    // buscar los equipos por marca
     @GetMapping("/marcas/{nombreMarca}")
     public ResponseEntity<?> buscarPorMarcaNombre(@PathVariable String nombreMarca) {
         try {
@@ -75,7 +86,7 @@ public class EquipoController {
         }
         return ResponseEntity.ok(equipos);// 200
     }
-
+    // agregar un nuevo equipo
     @PostMapping("/agregar")
     public ResponseEntity<?> agregarEquipo(@RequestBody Equipo equipo,
             @RequestParam String nombreModelo,
@@ -89,7 +100,7 @@ public class EquipoController {
 
         }
     }
-
+    // modificar un equipo
    @PutMapping("/actualizar/{id}")
    public ResponseEntity<?> actualizarEquipo(@PathVariable Integer id, @RequestBody Equipo equipo, @RequestParam String nombreModelo, @RequestParam String nombreMarca, @RequestParam String nombreEstado) {
        try {
@@ -100,6 +111,7 @@ public class EquipoController {
        
 }   
 }
+    // eliminar un equipo
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminarEquipo(@PathVariable Integer id) {
         try {
