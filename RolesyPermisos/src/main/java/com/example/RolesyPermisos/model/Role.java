@@ -25,6 +25,4 @@ public class Role {
     private String nombre;
     
 
-
-
 }

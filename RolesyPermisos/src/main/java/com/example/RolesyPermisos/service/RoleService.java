@@ -30,12 +30,23 @@ public class RoleService {
         if (!roleRepository.existsByNombre(nombre)) {
             throw new IllegalArgumentException("El rol " + nombre + " no existe");
         }
-         //return roleRepository.findByNombre(nombre);
         return roleRepository.findByNombre(nombre);
     }
+    public Role guardarRol(Role role) {
+        return roleRepository.save(role);
+    }
 
+    public Role actualizarRol(Integer id, Role roleActualizado) {
+        Role rolExistente = obtenerRolPorId(id);
+        rolExistente.setNombre(roleActualizado.getNombre());
+        return roleRepository.save(rolExistente);
+    }
 
-    //public Role guardarRol(Role role) {
-        //return roleRepository.save(role);
-    
+    public void eliminarRol(Integer id) {
+        if (!roleRepository.existsById(id)) {
+            throw new RuntimeException("No se encontró el rol con ID: " + id);
+        }
+        roleRepository.deleteById(id);
+    }
+
 }
