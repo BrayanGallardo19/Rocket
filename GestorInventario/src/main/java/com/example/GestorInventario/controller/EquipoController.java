@@ -56,7 +56,7 @@ public class EquipoController {
         }
     }
     // buscar los equipos por id
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<Equipo> obtenerEquipoPorId(@PathVariable Integer id) {
         try {
             Equipo equipo = equipoService.buscarPorId(id);
