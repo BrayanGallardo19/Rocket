@@ -27,10 +27,6 @@ public class Equipo {
     @Column(nullable = false, length = 40)
     private String nombre;
 
-    @ManyToOne
-    @JoinColumn(name = "id_modelo")
-    private Modelo modelo;
-
     @Column(nullable = false, length = 40)
     private Integer precioVenta;
 
