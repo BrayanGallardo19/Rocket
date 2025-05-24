@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.GestorPedidos.model.DetalleVenta;
 import com.example.GestorPedidos.model.Venta;
 import com.example.GestorPedidos.repository.VentaRepository;
 import com.example.GestorPedidos.webclient.EquipoClient;

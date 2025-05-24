@@ -1,8 +1,10 @@
 package com.example.GestorInventario.config;
 
+import java.util.List;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import com.example.GestorInventario.model.Equipo;
 import com.example.GestorInventario.model.Estado;
@@ -10,149 +12,48 @@ import com.example.GestorInventario.model.Marca;
 import com.example.GestorInventario.model.Modelo;
 import com.example.GestorInventario.repository.EquipoRepository;
 import com.example.GestorInventario.repository.EstadoRepository;
-import com.example.GestorInventario.repository.MarcaRepository;
-import com.example.GestorInventario.repository.ModeloRepository;
+import com.example.GestorInventario.webclient.MarcaModeloClient;
 
-@Configuration
+@Component
 public class LoadDatabase {
     @Bean
-    CommandLineRunner initDatabase(MarcaRepository marcaRepo, ModeloRepository modeloRepo,
-            EquipoRepository equipoRepo, EstadoRepository estadoRepo) {
+    CommandLineRunner initDatabase(EquipoRepository equipoRepo, EstadoRepository estadoRepo, MarcaModeloClient marcaModeloClient) {
         return args -> {
-            // si las tablas están vacías o no hay registros
-            if (marcaRepo.count() == 0 && modeloRepo.count() == 0 && equipoRepo.count() == 0
-                    && estadoRepo.count() == 0) {
-                // cargar las marcas
-                Marca johnDeere = new Marca();
-                johnDeere.setNombreMarca("John Deere");
-                marcaRepo.save(johnDeere);
+            if (equipoRepo.count() == 0 && estadoRepo.count() == 0){
+                // cargar datos iniciales
+                Estado disponible = new Estado(null, "Disponible");
+                Estado arrendado = new Estado(null, "Arrendado");
+                Estado vendido = new Estado(null, "Vendido");
+                Estado enMantenimiento = new Estado(null, "En mantenimiento");
+                Estado enRevision = new Estado(null, "En revisión");
+                Estado danado = new Estado(null, "Dañado");
+                Estado enTransito = new Estado(null, "En tránsito");
+                Estado pendienteEntrega = new Estado(null, "Pendiente de entrega");
+                Estado pendienteRecoleccion = new Estado(null, "Pendiente de recolección");
+                estadoRepo.saveAll(List.of(disponible, arrendado, vendido, enMantenimiento, enRevision, danado, enTransito, pendienteEntrega, pendienteRecoleccion));
 
-                Marca newHolland = new Marca();
-                newHolland.setNombreMarca("New Holland");
-                marcaRepo.save(newHolland);
+                //obtener marcas y modelos desde otro microservicio
+                List<Marca> marcas = marcaModeloClient.getAllMarcas();
+                List<Modelo> modelos = marcaModeloClient.getAllModelos();
 
-                Marca caseIH = new Marca();
-                caseIH.setNombreMarca("Case IH");
-                marcaRepo.save(caseIH);
+                // Crear equipos y guardarlos en la base de datos
+                Equipo tractorJD5055E = new Equipo( "Tractor John Deere 5055E", 650000.0, 2500.0, "JD5055E-A", 1,1, disponible);
+                Equipo cosechadoraJDS680 = new Equipo("Cosechadora John Deere S680", 1200000.0, 5000.0, "JD680-C", 2,2, arrendado);
+                Equipo tractorNHT6050 = new Equipo( "Tractor New Holland T6050", 700000.0, 2700.0, "NHT6050-A", 3,3, enMantenimiento);
+                Equipo cosechadoraNHCR790 = new Equipo( "Cosechadora New Holland CR7.90", 1100000.0, 4800.0, "NHCR790-B", 4,4, disponible);
+                Equipo tractorCasePuma185 = new Equipo( "Tractor Case IH Puma 185", 780000.0, 2900.0, "CHPUMA185-A", 5,5, disponible);
+                Equipo sembradoraCase1230 = new Equipo( "Sembradora Case IH 1230", 950000.0, 4300.0, "CH1230-S", 6,6, disponible);
+                Equipo pulverizadoraJDR4045 = new Equipo( "Pulverizadora John Deere R4045", 600000.0, 2400.0, "JD4045-P", 7,7, pendienteEntrega);
 
-                // cargar los modelos
-                Modelo jd7200 = new Modelo();
-                jd7200.setNombreModelo("7200");
-                jd7200.setMarca(johnDeere);
-                modeloRepo.save(jd7200);
+                equipoRepo.saveAll(List.of(
+                    tractorJD5055E, cosechadoraJDS680, tractorNHT6050, cosechadoraNHCR790,
+                    tractorCasePuma185, sembradoraCase1230, pulverizadoraJDR4045
+                ));
+                System.out.println("Equipos ");
+              }else {
+                System.out.println("Ya existen datos en la base. No se cargó nada nuevo.");
+                }  
 
-                Modelo jd5055 = new Modelo();
-                jd5055.setNombreModelo("5055E");
-                jd5055.setMarca(johnDeere);
-                modeloRepo.save(jd5055);
-
-                Modelo nhT6050 = new Modelo();
-                nhT6050.setNombreModelo("T6050");
-                nhT6050.setMarca(newHolland);
-                modeloRepo.save(nhT6050);
-
-                Modelo casePuma = new Modelo();
-                casePuma.setNombreModelo("Puma 185");
-                casePuma.setMarca(caseIH);
-                modeloRepo.save(casePuma);
-                // cargar los estados
-                // cargar estados
-                Estado disponible = new Estado();
-                disponible.setNombreEstado("Disponible");
-                estadoRepo.save(disponible);
-
-                Estado arrendado = new Estado();
-                arrendado.setNombreEstado("Arrendado");
-                estadoRepo.save(arrendado);
-
-                Estado vendido = new Estado();
-                vendido.setNombreEstado("Vendido");
-                estadoRepo.save(vendido);
-
-                Estado enMantenimiento = new Estado();
-                enMantenimiento.setNombreEstado("En mantenimiento");
-                estadoRepo.save(enMantenimiento);
-
-                Estado enRevision = new Estado();
-                enRevision.setNombreEstado("En revisión");
-                estadoRepo.save(enRevision);
-
-                Estado danado = new Estado();
-                danado.setNombreEstado("Dañado");
-                estadoRepo.save(danado);
-
-                Estado enTransito = new Estado();
-                enTransito.setNombreEstado("En tránsito");
-                estadoRepo.save(enTransito);
-
-                Estado pendienteEntrega = new Estado();
-                pendienteEntrega.setNombreEstado("Pendiente de entrega");
-                estadoRepo.save(pendienteEntrega);
-
-                Estado pendienteRecoleccion = new Estado();
-                pendienteRecoleccion.setNombreEstado("Pendiente de recolección");
-                estadoRepo.save(pendienteRecoleccion);
-                // cargar los productos completos
-                // cargar equipos para John Deere 7200
-
-                Equipo jd7200Tractor = new Equipo();
-                jd7200Tractor.setNombre("Tractor John Deere 7200");
-                jd7200Tractor.setPrecioVenta(850000);
-                jd7200Tractor.setPrecioArriendo(3000);
-                jd7200Tractor.setPatente("JD7200-A");
-                jd7200Tractor.setModelo(jd7200);
-                equipoRepo.save(jd7200Tractor);
-
-                Equipo jd7200Cosechadora = new Equipo();
-                jd7200Cosechadora.setNombre("Cosechadora John Deere 7200");
-                jd7200Cosechadora.setPrecioVenta(1200000);
-                jd7200Cosechadora.setPrecioArriendo(5000);
-                jd7200Cosechadora.setPatente("JD7200-B");
-                jd7200Cosechadora.setModelo(jd7200);
-                jd7200Cosechadora.setEstado(arrendado);
-                equipoRepo.save(jd7200Cosechadora);
-
-                // cargar equipos para John Deere 5055E
-                Equipo jd5055Tractor = new Equipo();
-                jd5055Tractor.setNombre("Tractor John Deere 5055E");
-                jd5055Tractor.setPrecioVenta(650000);
-                jd5055Tractor.setPrecioArriendo(2500);
-                jd5055Tractor.setPatente("JD5055E-A");
-                jd5055Tractor.setModelo(jd5055);
-                jd5055Tractor.setEstado(disponible);
-                equipoRepo.save(jd5055Tractor);
-
-                // cargar equipos para New Holland T6050
-                Equipo nhT6050Tractor = new Equipo();
-                nhT6050Tractor.setNombre("Tractor New Holland T6050");
-                nhT6050Tractor.setPrecioVenta(700000);
-                nhT6050Tractor.setPrecioArriendo(2700);
-                nhT6050Tractor.setPatente("NHT6050-A");
-                nhT6050Tractor.setModelo(nhT6050);
-                nhT6050Tractor.setEstado(enMantenimiento);
-                equipoRepo.save(nhT6050Tractor);
-
-                // cargar equipos para Case IH Puma 185
-                Equipo casePumaTractor = new Equipo();
-                casePumaTractor.setNombre("Tractor Case IH Puma 185");
-                casePumaTractor.setPrecioVenta(780000);
-                casePumaTractor.setPrecioArriendo(2900);
-                casePumaTractor.setPatente("CHPUMA185-A");
-                casePumaTractor.setModelo(casePuma);
-                equipoRepo.save(casePumaTractor);
-
-                Equipo casePumaSembradora = new Equipo();
-                casePumaSembradora.setNombre("Sembradora Case IH Puma 185");
-                casePumaSembradora.setPrecioVenta(1100000);
-                casePumaSembradora.setPrecioArriendo(4800);
-                casePumaSembradora.setPatente("CHPUMA185-B");
-                casePumaSembradora.setModelo(casePuma);
-                equipoRepo.save(casePumaSembradora);
-
-                System.out.println("Datos iniciales cargados");
-            } else {
-                System.out.println("Datos ya existentes. No se cargaron nuevos datos");
-            }
-        };
+};
     }
 }

@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "EQUIPO")
+@Table(name = "equipo")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,16 +28,30 @@ public class Equipo {
     private String nombre;
 
     @Column(nullable = false, length = 40)
-    private Integer precioVenta;
+    private Double precioVenta;
 
     @Column(nullable = false, length = 40)
-    private Integer precioArriendo;
+    private Double precioArriendo;
 
     @Column(nullable = false, length = 40)
     private String patente;
 
+    private Integer idModelo;
+
+    private Integer idMarca;
+ 
     @ManyToOne
     @JoinColumn(name = "id_estado")
     private Estado estado;
 
+    // constructor para crear un equipo sin contar la idauto
+    public Equipo(String nombre, Double precioVenta, Double precioArriendo, String patente, Integer idModelo, Integer idMarca, Estado estado) {
+    this.nombre = nombre;
+    this.precioVenta = precioVenta;
+    this.precioArriendo = precioArriendo;
+    this.patente = patente;
+    this.idModelo = idModelo;
+    this.idMarca = idMarca;
+    this.estado = estado;
+}
 }

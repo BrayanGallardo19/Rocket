@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "GestorMarcaYModeloApplication",
+            "request": "launch",
+            "mainClass": "com.example.GestorMarcaYModelo.GestorMarcaYModeloApplication",
+            "projectName": "GestorMarcaYModelo"
+        },
+        {
+            "type": "java",
             "name": "GestorLogisticayPedidosApplication",
             "request": "launch",
             "mainClass": "com.example.GestorLogisticayPedidos.GestorLogisticayPedidosApplication",
