@@ -23,7 +23,14 @@ public class MarcaService {
             throw new RuntimeException("Error al mostrar las marcas"+ e.getMessage(),e); 
         }
     }
-
+    //obtener una marca por id
+    public Marca obtenerMarcaPorId(Integer idMarca) {
+        if (idMarca == null) {
+            throw new IllegalArgumentException("El ID de la marca no puede ser nulo");
+        }
+        return marcaRepository.findById(idMarca)
+                .orElseThrow(() -> new RuntimeException("Marca no encontrada con ID: " + idMarca));
+    }
     //guardar una marca
     public Marca guardarMarca(Marca marca) {
         if (marca == null) {

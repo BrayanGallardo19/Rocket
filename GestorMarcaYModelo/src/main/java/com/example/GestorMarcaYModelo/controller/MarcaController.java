@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,13 @@ public class MarcaController {
     @GetMapping("")
     public ResponseEntity<List<Marca>> listarMarcas() {
         return ResponseEntity.ok(marcaService.obtenerTodasLasMarcas());
+    }
+
+    // obtener una marca por id
+    @GetMapping("/{id}")
+    public ResponseEntity<Marca> obtenerMarcaPorId(@PathVariable Integer id) {
+        Marca marca = marcaService.obtenerMarcaPorId(id);
+        return ResponseEntity.ok(marca);
     }
     //crear una marca
     @PostMapping("/crear")

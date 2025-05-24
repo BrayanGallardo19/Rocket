@@ -26,10 +26,10 @@ public class ModeloController {
     public ResponseEntity<List<Modelo>> listarModelos() {
         return ResponseEntity.ok(modeloService.listarModelos());
     }
-
-    @GetMapping("/marca/{marcaId}")
-    public ResponseEntity<List<Modelo>> listarModelosPorMarca(@PathVariable Integer idMarca) {
-        return ResponseEntity.ok(modeloService.listarModelosPorMarca(idMarca));
+    // muestra los modelos por marca
+    @GetMapping("/marca/{id}")
+    public ResponseEntity<List<Modelo>> listarModelosPorMarca(@PathVariable Integer id) {
+        return ResponseEntity.ok(modeloService.listarModelosPorMarca(id));
     }
 
     @PostMapping("/crear")

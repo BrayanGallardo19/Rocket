@@ -24,7 +24,7 @@ public class Equipo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idEquipo;
 
-    @Column(nullable = false, length = 40)
+    @Column(nullable = false, length = 60)
     private String nombre;
 
     @Column(nullable = false, length = 40)

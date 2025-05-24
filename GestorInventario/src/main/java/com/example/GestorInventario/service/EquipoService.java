@@ -65,4 +65,12 @@ public class EquipoService {
         equipo.setEstado(estado);
         return equipoRepository.save(equipo);
     }
+
+    //metodo para eliminar un equipo
+    public void eliminarEquipo(Integer id) {
+        if (!equipoRepository.existsById(id)) {
+            throw new RuntimeException("Equipo no encontrado");
+        }
+        equipoRepository.deleteById(id);
+    }
 }

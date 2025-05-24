@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class RegistrationController {
 
     private final RegistrationService registrationService;
-
+    
     @PostMapping("/auth/register")
     public AuthResponse register(@RequestBody RegisterRequest request) {
         return registrationService.register(request);
