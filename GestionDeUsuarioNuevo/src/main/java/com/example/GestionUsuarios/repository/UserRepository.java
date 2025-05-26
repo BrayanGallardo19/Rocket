@@ -1,5 +1,6 @@
 package com.example.GestionUsuarios.repository;
 
+
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,3 +1,4 @@
+
 package com.example.GestionUsuarios.auth;
 
 import lombok.AllArgsConstructor;
@@ -16,5 +17,5 @@ public class RegisterRequest {
     private String rut;
     private String username;
     private String password;
-    private String id_rol;
+    private String idRol;
 }
