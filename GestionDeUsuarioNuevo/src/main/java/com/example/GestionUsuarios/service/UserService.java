@@ -1,9 +1,13 @@
 package com.example.GestionUsuarios.service;
 
 import org.springframework.stereotype.Service;
+
+import com.example.GestionUsuarios.auth.AuthResponse;
 import com.example.GestionUsuarios.model.User;
 import com.example.GestionUsuarios.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,5 +46,9 @@ public class UserService {
             throw new RuntimeException("Error: Usuario no encontrado.");
         }
         userRepository.deleteById(id);
+    }
+
+    public List<User> mostrarUsuarios(){
+        return userRepository.findAll();
     }
 }

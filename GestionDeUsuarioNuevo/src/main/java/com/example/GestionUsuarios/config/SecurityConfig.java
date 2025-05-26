@@ -14,7 +14,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/{id}").permitAll() // Permite acceso público a estos endpoints
+                .requestMatchers("/register", "/{id},","/api/v1/**").permitAll() // Permite acceso público a estos endpoints
                 .anyRequest().authenticated()
             );
         return http.build();

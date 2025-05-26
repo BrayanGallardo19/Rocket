@@ -11,10 +11,12 @@ import com.example.GestionUsuarios.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("api/v1/usuarios")
 public class RegistrationController {
 
     private final RegistrationService registrationService;
@@ -78,4 +80,10 @@ public ResponseEntity<?> getUserById(@PathVariable Integer id) {
         userService.deleteUser(id);
         return ResponseEntity.status(HttpStatus.OK).body("Usuario eliminado correctamente.");
     }
+    @GetMapping("/usuarios")
+public ResponseEntity<List<User>> getAllUsers() {
+    List<User> users = userService.mostrarUsuarios();
+    return ResponseEntity.ok(users);
+}
+
 }

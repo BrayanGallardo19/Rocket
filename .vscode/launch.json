@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "GestionUsuariosApplication",
+            "request": "launch",
+            "mainClass": "com.example.GestionUsuarios.GestionUsuariosApplication",
+            "projectName": "GestionUsuarios"
+        },
+        {
+            "type": "java",
             "name": "GestorPedidosApplication",
             "request": "launch",
             "mainClass": "com.example.GestorPedidos.GestorPedidosApplication",
