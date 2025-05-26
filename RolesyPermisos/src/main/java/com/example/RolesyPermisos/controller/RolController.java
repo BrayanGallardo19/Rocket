@@ -16,7 +16,7 @@ import com.example.RolesyPermisos.model.Role;
 import com.example.RolesyPermisos.service.RoleService;
 
 @RestController
-@RequestMapping("/api/roles1")
+@RequestMapping("/api/roles")
 
 
 public class RolController {
@@ -36,17 +36,17 @@ public class RolController {
         public List <Role> obtenerRolPorNombre(@PathVariable String nombre) {
         return roleService.obtenerRolPorNombre(nombre);
     }
-        @PostMapping
+        @PostMapping ("/crear")
     public Role crearRol(@RequestBody Role role) {
         return roleService.guardarRol(role);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public Role actualizarRol(@PathVariable Integer id, @RequestBody Role roleActualizado) {
         return roleService.actualizarRol(id, roleActualizado);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public void eliminarRol(@PathVariable Integer id) {
         roleService.eliminarRol(id);
     }
