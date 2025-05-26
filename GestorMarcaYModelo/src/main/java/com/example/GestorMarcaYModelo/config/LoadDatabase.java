@@ -19,35 +19,35 @@ public class LoadDatabase {
 
                 // Crear marcas
                 Marca johnDeere = new Marca();
-                johnDeere.setNombreMarca("John Deere");
+                johnDeere.setNombre("John Deere");
                 marcaRepo.save(johnDeere);
 
                 Marca newHolland = new Marca();
-                newHolland.setNombreMarca("New Holland");
+                newHolland.setNombre("New Holland");
                 marcaRepo.save(newHolland);
 
                 Marca caseIH = new Marca();
-                caseIH.setNombreMarca("Case IH");
+                caseIH.setNombre("Case IH");
                 marcaRepo.save(caseIH);
 
                 // Crear modelos para las marcas
                 Modelo jd7200 = new Modelo();
-                jd7200.setNombreModelo("7200");
+                jd7200.setNombre("7200");
                 jd7200.setMarca(johnDeere);
                 modeloRepo.save(jd7200);
 
                 Modelo jd5055 = new Modelo();
-                jd5055.setNombreModelo("5055E");
+                jd5055.setNombre("5055E");
                 jd5055.setMarca(johnDeere);
                 modeloRepo.save(jd5055);
 
                 Modelo nhT6050 = new Modelo();
-                nhT6050.setNombreModelo("T6050");
+                nhT6050.setNombre("T6050");
                 nhT6050.setMarca(newHolland);
                 modeloRepo.save(nhT6050);
 
                 Modelo casePuma = new Modelo();
-                casePuma.setNombreModelo("Puma 185");
+                casePuma.setNombre("Puma 185");
                 casePuma.setMarca(caseIH);
                 modeloRepo.save(casePuma);
 

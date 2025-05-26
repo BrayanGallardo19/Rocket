@@ -11,4 +11,5 @@ import com.example.GestorMarcaYModelo.model.Modelo;
 public interface ModeloRepository extends JpaRepository<Modelo, Integer> {
     List<Modelo> findByMarcaIdMarca(Integer idMarca);
 
+    
 }

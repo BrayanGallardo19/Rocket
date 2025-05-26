@@ -21,8 +21,8 @@ public class Marca {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idMarca;
 
-    @Column(name = "nombre", nullable = false)
-    private String nombreMarca;
+    @Column(nullable = false)
+    private String nombre;
 
    
 }

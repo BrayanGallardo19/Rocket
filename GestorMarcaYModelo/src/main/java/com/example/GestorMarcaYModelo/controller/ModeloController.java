@@ -22,7 +22,14 @@ public class ModeloController {
         this.modeloService = modeloService;
     }
 
-    @GetMapping
+    // muestra un modelo por id
+    @GetMapping("/{id}")
+    public ResponseEntity<Modelo> obtenerModeloPorId(@PathVariable Integer id) {
+    Modelo modelo = modeloService.obtenerModeloPorId(id);
+    return ResponseEntity.ok(modelo);
+}
+    // muestra todos los modelos
+    @GetMapping("")
     public ResponseEntity<List<Modelo>> listarModelos() {
         return ResponseEntity.ok(modeloService.listarModelos());
     }

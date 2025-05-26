@@ -17,7 +17,7 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @GetMapping
+    @GetMapping("")
     public List<Usuario> obtenerListaUsuarios() {
         return usuarioService.obtenerListaUsuarios();
     }
@@ -34,7 +34,7 @@ public class UsuarioController {
    }
 
    
-   @PostMapping
+   @PostMapping("/agregar")
    public ResponseEntity<Usuario> agregarUsuario(@RequestBody Usuario usuario) {
        try {
            Usuario nuevoUsuario = usuarioService.agregarUsuario(usuario);
@@ -45,7 +45,7 @@ public class UsuarioController {
    }
 
    
-   @PutMapping("/{id}")
+   @PutMapping("/modificar/{id}")
    public ResponseEntity<Usuario> modificarUsuario(@PathVariable int id, @RequestBody Usuario usuario) {
        try {
            usuario.setId(id);
@@ -57,7 +57,7 @@ public class UsuarioController {
    }
 
 
-   @DeleteMapping("/{id}")
+   @DeleteMapping("eliminar/{id}")
    public ResponseEntity<String> eliminarUsuario(@PathVariable int id) {
        try {
            String mensaje = usuarioService.eliminarUsuario(id);

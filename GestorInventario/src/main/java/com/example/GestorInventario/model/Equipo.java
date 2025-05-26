@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,21 +38,26 @@ public class Equipo {
     private String patente;
 
     private Integer idModelo;
-
     private Integer idMarca;
- 
+    // variables para devolver el objeto completo
+    @Transient
+    private Modelo modelo;
+
+    @Transient
+    private Marca marca;
+
     @ManyToOne
     @JoinColumn(name = "id_estado")
     private Estado estado;
 
-    // constructor para crear un equipo sin contar la idauto
-    public Equipo(String nombre, Double precioVenta, Double precioArriendo, String patente, Integer idModelo, Integer idMarca, Estado estado) {
+    // constructor para crear un equipo sin contar la id
+    public Equipo(String nombre, Double precioVenta, Double precioArriendo, String patente, Modelo modelo, Marca marca, Estado estado) {
     this.nombre = nombre;
     this.precioVenta = precioVenta;
     this.precioArriendo = precioArriendo;
     this.patente = patente;
-    this.idModelo = idModelo;
-    this.idMarca = idMarca;
+    this.modelo = modelo;
+    this.marca = marca;
     this.estado = estado;
 }
 }

@@ -25,8 +25,8 @@ public class Modelo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idModelo;
 
-    @Column(name = "nombre", nullable = false)
-    private String nombreModelo;
+    @Column(nullable = false)
+    private String nombre;
 
     @ManyToOne
     @JoinColumn(name = "id_marca", nullable = false)

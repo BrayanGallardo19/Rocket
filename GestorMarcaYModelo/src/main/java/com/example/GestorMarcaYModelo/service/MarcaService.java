@@ -36,7 +36,7 @@ public class MarcaService {
         if (marca == null) {
             throw new IllegalArgumentException("La marca no puede ser nula");
         }
-        if (marca.getNombreMarca() == null || marca.getNombreMarca().trim().isEmpty()) {
+        if (marca.getNombre() == null || marca.getNombre().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de la marca es obligatorio");
         }
 

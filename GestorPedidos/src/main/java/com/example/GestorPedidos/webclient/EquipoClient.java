@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.example.GestorPedidos.model.Equipo;
 
+import reactor.core.publisher.Mono;
 
 @Component
 public class EquipoClient {
@@ -18,15 +20,25 @@ public class EquipoClient {
                 .build();
     }
 
-    public Map<String, Object> getEquipoById(Integer id) {
-        return this.webClient.get()
-                .uri("/{id}", id) // construye la URL /{id}
-                .retrieve() // realiza la solicitud y prepara la respuesta
-                .onStatus(status -> status.is4xxClientError(),
-                response -> response.bodyToMono(String.class)
-                .map(body -> new RuntimeException("Equipo no encontrado")))
-                .bodyToMono(Map.class) // convierte el JSON en un Map
-                .block(); // espera la respuesta antes de continuar
-    }
-}
+    public Equipo obtenerEquipoPorId(Integer idEquipo) {
+        try {
+            return webClient.get()
+                    .uri("/{idEquipo}", idEquipo)
+                    .retrieve()
+                    .onStatus(
+                    status -> status.is4xxClientError() || status.is5xxServerError(),
+                    response -> response.bodyToMono(String.class)
+                    .flatMap(body -> Mono
+                    .error(new RuntimeException("Error al obtener equipo: " + body))))
+                    .bodyToMono(Equipo.class)
+                    .blockOptional()
+                    .orElseThrow(() -> new RuntimeException(
+                            "El equipo con ID " + idEquipo + " no existe o no se pudo obtener"));
 
+        } catch (Exception e) {
+            // manejar excepciones de forma más específica si es necesario
+            throw new RuntimeException("Error al obtener el equipo con ID " + idEquipo + ": " + e.getMessage(), e);
+        }
+    }
+
+}

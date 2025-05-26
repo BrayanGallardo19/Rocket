@@ -5,14 +5,16 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.GestorPedidos.model.Venta;
+import com.example.GestorPedidos.model.Pedido;
+
+
 
 @Repository
-public interface VentaRepository extends JpaRepository<Venta, Integer> {
+public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     // buscar ventas por id
-    List<Venta> findByIdUsuario(Integer idUsuario);
+    List<Pedido> findByIdUsuario(Integer idUsuario);
 
     // buscar ventas por tipo 
-    List<Venta> findByTipoIdTipo(Integer idTipo);
+    List<Pedido> findByTipoIdTipo(Integer idTipo);
       
     }

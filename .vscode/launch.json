@@ -2,6 +2,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "GestorPedidosApplication",
+            "request": "launch",
+            "mainClass": "com.example.GestorPedidos.GestorPedidosApplication",
+            "projectName": "GestorPedidos"
+        },
+        {
+            "type": "java",
+            "name": "GestorEntregasApplication",
+            "request": "launch",
+            "mainClass": "com.example.GestorEntregas.GestorEntregasApplication",
+            "projectName": "GestorEntregas"
+        },
+        {
+            "type": "java",
             "name": "GestorMarcaYModeloApplication",
             "request": "launch",
             "mainClass": "com.example.GestorMarcaYModelo.GestorMarcaYModeloApplication",

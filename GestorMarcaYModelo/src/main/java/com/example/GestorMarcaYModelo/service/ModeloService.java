@@ -17,11 +17,16 @@ public class ModeloService {
     public List<Modelo> listarModelos() {
         return modeloRepository.findAll();
     }
-
+    // metodo para obtener un modelo por id
+    public Modelo obtenerModeloPorId(Integer id) {
+        return modeloRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Modelo no encontrado"));
+    }
+    // mostrar modelos con marca
     public List<Modelo> listarModelosPorMarca(Integer idMarca) {
         return modeloRepository.findByMarcaIdMarca(idMarca);
     }
-
+    // metodo para guardar un modelo
     public Modelo guardarModelo(Modelo modelo) {
         return modeloRepository.save(modelo);
     }
