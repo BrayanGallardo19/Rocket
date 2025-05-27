@@ -51,13 +51,13 @@ public class Equipo {
     private Estado estado;
 
     // constructor para crear un equipo sin contar la id
-    public Equipo(String nombre, Double precioVenta, Double precioArriendo, String patente, Modelo modelo, Marca marca, Estado estado) {
+    public Equipo(String nombre, Double precioVenta, Double precioArriendo, String patente, Integer idModelo, Integer idMarca, Estado estado) {
     this.nombre = nombre;
     this.precioVenta = precioVenta;
     this.precioArriendo = precioArriendo;
     this.patente = patente;
-    this.modelo = modelo;
-    this.marca = marca;
+    this.idModelo = idModelo;
+    this.idMarca = idMarca;
     this.estado = estado;
 }
 }

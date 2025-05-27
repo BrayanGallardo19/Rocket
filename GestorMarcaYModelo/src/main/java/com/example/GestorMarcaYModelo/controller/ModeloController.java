@@ -25,14 +25,19 @@ public class ModeloController {
     // muestra un modelo por id
     @GetMapping("/{id}")
     public ResponseEntity<Modelo> obtenerModeloPorId(@PathVariable Integer id) {
-    Modelo modelo = modeloService.obtenerModeloPorId(id);
-    return ResponseEntity.ok(modelo);
-}
+        Modelo modelo = modeloService.obtenerModeloPorId(id);
+        if (modelo == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(modelo);
+    }
+
     // muestra todos los modelos
     @GetMapping("")
     public ResponseEntity<List<Modelo>> listarModelos() {
         return ResponseEntity.ok(modeloService.listarModelos());
     }
+
     // muestra los modelos por marca
     @GetMapping("/marca/{id}")
     public ResponseEntity<List<Modelo>> listarModelosPorMarca(@PathVariable Integer id) {

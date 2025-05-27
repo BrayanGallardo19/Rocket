@@ -30,7 +30,7 @@ public class LoadDatabase {
                 caseIH.setNombre("Case IH");
                 marcaRepo.save(caseIH);
 
-                // Crear modelos para las marcas
+                // Crear modelos para John Deere
                 Modelo jd7200 = new Modelo();
                 jd7200.setNombre("7200");
                 jd7200.setMarca(johnDeere);
@@ -41,15 +41,38 @@ public class LoadDatabase {
                 jd5055.setMarca(johnDeere);
                 modeloRepo.save(jd5055);
 
+                Modelo jdS680 = new Modelo();
+                jdS680.setNombre("S680");
+                jdS680.setMarca(johnDeere);
+                modeloRepo.save(jdS680);
+
+                Modelo jdR4045 = new Modelo();
+                jdR4045.setNombre("R4045");
+                jdR4045.setMarca(johnDeere);
+                modeloRepo.save(jdR4045);
+
+                // Crear modelos para New Holland
                 Modelo nhT6050 = new Modelo();
                 nhT6050.setNombre("T6050");
                 nhT6050.setMarca(newHolland);
                 modeloRepo.save(nhT6050);
 
-                Modelo casePuma = new Modelo();
-                casePuma.setNombre("Puma 185");
-                casePuma.setMarca(caseIH);
-                modeloRepo.save(casePuma);
+                Modelo nhCR790 = new Modelo();
+                nhCR790.setNombre("CR7.90");
+                nhCR790.setMarca(newHolland);
+                modeloRepo.save(nhCR790);
+
+                // Crear modelos para Case IH
+                Modelo casePuma185 = new Modelo();
+                casePuma185.setNombre("Puma 185");
+                casePuma185.setMarca(caseIH);
+                modeloRepo.save(casePuma185);
+
+                Modelo case1230 = new Modelo();
+                case1230.setNombre("1230");
+                case1230.setMarca(caseIH);
+                modeloRepo.save(case1230);
+
 
                 System.out.println("🚜 Marcas y modelos precargados correctamente");
             } else {

@@ -78,7 +78,7 @@ public class EntregaController {
     }
 
     // Endpoint para obtener un estado por nombre
-    @GetMapping("estado/nombre/{nombre}")
+    @GetMapping("/estado/nombre/{nombre}")
     public ResponseEntity<Estado> getEstadoPorNombre(@PathVariable String nombre) {
         Estado estado = estadoClient.obtenerEstadoPorNombre(nombre);
         return ResponseEntity.ok(estado);

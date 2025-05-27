@@ -53,12 +53,9 @@ public class EntregaService {
         return entregaRepository.save(entrega);
 
     }
-    // metodo para buscar entregas por id del microservicio de pedidos
-    /*public List <Entrega> buscarPorPedido(Integer idPedido) {
-        return entregaRepository.findByIdPedido(idPedido);
-    }/* */
 
     //metodo para eliminar una entrega por id
+
     public void eliminarEntrega(Integer idProceso) {
         if (!entregaRepository.existsById(idProceso)) {
             throw new RuntimeException("Entrega no encontrada con id: " + idProceso);
