@@ -26,12 +26,6 @@ public class RoleService {
         .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + id));
     }
 
-    public List <Role>obtenerRolPorNombre(String nombre) {
-        if (!roleRepository.existsByNombre(nombre)) {
-            throw new IllegalArgumentException("El rol " + nombre + " no existe");
-        }
-        return roleRepository.findByNombre(nombre);
-    }
     public Role guardarRol(Role role) {
         return roleRepository.save(role);
     }

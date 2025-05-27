@@ -16,36 +16,36 @@ import com.example.RolesyPermisos.model.Role;
 import com.example.RolesyPermisos.service.RoleService;
 
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("/api/v1/roles")
 
 
 public class RolController {
     @Autowired
     private RoleService roleService;    
 
+    // mostrar todos los roles
     @GetMapping
     public List<Role> obtenerTodosLosRoles() {
         return roleService.obtenerTodosLosRoles();
     }
+
+    // obtener rol por id
     @GetMapping("/{id}")
     public Role obtenerRolPorId(@PathVariable Integer id) {
         return roleService.obtenerRolPorId(id);
     }
 
-    @GetMapping("/nombre/{nombre}") 
-        public List <Role> obtenerRolPorNombre(@PathVariable String nombre) {
-        return roleService.obtenerRolPorNombre(nombre);
-    }
-        @PostMapping ("/crear")
+    // crear roles
+    @PostMapping ("/crear")
     public Role crearRol(@RequestBody Role role) {
         return roleService.guardarRol(role);
     }
-
+     // actualizar rol por id
     @PutMapping("/actualizar/{id}")
     public Role actualizarRol(@PathVariable Integer id, @RequestBody Role roleActualizado) {
         return roleService.actualizarRol(id, roleActualizado);
     }
-
+    // eliminar rol por id
     @DeleteMapping("/eliminar/{id}")
     public void eliminarRol(@PathVariable Integer id) {
         roleService.eliminarRol(id);

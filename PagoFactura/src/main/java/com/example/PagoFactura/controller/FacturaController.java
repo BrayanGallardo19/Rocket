@@ -15,11 +15,14 @@ import com.example.PagoFactura.service.FacturaService;
 import jakarta.persistence.Id;
 
 @RestController
-@RequestMapping("/api/facturas")
+@RequestMapping("/api/v1/facturas")
 public class FacturaController {
-    @Autowired
-    private FacturaService facturaService;
+    private final FacturaService facturaService;
 
+    public FacturaController(FacturaService facturaService) {
+        this.facturaService = facturaService;
+    }
+    // Método para crear una factura
     @GetMapping("/{id}")
     public ResponseEntity<Factura> obtenerFacturaPorId(@PathVariable Integer id) { {
         Factura factura = facturaService.obtenerFacturaPorId(id);
