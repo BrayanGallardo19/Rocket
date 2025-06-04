@@ -8,9 +8,8 @@ import org.springframework.stereotype.Repository;
 import com.example.RolesyPermisos.model.Role;
 
 @Repository
-
 public interface RoleRepository extends JpaRepository<Role, Integer> {
-   
+   // Buscar roles por id
     List<Role> findByNombre(String nombre);
-    boolean existsByNombre(String nombre);
+    
 }

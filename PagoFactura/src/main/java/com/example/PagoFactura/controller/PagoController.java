@@ -14,17 +14,20 @@ import com.example.PagoFactura.Model.Pago;
 import com.example.PagoFactura.service.PagoService;
 
 @RestController
-@RequestMapping("/api/pagos")
+@RequestMapping("/apiv1/pagos")
 
 public class PagoController {
-    @Autowired
-    private PagoService pagoService;
+    private final PagoService pagoService;
 
+    public PagoController(PagoService pagoService) {
+        this.pagoService = pagoService;
+    }
+    // Método para mostrar todos los pagos
     @PostMapping
     public ResponseEntity<Pago> RegistrarPago(@RequestBody Pago pago) {
         return ResponseEntity.ok(pagoService.RegistrarPago(pago));
     }
-    
+    // Método para crear un pago
     @GetMapping("/{id}")
     public Pago obtenerPagoPor(@PathVariable Integer id) {
         return pagoService.obtenerPagoPorId(id);

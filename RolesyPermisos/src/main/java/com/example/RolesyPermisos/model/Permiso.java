@@ -1,5 +1,8 @@
 package com.example.RolesyPermisos.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.hibernate.annotations.ManyToAny;
 
 import jakarta.persistence.Column;
@@ -7,6 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,14 +22,22 @@ import lombok.NoArgsConstructor;
 @Table(name = "Permiso")
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class Permiso {
+    // Atributos
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idPermiso;
-
+    // Nombre del permiso
     @Column(nullable = false, length = 20)
     private String nombre;
+    //set de roles que tienen este permiso
+    @ManyToMany(mappedBy = "permisos")
+    private Set<Role> roles;
+   
+    // Constructor con nombre
+    public Permiso(String nombre) {
+        this.nombre = nombre;
+    }
 
-    //@ManyToAny(fetch = FetchType.LAZY)
 }
+
