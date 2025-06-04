@@ -37,7 +37,7 @@ public class MarcaClient {
     public List<Marca> obtenerTodasLasMarcas() {
         try {
             return webClient.get()
-                    .uri("/")  // path para obtener todas las marcas
+                    .uri("")  // path para obtener todas las marcas
                     .retrieve()
                     .bodyToFlux(Marca.class)
                     .collectList()

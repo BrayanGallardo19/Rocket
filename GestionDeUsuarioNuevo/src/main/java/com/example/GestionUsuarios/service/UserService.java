@@ -28,17 +28,17 @@ public class UserService {
         }
 
         return userRepository.findById(id)
-            .map(user -> {
-                user.setNombre(updatedUser.getNombre());
-                user.setAppaterno(updatedUser.getAppaterno());
-                user.setApmaterno(updatedUser.getApmaterno());
-                user.setRut(updatedUser.getRut());
-                user.setUsername(updatedUser.getUsername());
-                user.setPassword(updatedUser.getPassword());
-                user.setId_rol(updatedUser.getId_rol());
-                return userRepository.save(user);
-            })
-            .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado."));
+                .map(user -> {
+                    user.setNombre(updatedUser.getNombre());
+                    user.setAppaterno(updatedUser.getAppaterno());
+                    user.setApmaterno(updatedUser.getApmaterno());
+                    user.setRut(updatedUser.getRut());
+                    user.setUsername(updatedUser.getUsername());
+                    user.setPassword(updatedUser.getPassword());
+                    user.setId_rol(updatedUser.getId_rol());
+                    return userRepository.save(user);
+                })
+                .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado."));
     }
 
     public void deleteUser(Integer id) {
@@ -48,7 +48,12 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public List<User> mostrarUsuarios(){
+    public List<User> mostrarUsuarios() {
         return userRepository.findAll();
+    }
+
+    public User obtenerPorUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario con username '" + username + "' no encontrado"));
     }
 }

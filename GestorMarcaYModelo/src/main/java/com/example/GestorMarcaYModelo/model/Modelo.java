@@ -33,9 +33,17 @@ public class Modelo {
     @JsonIgnoreProperties("modelos") // evita la recursividad infinita
     private Marca marca;
 
-     // JSON incluya el idMarca
+    // JSON incluya el idMarca
     @JsonProperty("idMarca")
     public Integer getIdMarca() {
         return marca != null ? marca.getIdMarca() : null;
+    }
+
+    @JsonProperty("idMarca")
+    public void setIdMarca(Integer idMarca) {
+        if (idMarca != null) {
+            this.marca = new Marca();
+            this.marca.setIdMarca(idMarca);
+        }
     }
 }

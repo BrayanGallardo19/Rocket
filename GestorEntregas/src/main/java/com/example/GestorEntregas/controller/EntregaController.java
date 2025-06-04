@@ -1,6 +1,7 @@
 package com.example.GestorEntregas.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,8 +50,9 @@ public class EntregaController {
 
     //metodo para actualizar el estado de una entrega
     @PutMapping("actualizar/{idEntrega}/estado")
-    public ResponseEntity<Entrega> actualizarEstadoEntrega(@PathVariable Integer id, @RequestBody String nuevoEstado) {
-        Entrega entregaActualizada = entregaService.actualizarEstadoEntrega(id, nuevoEstado);
+    public ResponseEntity<Entrega> actualizarEstadoEntrega(@PathVariable Integer idEntrega, @RequestBody Map<String, String> body) {
+        String nuevoEstado = body.get("nuevoEstado");
+        Entrega entregaActualizada = entregaService.actualizarEstadoEntrega(idEntrega, nuevoEstado);
         return ResponseEntity.ok(entregaActualizada);//200
     }
 
@@ -65,8 +67,8 @@ public class EntregaController {
     // metodo para eliminar entrega por id
     
     @DeleteMapping("/{idEntrega}")
-    public ResponseEntity<Void> eliminarEntrega(@PathVariable Integer id) {
-        entregaService.eliminarEntrega(id);
+    public ResponseEntity<Void> eliminarEntrega(@PathVariable Integer idEntrega) {
+        entregaService.eliminarEntrega(idEntrega);
         return ResponseEntity.noContent().build();
     }
 

@@ -26,7 +26,7 @@ public class EntregaService {
         if (entrega.getIdEntrega() != null) {
             throw new RuntimeException("No debes enviar el id al crear una nueva entrega");
         }
-        Estado estado = estadoClient.obtenerEstadoPorNombre("Pendiente");
+        Estado estado = estadoClient.obtenerEstadoPorNombre("Pendiente de entrega");
         entrega.setEstado(estado.getNombreEstado());
         return entregaRepository.save(entrega);
         }

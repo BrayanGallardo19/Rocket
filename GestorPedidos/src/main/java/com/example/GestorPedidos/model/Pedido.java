@@ -26,6 +26,8 @@ public class Pedido {
 
     private Integer idUsuario;
 
+    private Integer idEquipo;
+    
     private LocalDateTime fechaPedido;
 
     private String estado;

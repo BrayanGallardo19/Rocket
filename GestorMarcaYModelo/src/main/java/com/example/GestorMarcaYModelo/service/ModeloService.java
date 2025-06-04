@@ -4,13 +4,19 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.GestorMarcaYModelo.model.Marca;
 import com.example.GestorMarcaYModelo.model.Modelo;
+import com.example.GestorMarcaYModelo.repository.MarcaRepository;
 import com.example.GestorMarcaYModelo.repository.ModeloRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 @Service
 public class ModeloService {
     private final ModeloRepository modeloRepository;
+    private final MarcaRepository marcaRepository;
 
-    public ModeloService(ModeloRepository modeloRepository) {
+    public ModeloService(ModeloRepository modeloRepository, MarcaRepository marcaRepository) {
+        this.marcaRepository = marcaRepository;
         this.modeloRepository = modeloRepository;
     }
 
@@ -28,6 +34,14 @@ public class ModeloService {
     }
     // metodo para guardar un modelo
     public Modelo guardarModelo(Modelo modelo) {
+        if (modelo.getIdMarca() == null) {
+            throw new IllegalArgumentException("El idMarca es obligatorio.");
+        }
+
+        Marca marca = marcaRepository.findById(modelo.getIdMarca())
+            .orElseThrow(() -> new EntityNotFoundException("Marca no encontrada con id: " + modelo.getIdMarca()));
+
+        modelo.setMarca(marca);
         return modeloRepository.save(modelo);
     }
 }

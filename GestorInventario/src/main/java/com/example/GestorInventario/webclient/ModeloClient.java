@@ -42,7 +42,7 @@ public class ModeloClient {
     public List<Modelo> obtenerTodosLosModelos() {
         try {
             return webClient.get()
-                    .uri("/") // path para obtener todos los modelos
+                    .uri("") // path para obtener todos los modelos
                     .retrieve()
                     .bodyToFlux(Modelo.class)
                     .collectList()

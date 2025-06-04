@@ -27,42 +27,41 @@ public class RegistrationController {
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         if (request.getUsername() == null || request.getPassword() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new AuthResponse("Error: El nombre de usuario y la contraseña son obligatorios."));
+                    .body(new AuthResponse("Error: El nombre de usuario y la contraseña son obligatorios."));
         }
 
         AuthResponse response = registrationService.register(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
- @GetMapping("/{id}")
-public ResponseEntity<?> getUserById(@PathVariable Integer id) {
-    if (id == null || id <= 0) {
-        return ResponseEntity
-                 .status(HttpStatus.BAD_REQUEST)
-                 .body("Error: El ID debe ser un número positivo.");
-    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
+        if (id == null || id <= 0) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Error: El ID debe ser un número positivo.");
+        }
 
-    Optional<User> userOptional = userService.getUserById(id);
-    if (userOptional.isPresent()) {
-        // Devuelve el usuario con código 200 OK
-        return ResponseEntity
-                 .status(HttpStatus.OK)
-                 .body(userOptional.get());
-    } else {
-        // Devuelve un mensaje de error con código 400 Bad Request
-        return ResponseEntity
-                 .status(HttpStatus.BAD_REQUEST)
-                 .body("Error: Usuario no encontrado.");
+        Optional<User> userOptional = userService.getUserById(id);
+        if (userOptional.isPresent()) {
+            // Devuelve el usuario con código 200 OK
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(userOptional.get());
+        } else {
+            // Devuelve un mensaje de error con código 400 Bad Request
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Error: Usuario no encontrado.");
+        }
     }
-}
-
 
     // Editar usuario con código 200 (OK) y 400 (Bad Request)
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody User updatedUser) {
         if (id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Error: El ID debe ser un número positivo.");
+                    .body("Error: El ID debe ser un número positivo.");
         }
 
         User user = userService.updateUser(id, updatedUser);
@@ -74,16 +73,22 @@ public ResponseEntity<?> getUserById(@PathVariable Integer id) {
     public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
         if (id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Error: El ID debe ser un número positivo.");
+                    .body("Error: El ID debe ser un número positivo.");
         }
 
         userService.deleteUser(id);
         return ResponseEntity.status(HttpStatus.OK).body("Usuario eliminado correctamente.");
     }
-    @GetMapping("/usuarios")
-public ResponseEntity<List<User>> getAllUsers() {
-    List<User> users = userService.mostrarUsuarios();
-    return ResponseEntity.ok(users);
-}
 
+    @GetMapping("/usuarios")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.mostrarUsuarios();
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/username/{username}")
+    public ResponseEntity<User> obtenerPorUsername(@PathVariable String username) {
+        User user = userService.obtenerPorUsername(username);
+        return ResponseEntity.ok(user);
+    }
 }

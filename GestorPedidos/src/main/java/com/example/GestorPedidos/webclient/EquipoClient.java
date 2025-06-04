@@ -1,12 +1,10 @@
 package com.example.GestorPedidos.webclient;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.example.GestorPedidos.model.Equipo;
+import com.example.GestorPedidos.dto.EquipoDTO;
 
 import reactor.core.publisher.Mono;
 
@@ -20,7 +18,7 @@ public class EquipoClient {
                 .build();
     }
 
-    public Equipo obtenerEquipoPorId(Integer idEquipo) {
+    public EquipoDTO obtenerEquipoPorIdDTO(Integer idEquipo) {
         try {
             return webClient.get()
                     .uri("/{idEquipo}", idEquipo)
@@ -30,7 +28,7 @@ public class EquipoClient {
                     response -> response.bodyToMono(String.class)
                     .flatMap(body -> Mono
                     .error(new RuntimeException("Error al obtener equipo: " + body))))
-                    .bodyToMono(Equipo.class)
+                    .bodyToMono(EquipoDTO.class)
                     .blockOptional()
                     .orElseThrow(() -> new RuntimeException(
                             "El equipo con ID " + idEquipo + " no existe o no se pudo obtener"));
