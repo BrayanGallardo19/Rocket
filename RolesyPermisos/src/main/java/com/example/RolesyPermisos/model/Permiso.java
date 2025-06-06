@@ -28,7 +28,7 @@ public class Permiso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idPermiso;
     // Nombre del permiso
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 50)
     private String nombre;
     //set de roles que tienen este permiso
     @ManyToMany(mappedBy = "permisos")

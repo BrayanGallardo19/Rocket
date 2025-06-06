@@ -35,6 +35,7 @@ public class PedidoController {
     private final UsuarioClient usuarioClient;
     private final TipoService tipoService;
 
+    
     public PedidoController(PedidoService pedidoService, UsuarioClient usuarioClient, TipoService tipoService,
             PedidoDTOService pedidoDtoService) {
         this.pedidoService = pedidoService;
