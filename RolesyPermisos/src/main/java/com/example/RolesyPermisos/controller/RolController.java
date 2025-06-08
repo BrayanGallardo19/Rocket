@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.RolesyPermisos.dto.RolDTO;
 import com.example.RolesyPermisos.model.Role;
 import com.example.RolesyPermisos.service.RoleService;
 
@@ -25,7 +26,7 @@ public class RolController {
 
     // mostrar todos los roles
     @GetMapping
-    public List<Role> obtenerTodosLosRoles() {
+    public List<RolDTO> obtenerTodosLosRoles() {
         return roleService.obtenerTodosLosRoles();
     }
 

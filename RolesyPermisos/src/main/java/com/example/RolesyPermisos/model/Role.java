@@ -1,6 +1,8 @@
 package com.example.RolesyPermisos.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.Column;
@@ -27,17 +29,18 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idRole;
+
     // Nombre del rol
     @Column(nullable = false, length = 50)
     private String nombre;
-    // conección con permisos
-    @ManyToMany
-    @JoinTable(
-        name = "role_permiso",
-        joinColumns = @JoinColumn(name = "role_id"),
-        inverseJoinColumns = @JoinColumn(name = "permiso_id")
-    )
-    // set de permisos que tiene este rol
-    private Set<Permiso> permisos = new HashSet<>();
+
+    // Set de permisos que tiene este rol
+@ManyToMany(fetch = FetchType.EAGER)
+@JoinTable(
+    name = "role_permiso",
+    joinColumns = @JoinColumn(name = "role_id"),
+    inverseJoinColumns = @JoinColumn(name = "permiso_id")
+)
+private List<Permiso> permisos = new ArrayList<>();
 
 }

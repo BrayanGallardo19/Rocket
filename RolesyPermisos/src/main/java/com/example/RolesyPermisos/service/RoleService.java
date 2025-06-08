@@ -1,10 +1,14 @@
 package com.example.RolesyPermisos.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.RolesyPermisos.dto.RolDTO;
+import com.example.RolesyPermisos.mapper.RolMapper;
 import com.example.RolesyPermisos.model.Role;
 import com.example.RolesyPermisos.repository.RoleRepository;
 
@@ -17,10 +21,16 @@ public class RoleService {
     @Autowired
     private  RoleRepository roleRepository;
     
-    public List<Role> obtenerTodosLosRoles() {
-        return roleRepository.findAll();
-    }
+public List<RolDTO> obtenerTodosLosRoles() {
+    List<Role> roles = roleRepository.findAll();
 
+    // Forzar carga de permisos para evitar Lazy Loading en la conversión
+    roles.forEach(role -> Hibernate.initialize(role.getPermisos()));
+
+    return roles.stream()
+                .map(RolMapper::toDTO)
+                .collect(Collectors.toList());
+}
     public Role obtenerRolPorId(Integer id) {
         return roleRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + id));

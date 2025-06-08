@@ -3,8 +3,7 @@ package com.example.RolesyPermisos.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hibernate.annotations.ManyToAny;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,17 +26,18 @@ public class Permiso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idPermiso;
+
     // Nombre del permiso
     @Column(nullable = false, length = 50)
     private String nombre;
-    //set de roles que tienen este permiso
+
+    // Set de roles que tienen este permiso (se ignora para evitar ciclos JSON)
     @ManyToMany(mappedBy = "permisos")
-    private Set<Role> roles;
-   
+    @JsonIgnore
+    private Set<Role> roles = new HashSet<>();
+
     // Constructor con nombre
     public Permiso(String nombre) {
         this.nombre = nombre;
     }
-
 }
-
