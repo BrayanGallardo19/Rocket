@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "PagoFacturaApplication",
+            "request": "launch",
+            "mainClass": "com.example.PagoFactura.PagoFacturaApplication",
+            "projectName": "PagoFactura"
+        },
+        {
+            "type": "java",
             "name": "AutenticationApplication",
             "request": "launch",
             "mainClass": "com.example.Autentication.AutenticationApplication",

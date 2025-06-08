@@ -28,7 +28,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idRole;
     // Nombre del rol
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 50)
     private String nombre;
     // conección con permisos
     @ManyToMany
