@@ -53,4 +53,8 @@ public List<RolDTO> obtenerTodosLosRoles() {
         roleRepository.deleteById(id);
     }
 
+    public Role obtenerRolPorNombre(String nombre) {
+        return roleRepository.findByNombre(nombre)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con nombre: " + nombre));
+    }
 }
