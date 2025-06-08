@@ -47,7 +47,7 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
-
+    // mostrar todos los usuarios
     public List<User> mostrarUsuarios() {
         return userRepository.findAll();
     }

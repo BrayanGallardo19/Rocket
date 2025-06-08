@@ -3,9 +3,11 @@ package com.example.GestorPedidos.controller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,12 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.GestorPedidos.dto.PedidoCompletoDTO;
-import com.example.GestorPedidos.dto.PedidoRequestDTO;
-import com.example.GestorPedidos.dto.UsuarioDTO;
 import com.example.GestorPedidos.model.Pedido;
-import com.example.GestorPedidos.model.Tipo;
-import com.example.GestorPedidos.service.PedidoDTOService;
 import com.example.GestorPedidos.service.PedidoService;
 import com.example.GestorPedidos.service.TipoService;
 import com.example.GestorPedidos.webclient.UsuarioClient;
@@ -31,51 +28,59 @@ import com.example.GestorPedidos.webclient.UsuarioClient;
 public class PedidoController {
 
     private final PedidoService pedidoService;
-    private final PedidoDTOService pedidoDtoService;
     private final UsuarioClient usuarioClient;
+
     private final TipoService tipoService;
 
-    public PedidoController(PedidoService pedidoService, UsuarioClient usuarioClient, TipoService tipoService,
-            PedidoDTOService pedidoDtoService) {
+    public PedidoController(PedidoService pedidoService, UsuarioClient usuarioClient, TipoService tipoService) {
         this.pedidoService = pedidoService;
         this.usuarioClient = usuarioClient;
         this.tipoService = tipoService;
-        this.pedidoDtoService = pedidoDtoService;
+
     }
 
-    @GetMapping("/username/{username}")
-    public ResponseEntity<UsuarioDTO> obtenerPorUsername(@PathVariable String username) {
-        UsuarioDTO usuarioDTO = usuarioClient.obtenerUsuarioPorUsername(username);
-        return ResponseEntity.ok(usuarioDTO);
+    // buscar pedidos de cliente por username
+    @GetMapping("/cliente")
+    public ResponseEntity<?> obtenerPedidosCliente(@RequestParam String username) {
+        List<Map<String, Object>> pedidos = pedidoService.obtenerPedidosParaCliente(username);
+        return ResponseEntity.ok(pedidos);
     }
 
+    // mostrar detalle de un pedido completo
     @GetMapping("/detalle/{idPedido}")
-    public ResponseEntity<PedidoCompletoDTO> obtenerPedidoCompleto(@PathVariable Integer idPedido) {
-        PedidoCompletoDTO dto = pedidoDtoService.construirPedidoCompleto(idPedido);
-        return ResponseEntity.ok(dto); // 200 OK
-
+    public ResponseEntity<Map<String, Object>> mostrarPedidoCompleto (@PathVariable Integer idPedido) {
+        Map<String, Object> pedidoCompleto = pedidoService.obtenerPedidoCompleto(idPedido);
+        if (pedidoCompleto == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Pedido no encontrado"));
+        }
+        return ResponseEntity.ok(pedidoCompleto);
     }
-
-    // crear pedido
+     
+    // crear un nuevo pedido
     @PostMapping("/crear")
-    public ResponseEntity<Pedido> crearPedido(@RequestBody PedidoRequestDTO pedidoDTO) {
-    // obtener username desde el token 
-    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<Pedido> crearPedido(@RequestBody Map<String, Object> body) {
+        // obtener username desde el token
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-    // llamar al microservicio de usuarios para obtener el id del usuario autenticado
-    UsuarioDTO usuario = usuarioClient.obtenerUsuarioPorUsername(username);
+        // obtener el usuario como Map desde el microservicio de usuarios
+        Map<String, Object> usuario = usuarioClient.obtenerUsuarioPorUsername(username);
+        if (usuario == null || !usuario.containsKey("id")) {
+            throw new RuntimeException("No se pudo obtener el usuario autenticado.");
+        }
 
-    // construir el pedido
-    Pedido pedido = new Pedido();
-    pedido.setIdEquipo(pedidoDTO.getIdEquipo());
-    pedido.setTotal(pedidoDTO.getTotal());
-    pedido.setIdUsuario(usuario.getId());
+        // construir el pedido usando los datos del body
+        Pedido pedido = new Pedido();
+        pedido.setIdEquipo((Integer) body.get("idEquipo"));
+        pedido.setTotal(Double.parseDouble(body.get("total").toString()));
+        pedido.setIdUsuario((Integer) usuario.get("id"));
 
-    // usar el método que incluye la lógica del tipo
-    Pedido nuevoPedido = pedidoService.crearPedido(pedido, pedidoDTO.getIdTipo());
+        Integer idTipo = (Integer) body.get("idTipo");
 
-    return ResponseEntity.ok(nuevoPedido);
-}
+        // crear el pedido con su tipo
+        Pedido nuevoPedido = pedidoService.crearPedido(pedido, idTipo);
+
+        return ResponseEntity.ok(nuevoPedido);
+    }
 
     // buscar pedido por id
     @GetMapping("/id/{idPedido}")
@@ -91,11 +96,12 @@ public class PedidoController {
         return ResponseEntity.ok(pedidos); // 200
     }
 
-    // buscar pedidos por id de usuario
-    @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<List<Pedido>> buscarPedidosPorIdUsuario(@PathVariable Integer idUsuario) {
-        List<Pedido> pedidos = pedidoService.buscarPedidosPorIdUsuario(idUsuario);
-        return ResponseEntity.ok(pedidos); // 200
+    // buscar pedidos siendo cliente
+    @GetMapping("/cliente/mis-pedidos")
+    public ResponseEntity<List<Map<String, Object>>> obtenerMisPedidos() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<Map<String, Object>> pedidos = pedidoService.obtenerPedidosParaCliente(username);
+        return ResponseEntity.ok(pedidos);
     }
 
     // eliminar pedido por id
@@ -104,4 +110,5 @@ public class PedidoController {
         pedidoService.eliminarPedidoPorId(idPedido);
         return ResponseEntity.noContent().build();
     }
+
 }

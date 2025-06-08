@@ -1,9 +1,10 @@
 package com.example.GestorPedidos.service;
 
-
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,8 @@ import com.example.GestorPedidos.model.Pedido;
 import com.example.GestorPedidos.model.Tipo;
 import com.example.GestorPedidos.repository.PedidoRepository;
 import com.example.GestorPedidos.repository.TipoRepository;
+import com.example.GestorPedidos.webclient.EquipoClient;
+import com.example.GestorPedidos.webclient.UsuarioClient;
 
 import jakarta.transaction.Transactional;
 
@@ -19,11 +22,15 @@ import jakarta.transaction.Transactional;
 public class PedidoService {
     private final TipoRepository tipoRepository;
     private final PedidoRepository pedidoRepository;
+    private final UsuarioClient usuarioClient;
+    private final EquipoClient equipoClient;
 
-    public PedidoService(PedidoRepository pedidoRepository, TipoRepository tipoRepository
-            ) {
+    public PedidoService(PedidoRepository pedidoRepository, TipoRepository tipoRepository,
+            UsuarioClient usuarioClient, EquipoClient equipoClient) {
         this.pedidoRepository = pedidoRepository;
         this.tipoRepository = tipoRepository;
+        this.usuarioClient = usuarioClient;
+        this.equipoClient = equipoClient;
     }
 
     // crear un pedido
@@ -41,6 +48,7 @@ public class PedidoService {
 
         return pedidoRepository.save(pedido);
     }
+
     // mostrar todos los pedidos
     public List<Pedido> mostrarTodosLosPedidos() {
         try {
@@ -58,9 +66,10 @@ public class PedidoService {
 
     // buscar pedidos por id de usuario
     public List<Pedido> buscarPedidosPorIdUsuario(Integer idUsuario) {
-    if (idUsuario == null) throw new IllegalArgumentException("El id de usuario no puede ser nulo");
-    return pedidoRepository.findByIdUsuario(idUsuario);
-}
+        if (idUsuario == null)
+            throw new IllegalArgumentException("El id de usuario no puede ser nulo");
+        return pedidoRepository.findByIdUsuario(idUsuario);
+    }
 
     // eliminar pedido por id
     public void eliminarPedidoPorId(Integer idPedido) {
@@ -69,5 +78,74 @@ public class PedidoService {
         }
         pedidoRepository.deleteById(idPedido);
     }
+    // obtener pedidos para un cliente por username, con datos simplificados para cliente
+public List<Map<String, Object>> obtenerPedidosParaCliente(String username) {
+    Map<String, Object> usuario = usuarioClient.obtenerUsuarioPorUsername(username);
+    if (usuario == null || !usuario.containsKey("id")) {
+        throw new RuntimeException("Usuario no encontrado o ID no disponible");
+    }
 
+    Integer idUsuario = (Integer) usuario.get("id");
+    List<Pedido> pedidos = pedidoRepository.findByIdUsuario(idUsuario);
+
+    return pedidos.stream().map(pedido -> {
+        Map<String, Object> pedidoMap = new HashMap<>();
+        pedidoMap.put("idPedido", pedido.getIdPedido());
+        pedidoMap.put("fecha", pedido.getFechaPedido());
+        pedidoMap.put("total", pedido.getTotal());
+        pedidoMap.put("estado", pedido.getEstado());
+        pedidoMap.put("tipo", pedido.getTipo() != null ? pedido.getTipo().getNombre() : null);
+
+        // obtener equipo completo
+        Map<String, Object> equipoCompleto = equipoClient.obtenerEquipoPorId(pedido.getIdEquipo());
+
+        // crear equipo simplificado
+        Map<String, Object> equipoSimple = new HashMap<>();
+        if (equipoCompleto != null) {
+            equipoSimple.put("nombre", equipoCompleto.get("nombre"));
+            equipoSimple.put("precioArriendo", equipoCompleto.get("precioArriendo"));
+            equipoSimple.put("patente", equipoCompleto.get("patente"));
+
+            // marca y modelo (solo nombre)
+            Map<String, Object> marca = (Map<String, Object>) equipoCompleto.get("marca");
+            if (marca != null) {
+                equipoSimple.put("marca", marca.get("nombre"));
+            }
+
+            Map<String, Object> modelo = (Map<String, Object>) equipoCompleto.get("modelo");
+            if (modelo != null) {
+                equipoSimple.put("modelo", modelo.get("nombre"));
+            }
+        }
+
+        pedidoMap.put("equipo", equipoSimple);
+
+        return pedidoMap;
+    }).collect(Collectors.toList());
+}
+    // obtener pedido completo para el encargado
+    public Map<String, Object> obtenerPedidoCompleto(Integer idPedido) {
+        Pedido pedido = pedidoRepository.findById(idPedido)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+        Map<String, Object> usuario = usuarioClient.obtenerUsuarioPorId(pedido.getIdUsuario());
+        Map<String, Object> equipo = equipoClient.obtenerEquipoPorId(pedido.getIdEquipo());
+
+        Tipo tipo = pedido.getTipo();
+        if (tipo == null) {
+            throw new RuntimeException("El pedido no tiene tipo asignado");
+        }
+
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("idPedido", pedido.getIdPedido());
+        resultado.put("fecha", pedido.getFechaPedido());
+        resultado.put("estado", pedido.getEstado());
+        resultado.put("total", pedido.getTotal());
+
+        resultado.put("usuario", usuario);
+        resultado.put("equipo", equipo);
+        resultado.put("tipo", tipo.getNombre());
+
+        return resultado;
+    }
 }

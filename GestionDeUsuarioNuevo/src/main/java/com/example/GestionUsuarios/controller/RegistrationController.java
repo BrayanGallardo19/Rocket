@@ -11,7 +11,9 @@ import com.example.GestionUsuarios.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -80,15 +82,36 @@ public class RegistrationController {
         return ResponseEntity.status(HttpStatus.OK).body("Usuario eliminado correctamente.");
     }
 
+    // Obtener todos los usuarios con código 200 (OK) y 400 (Bad Request)
     @GetMapping("/usuarios")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.mostrarUsuarios();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            List<User> users = userService.mostrarUsuarios();
+            return ResponseEntity.status(HttpStatus.OK).body(users);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error: No se pudieron obtener los usuarios.");
+        }
     }
 
+    // Obtener usuario por username con código 200 (OK) , 404 (Not Found) y 500 (Internal Server Error)
     @GetMapping("/username/{username}")
-    public ResponseEntity<User> obtenerPorUsername(@PathVariable String username) {
-        User user = userService.obtenerPorUsername(username);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<?> obtenerPorUsername(@PathVariable String username) {
+        try {
+            User user = userService.obtenerPorUsername(username);
+            if (user == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Usuario no encontrado con username: " + username);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+
+            }
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Ocurrió un error al buscar el usuario: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+
     }
+
 }

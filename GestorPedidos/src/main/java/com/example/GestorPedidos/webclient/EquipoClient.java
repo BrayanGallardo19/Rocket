@@ -1,10 +1,10 @@
 package com.example.GestorPedidos.webclient;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.example.GestorPedidos.dto.EquipoDTO;
 
 import reactor.core.publisher.Mono;
 
@@ -18,25 +18,17 @@ public class EquipoClient {
                 .build();
     }
 
-    public EquipoDTO obtenerEquipoPorIdDTO(Integer idEquipo) {
-        try {
-            return webClient.get()
-                    .uri("/{idEquipo}", idEquipo)
-                    .retrieve()
-                    .onStatus(
-                    status -> status.is4xxClientError() || status.is5xxServerError(),
-                    response -> response.bodyToMono(String.class)
-                    .flatMap(body -> Mono
-                    .error(new RuntimeException("Error al obtener equipo: " + body))))
-                    .bodyToMono(EquipoDTO.class)
-                    .blockOptional()
-                    .orElseThrow(() -> new RuntimeException(
-                            "El equipo con ID " + idEquipo + " no existe o no se pudo obtener"));
-
-        } catch (Exception e) {
-            // manejar excepciones de forma más específica si es necesario
-            throw new RuntimeException("Error al obtener el equipo con ID " + idEquipo + ": " + e.getMessage(), e);
-        }
+    public Map<String, Object> obtenerEquipoPorId(Integer idEquipo) {
+        return webClient.get()
+                .uri("/{idEquipo}", idEquipo)
+                .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError() || status.is5xxServerError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new RuntimeException("Error al obtener equipo: " + body))))
+                .bodyToMono(Map.class)
+                .doOnNext(body -> System.out.println("Equipo obtenido: " + body))
+                .block();
     }
 
 }
