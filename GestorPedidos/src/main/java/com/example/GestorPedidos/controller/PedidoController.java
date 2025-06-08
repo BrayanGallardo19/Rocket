@@ -2,12 +2,15 @@ package com.example.GestorPedidos.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +32,6 @@ public class PedidoController {
 
     private final PedidoService pedidoService;
     private final UsuarioClient usuarioClient;
-
     private final TipoService tipoService;
 
     public PedidoController(PedidoService pedidoService, UsuarioClient usuarioClient, TipoService tipoService) {
@@ -45,17 +47,38 @@ public class PedidoController {
         List<Map<String, Object>> pedidos = pedidoService.obtenerPedidosParaCliente(username);
         return ResponseEntity.ok(pedidos);
     }
+    // obtener pedidos dependiendo del rol
+    @GetMapping("/{idPedido}")
+    public ResponseEntity<?> obtenerPedidoPorId(@PathVariable Integer idPedido) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Collection<? extends GrantedAuthority> roles = auth.getAuthorities();
 
-    // mostrar detalle de un pedido completo
-    @GetMapping("/detalle/{idPedido}")
-    public ResponseEntity<Map<String, Object>> mostrarPedidoCompleto (@PathVariable Integer idPedido) {
-        Map<String, Object> pedidoCompleto = pedidoService.obtenerPedidoCompleto(idPedido);
-        if (pedidoCompleto == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Pedido no encontrado"));
+        try {
+            if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_GESTOR_INVENTARIO"))) {
+                Map<String, Object> pedidoCompleto = pedidoService.obtenerPedidoCompleto(idPedido);
+                return ResponseEntity.ok(pedidoCompleto);
+
+            } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_CLIENTE"))) {
+                // bbtienes el username del auth y usas tu método para cliente
+                String username = auth.getName();
+                List<Map<String, Object>> pedidos = pedidoService.obtenerPedidosParaCliente(username);
+
+                // filtrar el pedido por idPedido
+                Map<String, Object> pedidoBuscado = pedidos.stream()
+                        .filter(p -> idPedido.equals(p.get("idPedido")))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Pedido no encontrado para este cliente"));
+
+                return ResponseEntity.ok(pedidoBuscado);
+
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permisos para ver este pedido");
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        return ResponseEntity.ok(pedidoCompleto);
     }
-     
+
     // crear un nuevo pedido
     @PostMapping("/crear")
     public ResponseEntity<Pedido> crearPedido(@RequestBody Map<String, Object> body) {
@@ -94,14 +117,6 @@ public class PedidoController {
     public ResponseEntity<List<Pedido>> mostrarTodosLosPedidos() {
         List<Pedido> pedidos = pedidoService.mostrarTodosLosPedidos();
         return ResponseEntity.ok(pedidos); // 200
-    }
-
-    // buscar pedidos siendo cliente
-    @GetMapping("/cliente/mis-pedidos")
-    public ResponseEntity<List<Map<String, Object>>> obtenerMisPedidos() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<Map<String, Object>> pedidos = pedidoService.obtenerPedidosParaCliente(username);
-        return ResponseEntity.ok(pedidos);
     }
 
     // eliminar pedido por id

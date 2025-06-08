@@ -29,7 +29,7 @@ public class RegistrationService {
             .rut(request.getRut())
             .username(request.getUsername())
             .password(passwordEncoder.encode(request.getPassword()))
-            .id_rol(request.getIdRol())
+            .idRol(request.getIdRol())
             .build();
 
         userRepository.save(user);

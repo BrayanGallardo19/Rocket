@@ -35,7 +35,7 @@ public class UserService {
                     user.setRut(updatedUser.getRut());
                     user.setUsername(updatedUser.getUsername());
                     user.setPassword(updatedUser.getPassword());
-                    user.setId_rol(updatedUser.getId_rol());
+                    user.setIdRol(updatedUser.getIdRol());
                     return userRepository.save(user);
                 })
                 .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado."));

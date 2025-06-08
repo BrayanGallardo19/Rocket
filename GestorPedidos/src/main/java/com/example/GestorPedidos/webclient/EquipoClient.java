@@ -10,16 +10,16 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class EquipoClient {
-    private final WebClient webClient;
+    private final WebClient webClientEquipo;
 
     public EquipoClient(@Value("${equipo-service.url}") String equipoServiceUrl) {
-        this.webClient = WebClient.builder()
+        this.webClientEquipo = WebClient.builder()
                 .baseUrl(equipoServiceUrl)
                 .build();
     }
 
     public Map<String, Object> obtenerEquipoPorId(Integer idEquipo) {
-        return webClient.get()
+        return webClientEquipo.get()
                 .uri("/{idEquipo}", idEquipo)
                 .retrieve()
                 .onStatus(

@@ -35,7 +35,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private String id_rol;
+    private Integer idRol;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -50,4 +50,12 @@ public class User implements UserDetails {
     public boolean isCredentialsNonExpired() { return true; }
     @Override
     public boolean isEnabled() { return true; }
+
+    // constructor para precargar usuarios con roles
+    public User(Integer id, String username, String password, Integer rolId) {
+    this.id = id;
+    this.username = username;
+    this.password = password;
+    this.idRol = idRol;
+}
 }

@@ -17,5 +17,5 @@ public class RegisterRequest {
     private String rut;
     private String username;
     private String password;
-    private String idRol;
+    private Integer idRol;
 }
