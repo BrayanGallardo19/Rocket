@@ -10,7 +10,10 @@ import com.example.GestorEntregas.model.Estado;
 import com.example.GestorEntregas.repository.EntregaRepository;
 import com.example.GestorEntregas.webclient.EstadoClient;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class EntregaService {
     private final EstadoClient estadoClient;
     private final EntregaRepository entregaRepository;

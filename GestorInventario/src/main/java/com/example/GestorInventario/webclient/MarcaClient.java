@@ -1,12 +1,15 @@
 package com.example.GestorInventario.webclient;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.example.GestorInventario.model.Marca;
+
+import reactor.core.publisher.Mono;
 
 @Component
 public class MarcaClient {
@@ -18,32 +21,31 @@ public class MarcaClient {
                 .build();
     }
 
-    public Marca obtenerMarcaPorId(Integer idMarca) {
-        try {
+    public Map<String, Object> obtenerMarcaPorId(Integer idMarca) {
         return webClient.get()
                 .uri("/{id}", idMarca)
                 .retrieve()
                 .onStatus(
-                status -> status.is4xxClientError() || status.is5xxServerError(),
-                response -> response.bodyToMono(String.class)
-                .map(msg -> new RuntimeException("Marca no encontrada: " + msg))
+                        status -> status.is4xxClientError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new RuntimeException("Marca no encontrada: " + body)))
                 )
-                .bodyToMono(Marca.class)
-                .block();  // espera la respuesta y retorna Marca o null si no existe
-    } catch (Exception e) {
-        throw new RuntimeException("Error al obtener la marca con ID " + idMarca + ": " + e.getMessage(), e);
+                .bodyToMono(Map.class)
+                .doOnNext(body -> System.out.println("Marca obtenida por ID: " + body))
+                .block();
     }
-}
-    public List<Marca> obtenerTodasLasMarcas() {
-        try {
-            return webClient.get()
-                    .uri("")  // path para obtener todas las marcas
-                    .retrieve()
-                    .bodyToFlux(Marca.class)
-                    .collectList()
-                    .block();
-        } catch (Exception e) {
-            throw new RuntimeException("Error al obtener las marcas: " + e.getMessage(), e);
-        }
+
+    public List<Map<String, Object>> obtenerTodasLasMarcas() {
+        return webClient.get()
+                .uri("")
+                .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new RuntimeException("Error al obtener marcas: " + body)))
+                )
+                .bodyToMono(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
+                .doOnNext(body -> System.out.println("Marcas obtenidas: " + body))
+                .block();
     }
 }

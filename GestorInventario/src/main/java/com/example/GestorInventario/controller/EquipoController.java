@@ -1,6 +1,7 @@
 package com.example.GestorInventario.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.GestorInventario.model.Equipo;
 import com.example.GestorInventario.model.Estado;
-import com.example.GestorInventario.model.Marca;
-import com.example.GestorInventario.model.Modelo;
 import com.example.GestorInventario.repository.EstadoRepository;
 import com.example.GestorInventario.service.EquipoService;
 import com.example.GestorInventario.webclient.MarcaClient;
@@ -39,65 +38,65 @@ public class EquipoController {
         this.equipoService = equipoService;
     }
 
-    // Mostrar todos los equipos
-    @GetMapping("")
+    // mostrar todos los equipos
+    @GetMapping
     public ResponseEntity<List<Equipo>> mostrarTodosLosEquipos() {
         List<Equipo> equipos = equipoService.mostrarTodosLosEquipos();
-        return ResponseEntity.ok(equipos);// 200 OK
+        return ResponseEntity.ok(equipos);
     }
 
-    // Obtener equipo por id
+    // obtener equipo por id
     @GetMapping("/{idEquipo}")
     public ResponseEntity<Equipo> obtenerEquipoPorId(@PathVariable Integer idEquipo) {
         Equipo equipo = equipoService.obtenerEquipoPorId(idEquipo);
         return ResponseEntity.ok(equipo);
     }
 
-    // Crear un equipo
+    // crear un equipo
     @PostMapping("/crear")
     public ResponseEntity<Equipo> crearEquipo(@RequestBody Equipo equipo) {
         Equipo creado = equipoService.crearEquipo(equipo);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
-    // Buscar equipos por estado
+    // buscar equipos por estado
     @GetMapping("/estado/{nombreEstado}")
     public ResponseEntity<List<Equipo>> buscarEquiposPorEstado(@PathVariable String nombreEstado) {
         List<Equipo> equipos = equipoService.buscarEquiposPorEstado(nombreEstado);
         return ResponseEntity.ok(equipos);
     }
 
-    // Eliminar un equipo por id
+    // eliminar un equipo por id
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<String> eliminarEquipo(@PathVariable Integer id) {
         equipoService.eliminarEquipo(id);
         return ResponseEntity.ok("Equipo eliminado correctamente");
     }
 
-    // Obtener todas las marcas desde el microservicio Marca
+    // obtener todas las marcas desde el microservicio Marca
     @GetMapping("/marcas")
-    public ResponseEntity<List<Marca>> obtenerTodasLasMarcas() {
-        List<Marca> marcas = marcaClient.obtenerTodasLasMarcas();
+    public ResponseEntity<List<Map<String, Object>>> obtenerTodasLasMarcas() {
+        List<Map<String, Object>> marcas = marcaClient.obtenerTodasLasMarcas();
         return ResponseEntity.ok(marcas);
     }
 
-    // Obtener todos los modelos desde el microservicio Modelo
+    // obtener todos los modelos desde el microservicio Modelo
     @GetMapping("/modelos")
-    public ResponseEntity<List<Modelo>> obtenerTodosLosModelos() {
-        List<Modelo> modelos = modeloClient.obtenerTodosLosModelos();
+    public ResponseEntity<List<Map<String, Object>>> obtenerTodosLosModelos() {
+        List<Map<String, Object>> modelos = modeloClient.obtenerTodosLosModelos();
         return ResponseEntity.ok(modelos);
     }
 
-    // Obtener todos los estados locales
+    // obtener todos los estados locales
     @GetMapping("/estados")
     public ResponseEntity<List<Estado>> obtenerEstados() {
         return ResponseEntity.ok(estadoRepo.findAll());
     }
 
-    // Modificar un equipo por id
+    // modificar un equipo por id (mismo método que crear)
     @PutMapping("/modificar/{idEquipo}")
     public ResponseEntity<Equipo> modificarEquipo(@PathVariable Integer idEquipo, @RequestBody Equipo equipo) {
-        equipo.setIdEquipo(idEquipo); // asegurar el id correcto
+        equipo.setIdEquipo(idEquipo); 
         Equipo actualizado = equipoService.crearEquipo(equipo);
         return ResponseEntity.ok(actualizado);
     }

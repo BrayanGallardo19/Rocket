@@ -1,5 +1,7 @@
 package com.example.GestorInventario.model;
 
+import java.util.Map;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,10 +43,10 @@ public class Equipo {
     private Integer idMarca;
     // variables para devolver el objeto completo
     @Transient
-    private Modelo modelo;
+    private Map<String, Object> modelo;
 
     @Transient
-    private Marca marca;
+    private Map<String, Object> marca;
 
     @ManyToOne
     @JoinColumn(name = "id_estado")
