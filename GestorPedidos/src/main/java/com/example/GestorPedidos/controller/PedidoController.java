@@ -1,6 +1,7 @@
 package com.example.GestorPedidos.controller;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,7 @@ public class PedidoController {
         List<Map<String, Object>> pedidos = pedidoService.obtenerPedidosParaCliente(username);
         return ResponseEntity.ok(pedidos);
     }
+
     // obtener pedidos dependiendo del rol
     @GetMapping("/{idPedido}")
     public ResponseEntity<?> obtenerPedidoPorId(@PathVariable Integer idPedido) {
@@ -93,7 +95,16 @@ public class PedidoController {
         pedido.setIdEquipo((Integer) body.get("idEquipo"));
         pedido.setTotal(Double.parseDouble(body.get("total").toString()));
         pedido.setIdUsuario((Integer) usuario.get("id"));
+        // asignar los datos de la dirección
+        Map<String, Object> direccion = new HashMap<>();
+        direccion.put("ciudad", body.get("ciudad"));
+        direccion.put("comuna", body.get("comuna"));
+        direccion.put("calle", body.get("calle"));
+        direccion.put("numero", body.get("numero"));
+        direccion.put("depto", body.get("depto"));
+        direccion.put("referencia", body.get("referencia"));
 
+        // asignar el estado inicial del pedido
         Integer idTipo = (Integer) body.get("idTipo");
 
         // crear el pedido con su tipo

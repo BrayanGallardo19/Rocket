@@ -44,7 +44,8 @@ public class PedidoService {
 
         pedido.setTipo(tipo);
         pedido.setFechaPedido(LocalDateTime.now());
-        pedido.setEstado("PENDIENTE"); // establecer estado por defecto
+        final int ID_ESTADO_PENDIENTE = 1; // id del estado pendiente
+        pedido.setIdEstado(ID_ESTADO_PENDIENTE); // establecer estado por defecto
 
         return pedidoRepository.save(pedido);
     }
@@ -78,8 +79,10 @@ public class PedidoService {
         }
         pedidoRepository.deleteById(idPedido);
     }
-    // obtener pedidos para un cliente por username, con datos simplificados para cliente
-public List<Map<String, Object>> obtenerPedidosParaCliente(String username) {
+
+    // obtener pedidos para un cliente por username, con datos simplificados para
+    // cliente
+    public List<Map<String, Object>> obtenerPedidosParaCliente(String username) {
     Map<String, Object> usuario = usuarioClient.obtenerUsuarioPorUsername(username);
     if (usuario == null || !usuario.containsKey("id")) {
         throw new RuntimeException("Usuario no encontrado o ID no disponible");
@@ -93,7 +96,15 @@ public List<Map<String, Object>> obtenerPedidosParaCliente(String username) {
         pedidoMap.put("idPedido", pedido.getIdPedido());
         pedidoMap.put("fecha", pedido.getFechaPedido());
         pedidoMap.put("total", pedido.getTotal());
-        pedidoMap.put("estado", pedido.getEstado());
+
+        // obtener el estado como Map desde el microservicio inventario
+        Map<String, Object> estadoMap = equipoClient.obtenerEstadoPorId(pedido.getIdEstado());
+        String nombreEstado = "Desconocido";
+        if (estadoMap != null && estadoMap.get("nombreEstado") != null) {
+            nombreEstado = estadoMap.get("nombreEstado").toString();
+        }
+        pedidoMap.put("estado", nombreEstado);
+        // obtiene objeto tipo, se verifica si es nulo y se asigna el nombre
         pedidoMap.put("tipo", pedido.getTipo() != null ? pedido.getTipo().getNombre() : null);
 
         // obtener equipo completo
@@ -123,29 +134,36 @@ public List<Map<String, Object>> obtenerPedidosParaCliente(String username) {
         return pedidoMap;
     }).collect(Collectors.toList());
 }
+
     // obtener pedido completo para el encargado
     public Map<String, Object> obtenerPedidoCompleto(Integer idPedido) {
-        Pedido pedido = pedidoRepository.findById(idPedido)
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+    Pedido pedido = pedidoRepository.findById(idPedido)
+            .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
 
-        Map<String, Object> usuario = usuarioClient.obtenerUsuarioPorId(pedido.getIdUsuario());
-        Map<String, Object> equipo = equipoClient.obtenerEquipoPorId(pedido.getIdEquipo());
+    Map<String, Object> usuario = usuarioClient.obtenerUsuarioPorId(pedido.getIdUsuario());
+    Map<String, Object> equipo = equipoClient.obtenerEquipoPorId(pedido.getIdEquipo());
 
-        Tipo tipo = pedido.getTipo();
-        if (tipo == null) {
-            throw new RuntimeException("El pedido no tiene tipo asignado");
-        }
-
-        Map<String, Object> resultado = new HashMap<>();
-        resultado.put("idPedido", pedido.getIdPedido());
-        resultado.put("fecha", pedido.getFechaPedido());
-        resultado.put("estado", pedido.getEstado());
-        resultado.put("total", pedido.getTotal());
-
-        resultado.put("usuario", usuario);
-        resultado.put("equipo", equipo);
-        resultado.put("tipo", tipo.getNombre());
-
-        return resultado;
+    Tipo tipo = pedido.getTipo();
+    if (tipo == null) {
+        throw new RuntimeException("El pedido no tiene tipo asignado");
     }
+
+    // Obtener estado vía WebClient con idEstado en Pedido (supongo que tienes ese campo en Pedido)
+    Map<String, Object> estado = equipoClient.obtenerEstadoPorId(pedido.getIdEstado());
+    if (estado == null) {
+        throw new RuntimeException("El pedido no tiene estado asignado");
+    }
+
+    Map<String, Object> resultado = new HashMap<>();
+    resultado.put("idPedido", pedido.getIdPedido());
+    resultado.put("fecha", pedido.getFechaPedido());
+    resultado.put("estado", estado.get("nombreEstado")); // campo según microservicio inventario
+    resultado.put("total", pedido.getTotal());
+
+    resultado.put("usuario", usuario);
+    resultado.put("equipo", equipo);
+    resultado.put("tipo", tipo.getNombre()); // usa objeto local Tipo
+
+    return resultado;
+}
 }

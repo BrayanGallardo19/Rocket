@@ -23,31 +23,39 @@ public class EquipoService {
     private final ModeloClient modeloClient;
 
     public EquipoService(EquipoRepository equipoRepository, EstadoRepository estadoRepository,
-                         MarcaClient marcaClient, ModeloClient modeloClient) {
+            MarcaClient marcaClient, ModeloClient modeloClient) {
         this.modeloClient = modeloClient;
         this.marcaClient = marcaClient;
         this.estadoRepository = estadoRepository;
         this.equipoRepository = equipoRepository;
     }
 
+    // metodo para mostrar todos los equipos
     public List<Equipo> mostrarTodosLosEquipos() {
         List<Equipo> equipos = equipoRepository.findAll();
         equipos.forEach(equipo -> {
-            equipo.setMarca(marcaClient.obtenerMarcaPorId(equipo.getIdMarca()));
-            equipo.setModelo(modeloClient.obtenerModeloPorId(equipo.getIdModelo()));
+            Map<String, Object> marcaMap = marcaClient.obtenerMarcaPorId(equipo.getIdMarca());
+            Map<String, Object> modeloMap = modeloClient.obtenerModeloPorId(equipo.getIdModelo());
+
+            equipo.setMarca((String) marcaMap.get("nombre"));
+            equipo.setModelo((String) modeloMap.get("nombre"));
+
         });
         return equipos;
     }
 
+    // metodo para obtener un equipo por su id
     public Equipo obtenerEquipoPorId(Integer id) {
         Equipo equipo = equipoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
-
-        equipo.setMarca(marcaClient.obtenerMarcaPorId(equipo.getIdMarca()));
-        equipo.setModelo(modeloClient.obtenerModeloPorId(equipo.getIdModelo()));
+        Map<String, Object> marcaMap = marcaClient.obtenerMarcaPorId(equipo.getIdMarca());
+        Map<String, Object> modeloMap = modeloClient.obtenerModeloPorId(equipo.getIdModelo());
+        equipo.setMarca((String) marcaMap.get("nombre"));
+        equipo.setModelo((String) modeloMap.get("nombre"));
         return equipo;
     }
 
+    // metodo para obtener el modelo y la marca de un equipo por su id
     public Map<String, Object> obtenerModeloDelEquipo(Integer idEquipo) {
         Equipo equipo = equipoRepository.findById(idEquipo)
                 .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
@@ -55,6 +63,7 @@ public class EquipoService {
         return modeloClient.obtenerModeloPorId(equipo.getIdModelo());
     }
 
+    // metodo para obtener la marca de un equipo por su id
     public Map<String, Object> obtenerMarcaDelEquipo(Integer idEquipo) {
         Equipo equipo = equipoRepository.findById(idEquipo)
                 .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
@@ -62,42 +71,35 @@ public class EquipoService {
         return marcaClient.obtenerMarcaPorId(equipo.getIdMarca());
     }
 
-    public List<Equipo> buscarEquiposPorEstado(String nombreEstado) {
-        Estado estado = estadoRepository.findByNombreEstado(nombreEstado)
-                .orElseThrow(() -> new RuntimeException("Estado no encontrado"));
+    // metodo para guardar un nuevo equipo
+    public Equipo guardarEquipo(Equipo equipo) {
 
-        List<Equipo> equipos = equipoRepository.findByEstado(estado);
-
-        equipos.forEach(equipo -> {
-            equipo.setMarca(marcaClient.obtenerMarcaPorId(equipo.getIdMarca()));
-            equipo.setModelo(modeloClient.obtenerModeloPorId(equipo.getIdModelo()));
-        });
-
-        return equipos;
-    }
-
-    public Equipo crearEquipo(Equipo equipo) {
-        Map<String, Object> marca = marcaClient.obtenerMarcaPorId(equipo.getMarca().get("idMarca") != null ? (Integer) equipo.getMarca().get("idMarca") : null);
-        if (marca == null)
+        // obtener marca por id desde el otro microservicio
+        Map<String, Object> marca = marcaClient.obtenerMarcaPorId(equipo.getIdMarca());
+        if (marca == null) {
             throw new RuntimeException("Marca no encontrada");
+        }
 
-        Map<String, Object> modelo = modeloClient.obtenerModeloPorId(equipo.getModelo().get("idModelo") != null ? (Integer) equipo.getModelo().get("idModelo") : null);
-        if (modelo == null)
+        // obtener modelo por id desde el otro microservicio
+        Map<String, Object> modelo = modeloClient.obtenerModeloPorId(equipo.getIdModelo());
+        if (modelo == null) {
             throw new RuntimeException("Modelo no encontrado");
-
+        }
+        // obtner estado por id desde el repositorio local
         Estado estado = estadoRepository.findById(equipo.getEstado().getIdEstado())
                 .orElseThrow(() -> new RuntimeException("Estado no encontrado"));
-
+        // setear los id y los nombres de marca y modelo
         equipo.setIdMarca((Integer) marca.get("idMarca"));
         equipo.setIdModelo((Integer) modelo.get("idModelo"));
         equipo.setEstado(estado);
 
-        equipo.setMarca(marca);
-        equipo.setModelo(modelo);
+        equipo.setMarca((String) marca.get("nombre"));
+        equipo.setModelo((String) modelo.get("nombre"));
 
         return equipoRepository.save(equipo);
     }
 
+    // metodo para actualizar un equipo
     public void eliminarEquipo(Integer id) {
         if (!equipoRepository.existsById(id)) {
             throw new RuntimeException("Equipo no encontrado");

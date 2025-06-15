@@ -10,7 +10,9 @@ import com.example.GestorMarcaYModelo.repository.MarcaRepository;
 import com.example.GestorMarcaYModelo.repository.ModeloRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 @Service
+@Transactional
 public class ModeloService {
     private final ModeloRepository modeloRepository;
     private final MarcaRepository marcaRepository;
@@ -43,5 +45,11 @@ public class ModeloService {
 
         modelo.setMarca(marca);
         return modeloRepository.save(modelo);
+    }
+
+    public void eliminarModelo(Integer id) {
+        Modelo modelo = modeloRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Modelo no encontrado con id: " + id));
+        modeloRepository.delete(modelo);
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,4 +39,16 @@ public class MarcaController {
         Marca creada = marcaService.guardarMarca(marca);
         return ResponseEntity.ok(creada);
     }
+
+    @PutMapping("modificar/{id}")
+    public ResponseEntity<Marca> modificarMarca(@PathVariable Integer id, @RequestBody Marca marca) {
+        Marca marcaExistente = marcaService.obtenerMarcaPorId(id);
+        if (marcaExistente == null) {
+            return ResponseEntity.notFound().build();
+        }
+        marca.setIdMarca(id);
+        Marca actualizada = marcaService.guardarMarca(marca);
+        return ResponseEntity.ok(actualizada);
+    }
+
 }

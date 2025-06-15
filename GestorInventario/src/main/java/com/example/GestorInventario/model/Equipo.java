@@ -41,12 +41,13 @@ public class Equipo {
 
     private Integer idModelo;
     private Integer idMarca;
+    
     // variables para devolver el objeto completo
     @Transient
-    private Map<String, Object> modelo;
+    private String modelo;
 
     @Transient
-    private Map<String, Object> marca;
+    private String marca;
 
     @ManyToOne
     @JoinColumn(name = "id_estado")

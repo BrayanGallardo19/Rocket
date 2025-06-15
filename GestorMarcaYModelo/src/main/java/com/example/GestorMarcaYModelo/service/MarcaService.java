@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 import com.example.GestorMarcaYModelo.model.Marca;
 import com.example.GestorMarcaYModelo.repository.MarcaRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class MarcaService {
     private final MarcaRepository marcaRepository;
 
@@ -46,4 +49,6 @@ public class MarcaService {
             throw new RuntimeException("Error al guardar la marca en la base de datos", e);
         }
     }
+
+   
 }

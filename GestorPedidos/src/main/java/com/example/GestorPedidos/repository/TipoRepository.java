@@ -12,6 +12,4 @@ public interface TipoRepository extends JpaRepository<Tipo, Integer> {
    
     List<Tipo> findByNombre(String nombre);
 
-    Optional<Tipo> findById(Integer idTipo);
-
 }

@@ -31,4 +31,17 @@ public class EquipoClient {
                 .block();
     }
 
+    public Map<String, Object> obtenerEstadoPorId(Integer idEstado) {
+        return webClientEquipo.get()
+                .uri("/estados/{idEstado}", idEstado)
+                .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError() || status.is5xxServerError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new RuntimeException("Error al obtener estado: " + body))))
+                .bodyToMono(Map.class)
+                .doOnNext(body -> System.out.println("Estado obtenido: " + body))
+                .block();
+    }
+
 }

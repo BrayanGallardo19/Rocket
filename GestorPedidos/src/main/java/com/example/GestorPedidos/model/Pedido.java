@@ -2,6 +2,7 @@ package com.example.GestorPedidos.model;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,17 +25,19 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idPedido;
 
+    @Column(name = "id_usuario")
     private Integer idUsuario;
-
+    @Column(name = "id_equipo")
     private Integer idEquipo;
-    
+    @Column(name = "fecha_pedido")
     private LocalDateTime fechaPedido;
-
-    private String estado;
-
+    @Column(name = "id_estado")
+    private Integer idEstado;
+    @Column(name = "total")
     private Double total;
 
     @ManyToOne
     @JoinColumn(name = "id_tipo")
     private Tipo tipo;
+
 }

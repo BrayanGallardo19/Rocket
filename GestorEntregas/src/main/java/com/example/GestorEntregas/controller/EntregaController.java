@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 
 import com.example.GestorEntregas.model.Entrega;
-import com.example.GestorEntregas.model.Estado;
 import com.example.GestorEntregas.service.EntregaService;
 import com.example.GestorEntregas.webclient.EstadoClient;
 
@@ -48,41 +47,32 @@ public class EntregaController {
         return ResponseEntity.ok(entregas); //200
     }
 
-    //metodo para actualizar el estado de una entrega
+     // metodo para actualizar el estado de una entrega
     @PutMapping("actualizar/{idEntrega}/estado")
     public ResponseEntity<Entrega> actualizarEstadoEntrega(@PathVariable Integer idEntrega, @RequestBody Map<String, String> body) {
         String nuevoEstado = body.get("nuevoEstado");
         Entrega entregaActualizada = entregaService.actualizarEstadoEntrega(idEntrega, nuevoEstado);
-        return ResponseEntity.ok(entregaActualizada);//200
+        return ResponseEntity.ok(entregaActualizada);
     }
 
-    // metodo para buscar entregas por id del pedido
-    /*@GetMapping("/pedido/{idPedido}")
-    public ResponseEntity<List<Entrega>> buscarPorPedido(@PathVariable Integer idPedido) {
-        
-        List<Entrega> entregas = entregaService.buscarPorPedido(idPedido);
-        return ResponseEntity.ok(entregas);//200
-    }/* */
-
     // metodo para eliminar entrega por id
-    
     @DeleteMapping("/{idEntrega}")
     public ResponseEntity<Void> eliminarEntrega(@PathVariable Integer idEntrega) {
         entregaService.eliminarEntrega(idEntrega);
         return ResponseEntity.noContent().build();
     }
 
-    // Endpoint para obtener todos los estados
+    // metodo para obtener todos los estados usando el EstadoClient
     @GetMapping("/estados")
-    public ResponseEntity<List<Estado>> getEstados() {
-        List<Estado> estados = estadoClient.obtenerEstados();
+    public ResponseEntity<List<Map<String, Object>>> getEstados() {
+        List<Map<String, Object>> estados = estadoClient.obtenerTodosLosEstados();
         return ResponseEntity.ok(estados);
     }
 
-    // Endpoint para obtener un estado por nombre
+    // metodo para obtener un estado por nombre usando el EstadoClient
     @GetMapping("/estado/nombre/{nombre}")
-    public ResponseEntity<Estado> getEstadoPorNombre(@PathVariable String nombre) {
-        Estado estado = estadoClient.obtenerEstadoPorNombre(nombre);
+    public ResponseEntity<Map<String, Object>> getEstadoPorNombre(@PathVariable String nombre) {
+        Map<String, Object> estado = estadoClient.obtenerEstadoPorNombre(nombre);
         return ResponseEntity.ok(estado);
     }
 }

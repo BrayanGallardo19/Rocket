@@ -18,6 +18,7 @@ import com.example.GestorInventario.model.Equipo;
 import com.example.GestorInventario.model.Estado;
 import com.example.GestorInventario.repository.EstadoRepository;
 import com.example.GestorInventario.service.EquipoService;
+import com.example.GestorInventario.service.EstadoService;
 import com.example.GestorInventario.webclient.MarcaClient;
 import com.example.GestorInventario.webclient.ModeloClient;
 
@@ -28,11 +29,11 @@ public class EquipoController {
     private final EquipoService equipoService;
     private final MarcaClient marcaClient;
     private final ModeloClient modeloClient;
-    private final EstadoRepository estadoRepo;
+    private final EstadoService estadoService;
 
     public EquipoController(EquipoService equipoService, MarcaClient marcaClient, ModeloClient modeloClient,
-            EstadoRepository estadoRepo) {
-        this.estadoRepo = estadoRepo;
+            EstadoRepository estadoRepo, EstadoService estadoService) {
+        this.estadoService = estadoService;
         this.marcaClient = marcaClient;
         this.modeloClient = modeloClient;
         this.equipoService = equipoService;
@@ -52,17 +53,17 @@ public class EquipoController {
         return ResponseEntity.ok(equipo);
     }
 
-    // crear un equipo
-    @PostMapping("/crear")
+    // guardar un equipo
+    @PostMapping("/guardar")
     public ResponseEntity<Equipo> crearEquipo(@RequestBody Equipo equipo) {
-        Equipo creado = equipoService.crearEquipo(equipo);
+        Equipo creado = equipoService.guardarEquipo(equipo);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     // buscar equipos por estado
     @GetMapping("/estado/{nombreEstado}")
     public ResponseEntity<List<Equipo>> buscarEquiposPorEstado(@PathVariable String nombreEstado) {
-        List<Equipo> equipos = equipoService.buscarEquiposPorEstado(nombreEstado);
+        List<Equipo> equipos = estadoService.buscarEquiposPorEstado(nombreEstado);
         return ResponseEntity.ok(equipos);
     }
 
@@ -90,14 +91,19 @@ public class EquipoController {
     // obtener todos los estados locales
     @GetMapping("/estados")
     public ResponseEntity<List<Estado>> obtenerEstados() {
-        return ResponseEntity.ok(estadoRepo.findAll());
+        return ResponseEntity.ok(estadoService.mostrarTodosLosEstados());
     }
-
+    // obtener un estado por id
+    @GetMapping("/estados/{idEstado}")
+    public ResponseEntity<Estado> obtenerEstadoPorId(@PathVariable Integer idEstado) {
+        Estado estado = estadoService.obtenerEstadoPorId(idEstado);
+        return ResponseEntity.ok(estado);
+    }
     // modificar un equipo por id (mismo método que crear)
     @PutMapping("/modificar/{idEquipo}")
     public ResponseEntity<Equipo> modificarEquipo(@PathVariable Integer idEquipo, @RequestBody Equipo equipo) {
         equipo.setIdEquipo(idEquipo); 
-        Equipo actualizado = equipoService.crearEquipo(equipo);
+        Equipo actualizado = equipoService.guardarEquipo(equipo);
         return ResponseEntity.ok(actualizado);
     }
 }
