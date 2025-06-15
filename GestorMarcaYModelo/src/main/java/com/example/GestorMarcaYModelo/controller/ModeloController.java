@@ -2,6 +2,7 @@ package com.example.GestorMarcaYModelo.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,21 +36,16 @@ public class ModeloController {
     }
 
     // muestra todos los modelos
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<List<Modelo>> listarModelos() {
         return ResponseEntity.ok(modeloService.listarModelos());
     }
-
-    // muestra los modelos por marca
-    @GetMapping("/marca/{id}")
-    public ResponseEntity<List<Modelo>> listarModelosPorMarca(@PathVariable Integer id) {
-        return ResponseEntity.ok(modeloService.listarModelosPorMarca(id));
-    }
+  
     // crea un modelo
     @PostMapping("/crear")
     public ResponseEntity<Modelo> crearModelo(@RequestBody Modelo modelo) {
         Modelo creado = modeloService.guardarModelo(modelo);
-        return ResponseEntity.ok(creado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     // modificar un modelo
@@ -65,7 +61,7 @@ public class ModeloController {
     }
     
     // eliminar un modelo por id
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminarModelo(@PathVariable Integer id) {
         modeloService.eliminarModelo(id);
         return ResponseEntity.noContent().build();

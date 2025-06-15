@@ -21,7 +21,7 @@ public class ModeloService {
         this.marcaRepository = marcaRepository;
         this.modeloRepository = modeloRepository;
     }
-
+    // metodo para listar todos los modelos
     public List<Modelo> listarModelos() {
         return modeloRepository.findAll();
     }
@@ -29,10 +29,6 @@ public class ModeloService {
     public Modelo obtenerModeloPorId(Integer id) {
         return modeloRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Modelo no encontrado"));
-    }
-    // mostrar modelos con marca
-    public List<Modelo> listarModelosPorMarca(Integer idMarca) {
-        return modeloRepository.findByMarcaIdMarca(idMarca);
     }
     // metodo para guardar un modelo
     public Modelo guardarModelo(Modelo modelo) {
@@ -47,9 +43,12 @@ public class ModeloService {
         return modeloRepository.save(modelo);
     }
 
+    // eliminar un modelo por id
     public void eliminarModelo(Integer id) {
         Modelo modelo = modeloRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Modelo no encontrado con id: " + id));
         modeloRepository.delete(modelo);
     }
+
+
 }

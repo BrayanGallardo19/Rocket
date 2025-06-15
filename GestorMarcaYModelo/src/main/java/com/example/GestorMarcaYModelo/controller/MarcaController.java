@@ -2,7 +2,9 @@ package com.example.GestorMarcaYModelo.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +26,7 @@ public class MarcaController {
     //mostrar todas las marcas
     @GetMapping("")
     public ResponseEntity<List<Marca>> listarMarcas() {
-        return ResponseEntity.ok(marcaService.obtenerTodasLasMarcas());
+        return ResponseEntity.ok(marcaService.listarMarcas());
     }
 
     // obtener una marca por id
@@ -37,18 +39,27 @@ public class MarcaController {
     @PostMapping("/crear")
     public ResponseEntity<Marca> crearMarca(@RequestBody Marca marca) {
         Marca creada = marcaService.guardarMarca(marca);
-        return ResponseEntity.ok(creada);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
     }
-
+    // modificar una marca por id
     @PutMapping("modificar/{id}")
     public ResponseEntity<Marca> modificarMarca(@PathVariable Integer id, @RequestBody Marca marca) {
         Marca marcaExistente = marcaService.obtenerMarcaPorId(id);
         if (marcaExistente == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();// 
         }
         marca.setIdMarca(id);
         Marca actualizada = marcaService.guardarMarca(marca);
         return ResponseEntity.ok(actualizada);
     }
-
+    // eliminar una marca por id
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<Void> eliminarMarca(@PathVariable Integer id) {
+        try {
+            marcaService.eliminarMarca(id);
+            return ResponseEntity.noContent().build();// 204 No Content
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -41,12 +42,12 @@ public class EquipoServiceTest {
         equipoMock.setIdMarca(10);
         equipoMock.setIdModelo(20);
 
-         // Marca mock como Map
+         // marca mock como Map
         Map<String, Object> marcaMock = new HashMap<>();
         marcaMock.put("id", 10);
         marcaMock.put("nombre", "Marca Test");
 
-        // Modelo mock como Map
+        // modelo mock como Map
         Map<String, Object> modeloMock = new HashMap<>();
         modeloMock.put("id", 20);
         modeloMock.put("nombre", "Modelo Test");

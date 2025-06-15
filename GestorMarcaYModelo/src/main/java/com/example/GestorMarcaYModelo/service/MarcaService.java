@@ -19,7 +19,7 @@ public class MarcaService {
         this.marcaRepository = marcaRepository;
     }
     //mostrar todas las marcas
-    public List<Marca> obtenerTodasLasMarcas() {
+    public List<Marca> listarMarcas() {
         try {
             return marcaRepository.findAll();
         } catch (Exception e) {
@@ -50,5 +50,19 @@ public class MarcaService {
         }
     }
 
+    // eliminar una marca por id
+    public void eliminarMarca(Integer idMarca) {
+        if (idMarca == null) {
+            throw new IllegalArgumentException("El ID de la marca no puede ser nulo");
+        }
+        if (!marcaRepository.existsById(idMarca)) {
+            throw new RuntimeException("Marca no encontrada con ID: " + idMarca);
+        }
+        try {
+            marcaRepository.deleteById(idMarca);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error al eliminar la marca de la base de datos", e);
+        }
+    }
    
 }
