@@ -15,6 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.GestorMarcaYModelo.model.Marca;
 import com.example.GestorMarcaYModelo.service.MarcaService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController
 @RequestMapping("api/v1/marcas")
 public class MarcaController {
@@ -23,36 +30,93 @@ public class MarcaController {
     public MarcaController(MarcaService marcaService) {
         this.marcaService = marcaService;
     }
-    //mostrar todas las marcas
+
+    // mostrar todas las marcas
+    @Operation(summary = "Obtener una lista de todas las marcas")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de marcas obtenida correctamente"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Marca.class)))
+    })
     @GetMapping("")
     public ResponseEntity<List<Marca>> listarMarcas() {
-        return ResponseEntity.ok(marcaService.listarMarcas());
+        try {
+            return ResponseEntity.ok(marcaService.listarMarcas()); // 200 OK
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 internal server error
+        }
     }
 
     // obtener una marca por id
+    @Operation(summary = "Obtener una marca por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Marca encontrada"),
+            @ApiResponse(responseCode = "404", description = "Marca no encontrada"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Marca.class)))
+    })
     @GetMapping("/{id}")
     public ResponseEntity<Marca> obtenerMarcaPorId(@PathVariable Integer id) {
-        Marca marca = marcaService.obtenerMarcaPorId(id);
-        return ResponseEntity.ok(marca);
+        try {
+            Marca marca = marcaService.obtenerMarcaPorId(id);
+            if (marca == null) {
+                return ResponseEntity.notFound().build(); // 404 Not Found
+            }
+            return ResponseEntity.ok(marca); // 200 OK
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
+        }
     }
-    //crear una marca
-    @PostMapping("/crear")
-    public ResponseEntity<Marca> crearMarca(@RequestBody Marca marca) {
+
+    // crear una marca
+    @Operation(summary = "Guardar una nueva marca")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Marca creada correctamente"),
+            @ApiResponse(responseCode = "400", description = "Solicitud incorrecta, datos inválidos"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Marca.class)))
+    })
+    @PostMapping("/guardar")
+    public ResponseEntity<Marca> guardarMarca(@RequestBody Marca marca) {
+        try {
         Marca creada = marcaService.guardarMarca(marca);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+        if (creada == null) {
+            return ResponseEntity.badRequest().build(); // 400 Bad Request
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(creada);// 201 Created
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
+        }
+        
     }
+
     // modificar una marca por id
+    @Operation(summary = "Modificar una marca existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Marca modificada correctamente"),
+            @ApiResponse(responseCode = "404", description = "Marca no encontrada"),
+            @ApiResponse(responseCode = "400", description = "Solicitud incorrecta, datos inválidos"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Marca.class)))
+    })
     @PutMapping("modificar/{id}")
     public ResponseEntity<Marca> modificarMarca(@PathVariable Integer id, @RequestBody Marca marca) {
+        try {
         Marca marcaExistente = marcaService.obtenerMarcaPorId(id);
         if (marcaExistente == null) {
-            return ResponseEntity.notFound().build();// 
+            return ResponseEntity.notFound().build();// 404 Not Found
         }
         marca.setIdMarca(id);
         Marca actualizada = marcaService.guardarMarca(marca);
-        return ResponseEntity.ok(actualizada);
+        return ResponseEntity.ok(actualizada); // 200 OK
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
+        }
     }
+
     // eliminar una marca por id
+    @Operation(summary = "Eliminar una marca por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Marca eliminada correctamente"),
+            @ApiResponse(responseCode = "404", description = "Marca no encontrada"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Marca.class)))
+    })
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminarMarca(@PathVariable Integer id) {
         try {

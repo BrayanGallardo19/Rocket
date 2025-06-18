@@ -16,6 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.GestorMarcaYModelo.model.Modelo;
 import com.example.GestorMarcaYModelo.service.ModeloService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController
 @RequestMapping("api/v1/modelos")
 public class ModeloController {
@@ -26,6 +32,11 @@ public class ModeloController {
     }
 
     // muestra un modelo por id
+    @Operation(summary = "Obtener un modelo por ID")
+    @ApiResponses(value = {
+            @ApiResponse (responseCode = "200", description = "Modelo encontrado"),
+            @ApiResponse (responseCode = "404", description = "Modelo no encontrado", content = @Content(schema = @Schema(implementation = Modelo.class)))
+    })
     @GetMapping("/{id}")
     public ResponseEntity<Modelo> obtenerModeloPorId(@PathVariable Integer id) {
         Modelo modelo = modeloService.obtenerModeloPorId(id);
@@ -36,34 +47,81 @@ public class ModeloController {
     }
 
     // muestra todos los modelos
+    @Operation(summary = "Obtener una lista de todos los modelos")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de modelos obtenida correctamente"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Modelo.class)))
+    })
     @GetMapping()
     public ResponseEntity<List<Modelo>> listarModelos() {
-        return ResponseEntity.ok(modeloService.listarModelos());
+        try {
+            return ResponseEntity.ok(modeloService.listarModelos()); // 200 OK
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 internal server error
+        }
     }
   
     // crea un modelo
-    @PostMapping("/crear")
-    public ResponseEntity<Modelo> crearModelo(@RequestBody Modelo modelo) {
+    @Operation(summary = "Guardar un nuevo modelo enlazado a una marca")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Modelo creado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Solicitud incorrecta, datos inválidos"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Modelo.class)))
+    })
+    @PostMapping("/guardar")
+    public ResponseEntity<Modelo> guardarModelo(@RequestBody Modelo modelo) {
+        try {
         Modelo creado = modeloService.guardarModelo(modelo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+        if (creado == null) {
+            return ResponseEntity.badRequest().build(); // 400 Bad Request
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado); // 201 Created
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
+        }
+        
     }
 
     // modificar un modelo
+    @Operation(summary = "Modificar un modelo por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Modelo modificado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Modelo no encontrado"),
+            @ApiResponse(responseCode = "400", description = "Solicitud incorrecta, datos inválidos"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Modelo.class)))
+    })
     @PutMapping("/modificar/{id}")
     public ResponseEntity<Modelo> modificarModelo(@PathVariable Integer id, @RequestBody Modelo modelo) {
+        try {
         Modelo modeloExistente = modeloService.obtenerModeloPorId(id);
         if (modeloExistente == null) {
             return ResponseEntity.notFound().build();
         }
+
         modelo.setIdModelo(id);
         Modelo actualizado = modeloService.guardarModelo(modelo);
         return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
+        }
     }
     
     // eliminar un modelo por id
+    @Operation(summary = "Eliminar un modelo por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Modelo eliminado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Modelo no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Modelo.class)))
+    })
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminarModelo(@PathVariable Integer id) {
-        modeloService.eliminarModelo(id);
-        return ResponseEntity.noContent().build();
+        try {
+            modeloService.eliminarModelo(id); // Verifica si el modelo existe
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
+        }
+        
+        
     }
 }

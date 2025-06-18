@@ -21,8 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.GestorPedidos.model.Pedido;
 import com.example.GestorPedidos.service.PedidoService;
-import com.example.GestorPedidos.service.TipoService;
 import com.example.GestorPedidos.webclient.UsuarioClient;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/v1/pedidos")
@@ -30,20 +35,36 @@ public class PedidoController {
 
     private final PedidoService pedidoService;
     private final UsuarioClient usuarioClient;
-    private final TipoService tipoService;
 
-    public PedidoController(PedidoService pedidoService, UsuarioClient usuarioClient, TipoService tipoService) {
+    public PedidoController(PedidoService pedidoService, UsuarioClient usuarioClient) {
         this.pedidoService = pedidoService;
         this.usuarioClient = usuarioClient;
-        this.tipoService = tipoService;
 
     }
 
     // buscar pedidos de cliente por username
-    @GetMapping("/cliente")
+    @Operation(summary = "Obtener pedidos de un cliente por su nombre de usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedidos encontrados"),
+            @ApiResponse(responseCode = "404", description = "No se encontraron pedidos para el usuario"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Pedido.class)))
+    })
+    @GetMapping("/cliente/{username}")
     public ResponseEntity<?> obtenerPedidosCliente(@RequestParam String username) {
+        try {
         List<Map<String, Object>> pedidos = pedidoService.obtenerPedidosParaCliente(username);
+        if (pedidos == null || pedidos.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron pedidos para el usuario");
+        }
         return ResponseEntity.ok(pedidos);
+    } catch (RuntimeException e) {
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 si no se encuentra usuario, controlado desde el service
+    } catch (Exception e) {
+        
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");// 500 si ocurre un error inesperado
+    }
     }
 
     // obtener pedidos dependiendo del rol
@@ -55,7 +76,7 @@ public class PedidoController {
         try {
             if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_GESTOR_INVENTARIO"))) {
                 Map<String, Object> pedidoCompleto = pedidoService.obtenerPedidoCompleto(idPedido);
-                return ResponseEntity.ok(pedidoCompleto);
+                return ResponseEntity.ok(pedidoCompleto); // ok si se encuentra el pedido
 
             } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_CLIENTE"))) {
                 // bbtienes el username del auth y usas tu método para cliente
@@ -71,15 +92,16 @@ public class PedidoController {
                 return ResponseEntity.ok(pedidoBuscado);
 
             } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permisos para ver este pedido");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permisos para ver este pedido"); // 403 si el usuario no tiene permisos
             }
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 si no se encuentra el pedido
         }
     }
 
     // crear un nuevo pedido
     @PostMapping("/crear")
+    @ApiResponses
     public ResponseEntity<Pedido> crearPedido(@RequestBody Map<String, Object> body) {
         // obtener username desde el token
         String username = SecurityContextHolder.getContext().getAuthentication().getName();

@@ -2,6 +2,7 @@ package com.example.GestorInventario.model;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,40 +21,49 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
+@Schema(description = "Datos del equipo")
 public class Equipo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "ID autoincremental del equipo")
     private Integer idEquipo;
 
     @Column(nullable = false, length = 60)
+    @Schema(description = "Nombre del equipo")
     private String nombre;
 
     @Column(nullable = false, length = 40)
+    @Schema(description = "Precio de venta del equipo")
     private Double precioVenta;
 
     @Column(nullable = false, length = 40)
+    @Schema(description = "Precio de arriendo del equipo")
     private Double precioArriendo;
 
     @Column(nullable = false, length = 40)
+    @Schema(description = "Patente del equipo")
     private String patente;
-
+    @Schema(description = "ID del modelo asociado al equipo")
     private Integer idModelo;
+    @Schema(description = "ID de la marca asociada al equipo")
     private Integer idMarca;
     
     // variables para devolver el objeto completo
     @Transient
+    @Schema(description = "Nombre del modelo asociado al equipo")
     private String modelo;
 
     @Transient
+    @Schema(description = "Nombre de la marca asociada al equipo")
     private String marca;
 
     @ManyToOne
     @JoinColumn(name = "id_estado")
+    @Schema(description = "Nombre del estado del equipo")
     private Estado estado;
 
-    // constructor para crear un equipo sin contar la id
+    // constructor para precargar un equipo sin contar la id
     public Equipo(String nombre, Double precioVenta, Double precioArriendo, String patente, Integer idModelo, Integer idMarca, Estado estado) {
     this.nombre = nombre;
     this.precioVenta = precioVenta;

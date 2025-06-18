@@ -18,7 +18,7 @@ public class MarcaService {
     public MarcaService(MarcaRepository marcaRepository) {
         this.marcaRepository = marcaRepository;
     }
-    //mostrar todas las marcas
+    //mostrar todas las marcas 
     public List<Marca> listarMarcas() {
         try {
             return marcaRepository.findAll();
@@ -28,17 +28,11 @@ public class MarcaService {
     }
     //obtener una marca por id
     public Marca obtenerMarcaPorId(Integer idMarca) {
-        if (idMarca == null) {
-            throw new IllegalArgumentException("El ID de la marca no puede ser nulo");
-        }
         return marcaRepository.findById(idMarca)
                 .orElseThrow(() -> new RuntimeException("Marca no encontrada con ID: " + idMarca));
     }
     //guardar una marca
     public Marca guardarMarca(Marca marca) {
-        if (marca == null) {
-            throw new IllegalArgumentException("La marca no puede ser nula");
-        }
         if (marca.getNombre() == null || marca.getNombre().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de la marca es obligatorio");
         }

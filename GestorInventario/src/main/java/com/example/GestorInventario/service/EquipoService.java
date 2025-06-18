@@ -55,22 +55,6 @@ public class EquipoService {
         return equipo;
     }
 
-    // metodo para obtener el modelo y la marca de un equipo por su id
-    public Map<String, Object> obtenerModeloDelEquipo(Integer idEquipo) {
-        Equipo equipo = equipoRepository.findById(idEquipo)
-                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
-
-        return modeloClient.obtenerModeloPorId(equipo.getIdModelo());
-    }
-
-    // metodo para obtener la marca de un equipo por su id
-    public Map<String, Object> obtenerMarcaDelEquipo(Integer idEquipo) {
-        Equipo equipo = equipoRepository.findById(idEquipo)
-                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
-
-        return marcaClient.obtenerMarcaPorId(equipo.getIdMarca());
-    }
-
     // metodo para guardar un nuevo equipo
     public Equipo guardarEquipo(Equipo equipo) {
 
@@ -99,11 +83,45 @@ public class EquipoService {
         return equipoRepository.save(equipo);
     }
 
-    // metodo para actualizar un equipo
+    // metodo para eliminar un equipo
     public void eliminarEquipo(Integer id) {
         if (!equipoRepository.existsById(id)) {
             throw new RuntimeException("Equipo no encontrado");
         }
         equipoRepository.deleteById(id);
     }
+
+    // metodo para modificar un equipo
+    public Equipo modificarEquipo(Integer idEquipo, Equipo equipoActualizado) {
+        Equipo equipoExistente = equipoRepository.findById(idEquipo)
+                .orElseThrow(() -> new RuntimeException("Equipo no encontrado con ID: " + idEquipo));
+
+        Map<String, Object> marca = marcaClient.obtenerMarcaPorId(equipoActualizado.getIdMarca());
+        if (marca == null) {
+            throw new RuntimeException("Marca no encontrada");
+        }
+        Map<String, Object> modelo = modeloClient.obtenerModeloPorId(equipoActualizado.getIdModelo());
+        if (modelo == null) {
+            throw new RuntimeException("Modelo no encontrado");
+        }
+        Estado estado = estadoRepository.findById(equipoActualizado.getEstado().getIdEstado())
+                .orElseThrow(() -> new RuntimeException("Estado no encontrado"));
+
+        // actualizar los campos del equipo existente
+        equipoExistente.setNombre(equipoActualizado.getNombre());
+        equipoExistente.setPrecioVenta(equipoActualizado.getPrecioVenta());
+        equipoExistente.setPrecioArriendo(equipoActualizado.getPrecioArriendo());
+        equipoExistente.setPatente(equipoActualizado.getPatente());
+        equipoExistente.setIdMarca((Integer) marca.get("idMarca"));
+        equipoExistente.setIdModelo((Integer) modelo.get("idModelo"));
+        equipoExistente.setEstado(estado);
+
+        equipoExistente.setMarca((String) marca.get("nombre"));
+        equipoExistente.setModelo((String) modelo.get("nombre"));
+
+        // guardar el equipo actualizado
+        return equipoRepository.save(equipoExistente);
+
+    }
+
 }

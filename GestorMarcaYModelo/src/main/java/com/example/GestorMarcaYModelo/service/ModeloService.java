@@ -30,7 +30,7 @@ public class ModeloService {
         return modeloRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Modelo no encontrado"));
     }
-    // metodo para guardar un modelo
+    // metodo para guardar un modelo y asociarlo a una marca existente
     public Modelo guardarModelo(Modelo modelo) {
         if (modelo.getIdMarca() == null) {
             throw new IllegalArgumentException("El idMarca es obligatorio.");

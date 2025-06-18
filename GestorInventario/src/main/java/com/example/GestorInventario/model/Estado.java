@@ -1,6 +1,7 @@
 package com.example.GestorInventario.model;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,14 +18,16 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "Datos del estado de un equipo")
 public class Estado {
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "ID autoincremental del estado")
     private Integer idEstado;
-
-    @Column(nullable = false, length = 40)
+    @Schema(description = "Nombre del estado del equipo")
+    @Column(nullable = false)
     private String nombreEstado; 
 
    

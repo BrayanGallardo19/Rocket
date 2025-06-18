@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 import com.example.GestorPedidos.model.Tipo;
 import com.example.GestorPedidos.repository.TipoRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class TipoService {
     private final TipoRepository tipoRepository;
  

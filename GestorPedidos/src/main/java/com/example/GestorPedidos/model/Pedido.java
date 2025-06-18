@@ -2,6 +2,7 @@ package com.example.GestorPedidos.model;
 
 import java.time.LocalDateTime;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,25 +20,37 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "Datos del pedido")
 public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "ID autoincremental del pedido")
     private Integer idPedido;
 
+    @Schema(description = "ID del usuario que realiza el pedido")
     @Column(name = "id_usuario")
     private Integer idUsuario;
+
+    @Schema(description = "ID del equipo asociado al pedido")
     @Column(name = "id_equipo")
     private Integer idEquipo;
+    
+    @Schema(description = "Fecha del pedido")
     @Column(name = "fecha_pedido")
     private LocalDateTime fechaPedido;
+
+    @Schema(description = "ID del estado del pedido")
     @Column(name = "id_estado")
     private Integer idEstado;
+
+    @Schema(description = "Costo total del pedido")
     @Column(name = "total")
     private Double total;
 
     @ManyToOne
     @JoinColumn(name = "id_tipo")
+    @Schema(description = "Tipo de pedido ")
     private Tipo tipo;
 
 }

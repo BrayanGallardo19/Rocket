@@ -1,6 +1,7 @@
 package com.example.GestorMarcaYModelo.model;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,11 +17,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "Datos de la marca")
 public class Marca {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "ID autoincremental de la marca")
     private Integer idMarca;
-
+    @Schema(description = "Nombre de la marca")
     @Column(nullable = false)
     private String nombre;
 
