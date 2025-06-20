@@ -43,7 +43,7 @@ public class PedidoService {
                 .orElseThrow(() -> new RuntimeException("Tipo no encontrado con id: " + idTipo));
 
         pedido.setTipo(tipo);
-        pedido.setFechaPedido(LocalDateTime.now());
+        pedido.setFechaPedido(LocalDateTime.now()); // establecer fecha actual
         final int ID_ESTADO_PENDIENTE = 1; // id del estado pendiente
         pedido.setIdEstado(ID_ESTADO_PENDIENTE); // establecer estado por defecto
 

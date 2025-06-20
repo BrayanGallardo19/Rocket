@@ -143,7 +143,7 @@ public class PedidoController {
     }
 
     // mostrar todos los pedidos
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<List<Pedido>> mostrarTodosLosPedidos() {
         List<Pedido> pedidos = pedidoService.mostrarTodosLosPedidos();
         return ResponseEntity.ok(pedidos); // 200

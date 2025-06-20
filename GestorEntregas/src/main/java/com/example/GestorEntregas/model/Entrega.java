@@ -1,13 +1,16 @@
 package com.example.GestorEntregas.model;
 
 import java.time.LocalDate;
+import java.util.Map;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +20,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "Datos de la Entrega")
 public class Entrega {
 
     @Id
@@ -34,6 +38,16 @@ public class Entrega {
 
     private Integer idPedido;
 
+    private String direccionEntrega;
+    private String comuna;
+    private String ciudad;
+    // datos del transportista
+    private Integer idCoordinadorLogistico;
+    @Transient
+    private Map<String, Object> coordinadorLogistico; // datos completos del usuario coordinador
+    // datos del contacto
+    private String contactoNombre;
+    private String contactoTelefono;
     // variable de otro microservicio
     private String estado;
 }

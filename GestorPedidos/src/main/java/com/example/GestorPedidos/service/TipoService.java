@@ -18,16 +18,43 @@ public class TipoService {
         this.tipoRepository = tipoRepository;
     }
 
+    // obtener un tipo por ID
     public Tipo obtenerPorId(Integer id) {
         return tipoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tipo con ID " + id + " no encontrado."));
     }
 
-    public List<Tipo> listarTodos() {
+    // mostrar todos los tipos
+    public List<Tipo> mostrarTodos() {
         try {
             return tipoRepository.findAll();
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener los tipos: " + e.getMessage());
         }
+    }
+
+    // crear un nuevo tipo
+    public Tipo crearTipo(Tipo tipo) {
+        if (tipo.getIdTipo() != null) {
+            throw new RuntimeException("El id debe ser nulo al crear un nuevo tipo");
+        }
+        return tipoRepository.save(tipo);
+    }
+
+    // actualizar un tipo existente
+    public Tipo actualizarTipo(Integer id, Tipo tipoActualizado) {
+        Tipo tipoExistente = obtenerPorId(id);
+
+        tipoExistente.setNombre(tipoActualizado.getNombre());
+
+        return tipoRepository.save(tipoExistente);
+    }
+
+    // eliminar un tipo por ID
+    public void eliminarTipo(Integer id) {
+        if (!tipoRepository.existsById(id)) {
+            throw new RuntimeException("Tipo con ID " + id + " no encontrado para eliminar.");
+        }
+        tipoRepository.deleteById(id);
     }
 }
