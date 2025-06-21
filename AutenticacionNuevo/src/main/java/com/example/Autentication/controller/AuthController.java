@@ -1,11 +1,16 @@
 package com.example.Autentication.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.Autentication.auth.AuthResponse;
 import com.example.Autentication.auth.LoginRequest;
+import com.example.Autentication.model.UsuarioConectado;
 import com.example.Autentication.service.AuthService;
+import com.example.Autentication.service.UsuarioConectadoService;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -13,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private UsuarioConectadoService usuarioConectadoService;
     
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
@@ -28,6 +34,16 @@ public class AuthController {
             // Capturamos cualquier otra excepción y devolvemos un 400 Bad Request.
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body("Error: " + ex.getMessage());
+        }
+    }
+
+    @GetMapping("auth/conectados")
+    public ResponseEntity<List<UsuarioConectado>> MostrarConectados(){
+        List<UsuarioConectado> lista = usuarioConectadoService.ListarUsuariosConectados();
+        try {
+            return ResponseEntity.ok(lista);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }

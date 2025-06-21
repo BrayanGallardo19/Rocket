@@ -2,7 +2,6 @@ package com.example.Autentication.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.example.Autentication.auth.AuthResponse;
@@ -46,5 +45,7 @@ public class AuthService {
         
         return AuthResponse.builder().token(token).build();
     }
+
+
 }
     
