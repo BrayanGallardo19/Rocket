@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/usuarios")
 public class RegistrationController {
-
+    
     private final RegistrationService registrationService;
     private final UserService userService;
 
