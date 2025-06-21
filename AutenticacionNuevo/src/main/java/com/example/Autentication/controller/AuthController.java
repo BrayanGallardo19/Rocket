@@ -23,7 +23,7 @@ public class AuthController {
             // Si se produce una excepción en el proceso de login,
             // devolvemos 401 Unauthorized con el mensaje de error.
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                 .body("Error: " + ex.getMessage());
+                                 .body(ex.getMessage());
         } catch (Exception ex) {
             // Capturamos cualquier otra excepción y devolvemos un 400 Bad Request.
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
