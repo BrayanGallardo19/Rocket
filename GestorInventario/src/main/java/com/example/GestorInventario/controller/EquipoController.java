@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.GestorInventario.model.Equipo;
 import com.example.GestorInventario.model.Estado;
+import com.example.GestorInventario.security.RolValidator;
 import com.example.GestorInventario.service.EquipoService;
 import com.example.GestorInventario.service.EstadoService;
 
@@ -31,10 +32,12 @@ public class EquipoController {
 
     private final EquipoService equipoService;
     private final EstadoService estadoService;
+    private final RolValidator rolValidator;
 
-    public EquipoController(EquipoService equipoService, EstadoService estadoService) {
+    public EquipoController(EquipoService equipoService, EstadoService estadoService, RolValidator rolValidator) {
         this.estadoService = estadoService;
         this.equipoService = equipoService;
+        this.rolValidator = rolValidator;
     }
 
     // mostrar todos los equipos
@@ -45,6 +48,7 @@ public class EquipoController {
     })
     @GetMapping
     public ResponseEntity<List<Equipo>> mostrarTodosLosEquipos() {
+        if (!validarPermiso(token)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden si no tiene permiso
         try {
             List<Equipo> equipos = equipoService.mostrarTodosLosEquipos();
             if (equipos == null || equipos.isEmpty()) {
