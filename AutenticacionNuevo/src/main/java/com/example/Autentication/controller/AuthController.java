@@ -2,6 +2,7 @@ package com.example.Autentication.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    @Autowired
     private UsuarioConectadoService usuarioConectadoService;
     
     @PostMapping("/auth/login")
@@ -37,7 +39,7 @@ public class AuthController {
         }
     }
 
-    @GetMapping("auth/conectados")
+    @GetMapping("/auth/conectados")
     public ResponseEntity<List<UsuarioConectado>> MostrarConectados(){
         List<UsuarioConectado> lista = usuarioConectadoService.ListarUsuariosConectados();
         try {
@@ -46,4 +48,11 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/auth/{id}")
+    public ResponseEntity<UsuarioConectado> obtenerPorId(@PathVariable Integer id) {
+        UsuarioConectado conectado = usuarioConectadoService.obtenerUsuarioConectadoPorId(id);
+        return ResponseEntity.ok(conectado);
+    }
+
 }

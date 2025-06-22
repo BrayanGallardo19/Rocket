@@ -10,33 +10,33 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Component
-public class UsuarioConectadoClient {
+public class UsuarioClient {
     private final WebClient webClient;
 
-    public UsuarioConectadoClient(@Value("${usuario-conectado-service.url}") String baseUrl) {
+    public UsuarioClient(@Value("${usuario-service.url}") String baseUrl) {
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
                 .build();
     }
 
-    public Optional<Map<String, Object>> buscarUsuarioConectadoPorId(Integer id) {
+    public Optional<Map<String, Object>> obtenerUsuarioPorId(Integer id) {
         try {
-            Map<String, Object> result = webClient.get()
-                    .uri("/auth/{id}", id)
+            Map<String, Object> usuario = webClient.get()
+                    .uri("/{id}", id)
                     .retrieve()
                     .onStatus(
                             status -> status.is4xxClientError() || status.is5xxServerError(),
                             response -> response.bodyToMono(String.class)
-                                    .flatMap(body -> Mono.error(
-                                            new RuntimeException("Error al obtener usuario conectado: " + body))))
+                                    .flatMap(body -> Mono.error(new RuntimeException("Error al obtener usuario: " + body)))
+                    )
                     .bodyToMono(Map.class)
-                    .doOnNext(body -> System.out.println("Usuario conectado por ID: " + body))
+                    .doOnNext(body -> System.out.println("Usuario obtenido: " + body))
                     .block();
 
-            System.out.println("Resultado obtenido (post-block): " + result);
-            return Optional.ofNullable(result);
+            return Optional.ofNullable(usuario);
+            
         } catch (Exception e) {
-            System.err.println("Fallo al obtener usuario conectado por ID " + id + ": " + e.getMessage());
+            System.err.println("Error al buscar usuario por ID " + id + ": " + e.getMessage());
             return Optional.empty();
         }
     }

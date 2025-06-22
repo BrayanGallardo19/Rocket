@@ -18,4 +18,10 @@ public class UsuarioConectadoService {
     public List<UsuarioConectado> ListarUsuariosConectados(){
         return usuarioConectadoRepository.findAll();
     }
+
+    public UsuarioConectado obtenerUsuarioConectadoPorId(Integer id) {
+        return usuarioConectadoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no conectado: " + id));
+    }
+    
 }
