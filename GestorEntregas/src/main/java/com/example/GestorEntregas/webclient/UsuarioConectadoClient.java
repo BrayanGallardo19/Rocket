@@ -10,33 +10,33 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Component
-public class UsuarioClient {
+public class UsuarioConectadoClient {
     private final WebClient webClient;
 
-    public UsuarioClient(@Value("${usuarios-service.url}") String baseUrl) {
+    public UsuarioConectadoClient(@Value("${usuarios-conectados-service.url}") String baseUrl) {
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
                 .build();
     }
 
-    public Optional<Map<String, Object>> obtenerUsuarioPorId(Integer id) {
+    public Optional<Map<String, Object>> buscarUsuarioConectadoPorId(Integer id) {
         try {
-            Map<String, Object> usuario = webClient.get()
+            Map<String, Object> usuarioConectado = webClient.get()
                     .uri("/{id}", id)
                     .retrieve()
                     .onStatus(
                             status -> status.is4xxClientError() || status.is5xxServerError(),
                             response -> response.bodyToMono(String.class)
-                                    .flatMap(body -> Mono
-                                            .error(new RuntimeException("Error al obtener usuario: " + body))))
+                                    .flatMap(body -> Mono.error(new RuntimeException("Error al obtener usuario conectado: " + body)))
+                    )
                     .bodyToMono(Map.class)
-                    .doOnNext(body -> System.out.println("Usuario obtenido: " + body))
+                    .doOnNext(body -> System.out.println("Usuario conectado obtenido: " + body))
                     .block();
 
-            return Optional.ofNullable(usuario);
+            return Optional.ofNullable(usuarioConectado);
 
         } catch (Exception e) {
-            System.err.println("Error al buscar usuario por ID " + id + ": " + e.getMessage());
+            System.err.println("Error al buscar usuario conectado por ID " + id + ": " + e.getMessage());
             return Optional.empty();
         }
     }

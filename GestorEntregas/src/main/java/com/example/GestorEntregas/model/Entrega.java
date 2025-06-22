@@ -45,9 +45,7 @@ public class Entrega {
     private Integer idCoordinadorLogistico;
     @Transient
     private Map<String, Object> coordinadorLogistico; // datos completos del usuario coordinador
-    // datos del contacto
-    private String contactoNombre;
-    private String contactoTelefono;
     // variable de otro microservicio
     private String estado;
+    private String usuario;
 }
