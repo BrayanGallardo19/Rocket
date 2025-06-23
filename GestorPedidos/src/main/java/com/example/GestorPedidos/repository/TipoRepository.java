@@ -11,4 +11,6 @@ public interface TipoRepository extends JpaRepository<Tipo, Integer> {
    
     List<Tipo> findByNombre(String nombre);
 
+    boolean existsByNombre(String nombre);
+
 }
