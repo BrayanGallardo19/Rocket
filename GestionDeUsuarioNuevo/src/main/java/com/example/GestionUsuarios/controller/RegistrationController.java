@@ -9,6 +9,14 @@ import com.example.GestionUsuarios.model.User;
 import com.example.GestionUsuarios.service.RegistrationService;
 import com.example.GestionUsuarios.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
@@ -19,14 +27,23 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/usuarios")
+@Tag(name = "Gestión de Usuarios", description = "Operaciones para registrar, actualizar, eliminar y consultar usuarios")
 public class RegistrationController {
     
     private final RegistrationService registrationService;
     private final UserService userService;
 
-    // Registro de usuario con código 200 (OK) y 400 (Bad Request)
+    @Operation(summary = "Registrar un nuevo usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario registrado exitosamente",
+                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Solicitud inválida (falta username o password)",
+                     content = @Content(mediaType = "application/json"))
+    })
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(
+        @Parameter(description = "Datos del nuevo usuario para registro", required = true)
+        @RequestBody RegisterRequest request) {
         if (request.getUsername() == null || request.getPassword() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new AuthResponse("Error: El nombre de usuario y la contraseña son obligatorios."));
@@ -36,8 +53,19 @@ public class RegistrationController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @Operation(summary = "Obtener usuario por ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario encontrado",
+                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "400", description = "ID inválido (nulo o menor que 1)",
+                     content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "400", description = "Usuario no encontrado",
+                     content = @Content(mediaType = "application/json"))
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<?> getUserById(
+        @Parameter(description = "ID del usuario a buscar", required = true, example = "1")
+        @PathVariable Integer id) {
         if (id == null || id <= 0) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -46,21 +74,29 @@ public class RegistrationController {
 
         Optional<User> userOptional = userService.getUserById(id);
         if (userOptional.isPresent()) {
-            // Devuelve el usuario con código 200 OK
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(userOptional.get());
         } else {
-            // Devuelve un mensaje de error con código 400 Bad Request
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Error: Usuario no encontrado.");
         }
     }
 
-    // Editar usuario con código 200 (OK) y 400 (Bad Request)
+    @Operation(summary = "Actualizar un usuario existente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente",
+                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "400", description = "ID inválido (menor que 1)",
+                     content = @Content(mediaType = "application/json"))
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody User updatedUser) {
+    public ResponseEntity<?> updateUser(
+        @Parameter(description = "ID del usuario a actualizar", required = true, example = "1")
+        @PathVariable Integer id,
+        @Parameter(description = "Datos actualizados del usuario", required = true)
+        @RequestBody User updatedUser) {
         if (id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error: El ID debe ser un número positivo.");
@@ -70,9 +106,16 @@ public class RegistrationController {
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-    // Eliminar usuario con código 200 (OK) y 400 (Bad Request)
+    @Operation(summary = "Eliminar un usuario por ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario eliminado correctamente"),
+        @ApiResponse(responseCode = "400", description = "ID inválido (menor que 1)",
+                     content = @Content(mediaType = "application/json"))
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteUser(
+        @Parameter(description = "ID del usuario a eliminar", required = true, example = "1")
+        @PathVariable Integer id) {
         if (id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error: El ID debe ser un número positivo.");
@@ -82,7 +125,13 @@ public class RegistrationController {
         return ResponseEntity.status(HttpStatus.OK).body("Usuario eliminado correctamente.");
     }
 
-    // Obtener todos los usuarios con código 200 (OK) y 400 (Bad Request)
+    @Operation(summary = "Obtener todos los usuarios")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente",
+                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "400", description = "Error al obtener usuarios",
+                     content = @Content(mediaType = "application/json"))
+    })
     @GetMapping("/usuarios")
     public ResponseEntity<?> getAllUsers() {
         try {
@@ -94,9 +143,17 @@ public class RegistrationController {
         }
     }
 
-    // Obtener usuario por username con código 200 (OK) , 404 (Not Found) y 500 (Internal Server Error)
+    @Operation(summary = "Obtener usuario por nombre de usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario encontrado",
+                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @GetMapping("/username/{username}")
-    public ResponseEntity<?> obtenerPorUsername(@PathVariable String username) {
+    public ResponseEntity<?> obtenerPorUsername(
+        @Parameter(description = "Nombre de usuario a buscar", required = true, example = "cgomez")
+        @PathVariable String username) {
         try {
             User user = userService.obtenerPorUsername(username);
             if (user == null) {
@@ -111,7 +168,6 @@ public class RegistrationController {
             error.put("error", "Ocurrió un error al buscar el usuario: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
-
     }
 
 }

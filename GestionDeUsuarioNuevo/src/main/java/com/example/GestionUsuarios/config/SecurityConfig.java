@@ -14,7 +14,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/{id},","/api/v1/**").permitAll() // Permite acceso público a estos endpoints
+                .requestMatchers(  "/register",
+                "/api/v1/**",
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/api-docs/**",        // según tu configuración springdoc.api-docs.path
+                "/v3/api-docs/**",     // para compatibilidad con springdoc por defecto
+                "/swagger-resources/**",
+                "/webjars/**",
+                "/swagger-config/**", "/{id}").permitAll() // Permite acceso público a estos endpoints
                 .anyRequest().authenticated()
             );
         return http.build();
