@@ -19,9 +19,9 @@ public class PagoFacturaClient {
                 .build();
     }
 
-    public Optional<Void> informarNuevoPedidoConfirmado(Integer idPedido) {
+    public Optional<Boolean> informarNuevoPedidoConfirmado(Integer idPedido) {
         try {
-            Void response = webClient.post()
+            webClient.post()
                     .uri("/generar")
                     .bodyValue(Map.of("idPedido", idPedido))
                     .retrieve()
@@ -30,12 +30,12 @@ public class PagoFacturaClient {
                             clientResponse -> clientResponse.bodyToMono(String.class)
                                     .flatMap(body -> Mono
                                             .error(new RuntimeException("Error al informar nuevo pedido: " + body))))
-                    .bodyToMono(Void.class)
-                    .doOnSuccess(v -> System.out
+                    .toBodilessEntity() // <- importante: no espera cuerpo
+                    .doOnSuccess(resp -> System.out
                             .println("Pedido informado correctamente a pagoyfactura, idPedido: " + idPedido))
                     .block();
 
-            return Optional.ofNullable(response);
+            return Optional.of(true);
         } catch (Exception e) {
             System.err.println(
                     "Error al informar nuevo pedido a pagoyfactura, idPedido " + idPedido + ": " + e.getMessage());

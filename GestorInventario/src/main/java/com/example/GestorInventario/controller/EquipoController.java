@@ -80,14 +80,8 @@ public class EquipoController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Equipo.class)))
     })
     @GetMapping("/{idEquipo}")
-    public ResponseEntity<?> obtenerEquipoPorId(@RequestHeader("X-User-Id") Integer idUserConectado,
-            @PathVariable Integer idEquipo) {
+    public ResponseEntity<?> obtenerEquipoPorId(@PathVariable Integer idEquipo) {
         try {
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(2, 3));
-            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
-                return autorizacionResponse;
-            }
-
             Equipo equipo = equipoService.obtenerEquipoPorId(idEquipo);
             if (equipo == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -211,14 +205,8 @@ public class EquipoController {
             @ApiResponse(responseCode = "404", description = "Estado no encontrado")
     })
     @GetMapping("/estados/{idEstado}")
-    public ResponseEntity<?> obtenerEstadoPorId(@RequestHeader("X-User-Id") Integer idUserConectado,
-            @PathVariable Integer idEstado) {
+    public ResponseEntity<?> obtenerEstadoPorId(@PathVariable Integer idEstado) {
         try {
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(2, 3));
-            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
-                return autorizacionResponse;
-            }
-
             Estado estado = estadoService.obtenerEstadoPorId(idEstado);
             if (estado == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

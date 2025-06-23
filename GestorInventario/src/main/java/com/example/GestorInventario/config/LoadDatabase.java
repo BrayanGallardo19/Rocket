@@ -33,9 +33,19 @@ public class LoadDatabase {
                 Estado enTransito = new Estado(null, "En tránsito");
                 Estado pendienteEntrega = new Estado(null, "Pendiente de entrega");
                 Estado pendienteRecoleccion = new Estado(null, "Pendiente de recolección");
+                
+                // estados de Factura
+                Estado Pendiente = new Estado(null, "Pendiente");
+                Estado Pagada = new Estado(null, "Pagada");
+                Estado Parcial = new Estado(null, "Parcial");
+                //estados de Pago
+                Estado Completado = new Estado(null, "Completado");
+                Estado Fallido = new Estado(null, "Fallido");
+                Estado EnProceso = new Estado(null, "En proceso");
 
                 estadoRepo.saveAll(List.of(disponible, arrendado, vendido, enMantenimiento, enRevision,
-                        danado, enTransito, pendienteEntrega, pendienteRecoleccion));
+                        danado, enTransito, pendienteEntrega, pendienteRecoleccion, Pendiente, Pagada, Parcial,
+                        Completado, Fallido, EnProceso));
 
                 // obtener marcas y modelos como lista de Map
                 List<Map<String, Object>> marcas = marcaClient.obtenerTodasLasMarcas();

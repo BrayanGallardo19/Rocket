@@ -55,31 +55,54 @@ public class PedidoServiceTest {
 
     @Test
     void testCrearPedido() {
-        // simulacion de pedido
+        // Simulación de entrada
         Pedido pedidoEntrada = new Pedido();
         pedidoEntrada.setTotal(100000.0);
         pedidoEntrada.setIdUsuario(1);
         pedidoEntrada.setIdEquipo(5);
 
-        // simulacion de tipo
+        // Simulación de tipo
         Tipo tipoMock = new Tipo();
         tipoMock.setIdTipo(2);
         tipoMock.setNombre("Arriendo");
 
-        // simular los repositorios
+        // Simulación de pedido guardado (simula que JPA le asigna un ID)
+        Pedido pedidoGuardado = new Pedido();
+        pedidoGuardado.setIdPedido(10);
+        pedidoGuardado.setTotal(100000.0);
+        pedidoGuardado.setIdUsuario(1);
+        pedidoGuardado.setIdEquipo(5);
+        pedidoGuardado.setIdEstado(1);
+        pedidoGuardado.setFechaPedido(LocalDateTime.now());
+        pedidoGuardado.setTipo(tipoMock);
+
+        // Simulación de estado retornado por equipoClient
+        Map<String, Object> estadoMock = Map.of(
+                "idEstado", 1,
+                "nombreEstado", "Pendiente");
+
+        // Mocks
         when(tipoRepository.findById(2)).thenReturn(Optional.of(tipoMock));
-        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoGuardado);
+        when(equipoClient.obtenerEstadoPorId(1)).thenReturn(estadoMock);
 
-        // llamar al metodo a probar
-        Pedido resultado = pedidoService.crearPedido(pedidoEntrada, 2);
+        // Ejecutar
+        Map<String, Object> respuesta = pedidoService.crearPedido(pedidoEntrada, 2);
 
-        // verificar
+        // Verificaciones
+        assertThat(respuesta).isNotNull();
+        assertThat(respuesta).containsKeys("pedido", "estado");
+
+        Pedido resultado = (Pedido) respuesta.get("pedido");
         assertThat(resultado.getTipo()).isEqualTo(tipoMock);
-        assertThat(resultado.getFechaPedido()).isNotNull();
         assertThat(resultado.getIdEstado()).isEqualTo(1);
+        assertThat(resultado.getTotal()).isEqualTo(100000.0);
         assertThat(resultado.getIdUsuario()).isEqualTo(1);
         assertThat(resultado.getIdEquipo()).isEqualTo(5);
-        assertThat(resultado.getTotal()).isEqualTo(100000.0);
+
+        Map<String, Object> estado = (Map<String, Object>) respuesta.get("estado");
+        assertThat(estado.get("idEstado")).isEqualTo(1);
+        assertThat(estado.get("nombreEstado")).isEqualTo("Pendiente");
     }
 
     @Test
@@ -108,39 +131,46 @@ public class PedidoServiceTest {
 
     @Test
     void testObtenerPedidoCompleto() {
-        // simular pedido
-        Pedido pedidoMock = new Pedido();
-        pedidoMock.setIdPedido(1);
-        pedidoMock.setIdUsuario(10);
-        pedidoMock.setIdEquipo(20);
-        pedidoMock.setIdEstado(3);
-        pedidoMock.setFechaPedido(LocalDateTime.now());
-        pedidoMock.setTotal(120000.0);
-        pedidoMock.setTipo(new Tipo(2, "Arriendo"));
+        // Simular pedido con tipo
+    Tipo tipoMock = new Tipo();
+    tipoMock.setIdTipo(2);
+    tipoMock.setNombre("Arriendo");
 
-        when(pedidoRepository.findById(Integer.valueOf(1))).thenReturn(Optional.of(pedidoMock));
+    Pedido pedidoMock = new Pedido();
+    pedidoMock.setIdPedido(1);
+    pedidoMock.setIdUsuario(10);
+    pedidoMock.setIdEquipo(20);
+    pedidoMock.setIdEstado(3);
+    pedidoMock.setFechaPedido(LocalDateTime.now());
+    pedidoMock.setTotal(120000.0);
+    pedidoMock.setTipo(tipoMock);
 
-        Integer idUserConectado = Integer.valueOf(999); // Asegúrate que es Integer, no int
+    // Simular respuesta de pedidoRepository
+    when(pedidoRepository.findById(1)).thenReturn(Optional.of(pedidoMock));
 
-        // Simular equipo (requiere idUserConectado)
-        Map<String, Object> equipoMock = new HashMap<>();
-        equipoMock.put("idEquipo", 20);
-        equipoMock.put("nombre", "Tractor");
-        when(equipoClient.obtenerEquipoPorId(Integer.valueOf(20), idUserConectado)).thenReturn(equipoMock);
+    // Simular respuesta de equipoClient
+    Map<String, Object> equipoMock = new HashMap<>();
+    equipoMock.put("idEquipo", 20);
+    equipoMock.put("nombre", "Tractor");
+    when(equipoClient.obtenerEquipoPorId(20)).thenReturn(equipoMock);
 
-        // Simular estado (requiere idUserConectado)
-        Map<String, Object> estadoMock = new HashMap<>();
-        estadoMock.put("nombreEstado", "Pendiente");
-        when(equipoClient.obtenerEstadoPorId(Integer.valueOf(3), idUserConectado)).thenReturn(estadoMock);
+    Map<String, Object> estadoMock = new HashMap<>();
+    estadoMock.put("nombreEstado", "Pendiente");
+    when(equipoClient.obtenerEstadoPorId(3)).thenReturn(estadoMock);
 
-        // Ejecutar
-        Map<String, Object> resultado = pedidoService.obtenerPedidoPorId(Integer.valueOf(1), idUserConectado);
+    // Ejecutar método
+    Map<String, Object> resultado = pedidoService.obtenerPedidoPorId(1);
 
-        // Verificaciones
-        assertThat(resultado).containsKeys("idPedido", "idUsuario", "equipo", "estado", "total", "fecha", "tipo");
-        assertThat(resultado.get("estado")).isEqualTo("Pendiente");
-        assertThat(((Map<?, ?>) resultado.get("equipo")).get("nombre")).isEqualTo("Tractor");
-        assertThat(resultado.get("idUsuario")).isEqualTo(10);
-    }
+    // Verificaciones
+    assertThat(resultado).isNotNull();
+    assertThat(resultado).containsKeys("idPedido", "fecha", "estado", "total", "idUsuario", "equipo", "tipo");
 
+    assertThat(resultado.get("idPedido")).isEqualTo(1);
+    assertThat(resultado.get("idUsuario")).isEqualTo(10);
+    assertThat(resultado.get("total")).isEqualTo(120000.0);
+    assertThat(resultado.get("estado")).isEqualTo("Pendiente");
+    assertThat(((Map<?, ?>) resultado.get("equipo")).get("nombre")).isEqualTo("Tractor");
+    assertThat(resultado.get("tipo")).isEqualTo("Arriendo");
+
+}
 }

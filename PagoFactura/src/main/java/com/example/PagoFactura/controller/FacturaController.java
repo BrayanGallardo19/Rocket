@@ -37,25 +37,22 @@ public class FacturaController {
     @Operation(summary = "Generar una nueva factura")
     @ApiResponse(responseCode = "201", description = "Factura generada exitosamente", content = @Content(schema = @Schema(implementation = Factura.class)))
     @PostMapping("/generar")
-    public ResponseEntity<?> generarFacturaDesdePedido(@RequestHeader("X-User-Id") Integer idUserConectado,
-            @RequestBody Map<String, Integer> body) {
+    public ResponseEntity<?> generarFacturaDesdePedido(@RequestBody Map<String, Integer> body) {
 
         Integer idPedido = body.get("idPedido");
         if (idPedido == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body("El idPedido es obligatorio para generar la factura.");
         }
-
         try {
-            // Validar rol del usuario conectado
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(3, 6));
-            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
-                return autorizacionResponse;
-            }
-
             Factura nuevaFactura = facturaService.generarFacturaDesdePedido(idPedido);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaFactura);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            // Otros errores inesperados
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno al generar factura: " + e.getMessage());
         }
     }
 
@@ -85,6 +82,7 @@ public class FacturaController {
             @ApiResponse(responseCode = "204", description = "No hay facturas disponibles"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
+    @GetMapping()
     public ResponseEntity<?> listarFacturas(@RequestHeader("X-User-Id") Integer idUserConectado) {
         try {
             // Validar rol del usuario conectado
@@ -110,9 +108,10 @@ public class FacturaController {
             @ApiResponse(responseCode = "404", description = "Factura no encontrada")
     })
     @DeleteMapping("eliminar/{id}")
-    public ResponseEntity<?> eliminarFactura(@RequestHeader("X-User-Id") Integer idUserConectado, @PathVariable Integer id) {
+    public ResponseEntity<?> eliminarFactura(@RequestHeader("X-User-Id") Integer idUserConectado,
+            @PathVariable Integer id) {
         try {
-            // Validar rol del usuario conectado 
+            // Validar rol del usuario conectado
             ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(3, 6));
             if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
                 return autorizacionResponse;

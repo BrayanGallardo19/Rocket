@@ -59,59 +59,57 @@ public class PedidoController {
     })
     @PostMapping("/crear")
     public ResponseEntity<?> crearPedido(@RequestHeader("X-User-Id") Integer idUserConectado,
-            @RequestBody Map<String, Object> body) {
-        try {
-            // Validar rol del usuario conectado 
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(3, 6));
-            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
-                return autorizacionResponse;
-            }
-
-            // Obtener ID real del usuario conectado desde el microservicio de sesiones
-            Optional<Map<String, Object>> conectadoOpt = usuarioConectadoClient
-                    .buscarUsuarioConectadoPorId(idUserConectado);
-            if (conectadoOpt.isEmpty() || !conectadoOpt.get().containsKey("userId")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no conectado.");
-            }
-            Integer idUsuario = (Integer) conectadoOpt.get().get("userId");
-
-            // Obtener los datos del usuario real
-            Optional<Map<String, Object>> usuarioOpt = usuarioClient.obtenerUsuarioPorId(idUsuario);
-            if (usuarioOpt.isEmpty() || !usuarioOpt.get().containsKey("id")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No se pudo obtener la información del usuario autenticado.");
-            }
-
-            Map<String, Object> usuario = usuarioOpt.get();
-
-            // Construcción del pedido
-            Pedido pedido = new Pedido();
-            pedido.setIdEquipo((Integer) body.get("idEquipo"));
-            pedido.setTotal(Double.parseDouble(body.get("total").toString()));
-            pedido.setIdUsuario(idUsuario); // usar id real
-
-            // Dirección para encargos (si aplica a otros microservicios)
-            Map<String, Object> direccion = new HashMap<>();
-            direccion.put("ciudad", body.get("ciudad"));
-            direccion.put("comuna", body.get("comuna"));
-            direccion.put("calle", body.get("calle"));
-            direccion.put("numero", body.get("numero"));
-            direccion.put("depto", body.get("depto"));
-            direccion.put("referencia", body.get("referencia"));
-            // nota: puedes enviar esta dirección a otro servicio si lo necesitas
-
-            // Tipo de pedido
-            Integer idTipo = (Integer) body.get("idTipo");
-
-            Pedido nuevoPedido = pedidoService.crearPedido(pedido, idTipo);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido); // 201 Created
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+                                    @RequestBody Map<String, Object> body) {
+    try {
+        // Validar rol del usuario conectado 
+        ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(3, 6));
+        if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+            return autorizacionResponse;
         }
+
+        // Obtener ID real del usuario conectado desde el microservicio de sesiones
+        Optional<Map<String, Object>> conectadoOpt = usuarioConectadoClient.buscarUsuarioConectadoPorId(idUserConectado);
+        if (conectadoOpt.isEmpty() || !conectadoOpt.get().containsKey("userId")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no conectado.");
+        }
+        Integer idUsuario = (Integer) conectadoOpt.get().get("userId");
+
+        // Obtener los datos del usuario real
+        Optional<Map<String, Object>> usuarioOpt = usuarioClient.obtenerUsuarioPorId(idUsuario);
+        if (usuarioOpt.isEmpty() || !usuarioOpt.get().containsKey("id")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No se pudo obtener la información del usuario autenticado.");
+        }
+
+        // Construcción del pedido
+        Pedido pedido = new Pedido();
+        pedido.setIdEquipo((Integer) body.get("idEquipo"));
+        pedido.setTotal(Double.parseDouble(body.get("total").toString()));
+        pedido.setIdUsuario(idUsuario); // usar id real
+
+        // Dirección para encargos 
+        Map<String, Object> direccion = new HashMap<>();
+        direccion.put("ciudad", body.get("ciudad"));
+        direccion.put("comuna", body.get("comuna"));
+        direccion.put("calle", body.get("calle"));
+        direccion.put("numero", body.get("numero"));
+        direccion.put("depto", body.get("depto"));
+        direccion.put("referencia", body.get("referencia"));
+
+
+        // Tipo de pedido
+        Integer idTipo = (Integer) body.get("idTipo");
+
+        // Cambiar a Map<String,Object> porque ahora el servicio devuelve un map con pedido+estado
+        Map<String, Object> nuevoPedidoConEstado = pedidoService.crearPedido(pedido, idTipo);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedidoConEstado); // 201 Created
+
+    } catch (RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+    }
     }
 
     // buscar pedido por id
@@ -124,16 +122,9 @@ public class PedidoController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/{idPedido}")
-    public ResponseEntity<?> buscarPedidoPorId(@RequestHeader("X-User-Id") Integer idUserConectado,
-            @PathVariable Integer idPedido) {
+    public ResponseEntity<?> buscarPedidoPorId(@PathVariable Integer idPedido) {
         try {
-
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
-            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
-                return autorizacionResponse;
-            }
-
-            Map<String, Object> pedidoCompleto = pedidoService.obtenerPedidoPorId(idPedido, idUserConectado);
+            Map<String, Object> pedidoCompleto = pedidoService.obtenerPedidoPorId(idPedido);
             return ResponseEntity.ok(pedidoCompleto);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

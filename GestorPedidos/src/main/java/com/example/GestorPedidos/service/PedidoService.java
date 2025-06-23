@@ -33,29 +33,29 @@ public class PedidoService {
     }
 
     // crear un pedido
-    public Pedido crearPedido(Pedido pedido, Integer idTipo) {
+    public Map<String, Object> crearPedido(Pedido pedido, Integer idTipo) {
         if (pedido.getIdPedido() != null) {
             throw new RuntimeException("No debes enviar el id al crear un nuevo pedido");
         }
-        // buscar el tipo por id
         Tipo tipo = tipoRepository.findById(idTipo)
                 .orElseThrow(() -> new RuntimeException("Tipo no encontrado con id: " + idTipo));
 
         pedido.setTipo(tipo);
-        pedido.setFechaPedido(LocalDateTime.now()); // establecer fecha actual
-        final int ID_ESTADO_PENDIENTE = 1; // id del estado pendiente
-        pedido.setIdEstado(ID_ESTADO_PENDIENTE); // establecer estado por defecto
+        pedido.setFechaPedido(LocalDateTime.now());
+        final int ID_ESTADO_PENDIENTE = 1;
+        pedido.setIdEstado(ID_ESTADO_PENDIENTE);
 
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
 
-        // informar a pagoyfactura que hay un nuevo pedido confirmado
-        pagoFacturaClient.informarNuevoPedidoConfirmado(pedidoGuardado.getIdPedido())
-                .ifPresentOrElse(
-                        v -> System.out.println("Notificación enviada para pedido " + pedidoGuardado.getIdPedido()),
-                        () -> System.err.println(
-                                "No se pudo notificar a pagoyfactura para pedido " + pedidoGuardado.getIdPedido()));
+        // Obtener estado completo del microservicio de estados
+        Map<String, Object> estadoCompleto = equipoClient.obtenerEstadoPorId(pedidoGuardado.getIdEstado());
 
-        return pedidoGuardado;
+        // Combinar pedido guardado + estado completo en un Map para devolver
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("pedido", pedidoGuardado);
+        respuesta.put("estado", estadoCompleto);
+
+        return respuesta;
     }
 
     // mostrar todos los pedidos
@@ -76,20 +76,19 @@ public class PedidoService {
     }
 
     // obtener pedido completo para el encargado
-    public Map<String, Object> obtenerPedidoPorId(Integer idPedido, Integer idUserConectado) {
+    public Map<String, Object> obtenerPedidoPorId(Integer idPedido) {
         Pedido pedido = pedidoRepository.findById(idPedido)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-
         Integer idUsuario = pedido.getIdUsuario();
 
-        Map<String, Object> equipo = equipoClient.obtenerEquipoPorId(pedido.getIdEquipo(), idUserConectado);
+        Map<String, Object> equipo = equipoClient.obtenerEquipoPorId(pedido.getIdEquipo());
 
         Tipo tipo = pedido.getTipo();
         if (tipo == null) {
             throw new RuntimeException("El pedido no tiene tipo asignado");
         }
 
-        Map<String, Object> estado = equipoClient.obtenerEstadoPorId(pedido.getIdEstado(), idUserConectado);
+        Map<String, Object> estado = equipoClient.obtenerEstadoPorId(pedido.getIdEstado());
         if (estado == null) {
             throw new RuntimeException("El pedido no tiene estado asignado");
         }

@@ -18,10 +18,9 @@ public class EquipoClient {
                 .build();
     }
 
-    public Map<String, Object> obtenerEquipoPorId(Integer idEquipo, Integer idUserConectado) {
+    public Map<String, Object> obtenerEquipoPorId(Integer idEquipo) {
         return webClientEquipo.get()
                 .uri("/{idEquipo}", idEquipo)
-                .header("X-User-Id", idUserConectado.toString())
                 .retrieve()
                 .onStatus(
                         status -> status.is4xxClientError() || status.is5xxServerError(),
@@ -32,10 +31,9 @@ public class EquipoClient {
                 .block();
     }
 
-    public Map<String, Object> obtenerEstadoPorId(Integer idEstado, Integer idUserConectado) {
+    public Map<String, Object> obtenerEstadoPorId(Integer idEstado) {
         return webClientEquipo.get()
                 .uri("/estados/{idEstado}", idEstado)
-                .header("X-User-Id", idUserConectado.toString())
                 .retrieve()
                 .onStatus(
                         status -> status.is4xxClientError() || status.is5xxServerError(),

@@ -12,8 +12,10 @@ import reactor.core.publisher.Mono;
 @Component
 public class PedidoClient {
     private final WebClient webClient;
+        private final String pedidoServiceBaseUrl;
 
     public PedidoClient(@Value("${pedido-service.base-url}") String pedidoServiceBaseUrl) {
+        this.pedidoServiceBaseUrl = pedidoServiceBaseUrl; // <--- Guardas el valor inyectado
         this.webClient = WebClient.builder()
                 .baseUrl(pedidoServiceBaseUrl)
                 .build();
@@ -22,21 +24,27 @@ public class PedidoClient {
     public Optional<Map<String, Object>> obtenerPedidoPorId(Integer idPedido) {
         try {
             Map<String, Object> pedido = webClient.get()
-                    .uri("/{id}", idPedido)
+                    .uri("/{idPedido}", idPedido)
                     .retrieve()
                     .onStatus(
                             status -> status.is4xxClientError() || status.is5xxServerError(),
                             clientResponse -> clientResponse.bodyToMono(String.class)
-                                    .flatMap(body -> Mono
-                                            .error(new RuntimeException("Error al obtener pedido: " + body))))
+                                    .flatMap(body -> {
+                                        System.err.println("Error HTTP al obtener pedido: "
+                                                + clientResponse.statusCode() + ", body: " + body);
+                                        return Mono.error(new RuntimeException("Error al obtener pedido: " + body));
+                                    }))
                     .bodyToMono(Map.class)
+                    .doOnSubscribe(s -> System.out.println("Consultando pedido id " + idPedido))
                     .doOnNext(body -> System.out.println("Pedido obtenido: " + body))
+                    .doOnNext(body -> System.out.println("Pedido obtenido en cliente: " + body))
                     .block();
 
             return Optional.ofNullable(pedido);
 
         } catch (Exception e) {
             System.err.println("Error al buscar pedido por ID " + idPedido + ": " + e.getMessage());
+            e.printStackTrace();
             return Optional.empty();
         }
     }

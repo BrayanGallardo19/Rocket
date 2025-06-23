@@ -55,7 +55,7 @@ public ResponseEntity<?> registrarPago(@RequestHeader("X-User-Id") Integer idUse
     }
 }
 
-    @Operation(summary = "Listar pagos por factura")
+    @Operation(summary = "Listar pagos por id de factura")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pagos obtenidos correctamente", content = @Content(schema = @Schema(implementation = Pago.class))),
             @ApiResponse(responseCode = "204", description = "No hay pagos para esta factura"),

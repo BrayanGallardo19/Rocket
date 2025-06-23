@@ -21,20 +21,32 @@ public class FacturaService {
     @Autowired
     private PedidoClient pedidoClient; // Cliente para comunicarse con el servicio de pedidos
 
-    // generar factura asociada a un pedido
+    public Factura actualizarFactura(Factura factura) {
+        return facturaRepository.save(factura);
+    }
+
     public Factura generarFacturaDesdePedido(Integer idPedido) {
+        System.out.println("Generando factura desde pedido ID: " + idPedido);
         Map<String, Object> pedidoData = pedidoClient.obtenerPedidoPorId(idPedido)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado: " + idPedido));
+
+        Double totalPedido;
+        Object totalObj = pedidoData.get("total");
+        if (totalObj instanceof Number) {
+            totalPedido = ((Number) totalObj).doubleValue();
+        } else if (totalObj instanceof String) {
+            totalPedido = Double.parseDouble((String) totalObj);
+        } else {
+            throw new RuntimeException("Total del pedido inválido o no encontrado");
+        }
 
         Factura factura = new Factura();
         factura.setIdPedido(idPedido);
         factura.setFechaEmision(LocalDate.now());
         factura.setEstado("Pendiente");
-        return facturaRepository.save(factura);
-    }
+        factura.setMontoTotal(totalPedido);
 
-    // guardar la factura ya modificada
-    public Factura actualizarFactura(Factura factura) {
+        System.out.println("Factura creada con pedido: " + pedidoData);
         return facturaRepository.save(factura);
     }
 
