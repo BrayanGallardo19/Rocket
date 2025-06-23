@@ -7,8 +7,6 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.RolesyPermisos.dto.RolDTO;
-import com.example.RolesyPermisos.mapper.RolMapper;
 import com.example.RolesyPermisos.model.Role;
 import com.example.RolesyPermisos.repository.RoleRepository;
 
@@ -21,19 +19,19 @@ public class RoleService {
     @Autowired
     private  RoleRepository roleRepository;
     
-public List<RolDTO> obtenerTodosLosRoles() {
-    List<Role> roles = roleRepository.findAll();
 
-    // Forzar carga de permisos para evitar Lazy Loading en la conversión
-    roles.forEach(role -> Hibernate.initialize(role.getPermisos()));
+    public List<Role> obtenerTodosLosRoles() {
+        List<Role> roles = roleRepository.findAll();
 
-    return roles.stream()
-                .map(RolMapper::toDTO)
-                .collect(Collectors.toList());
-}
+        // Forzar carga de permisos para evitar Lazy Loading
+        roles.forEach(role -> Hibernate.initialize(role.getPermisos()));
+
+        return roles;
+    }
+
     public Role obtenerRolPorId(Integer id) {
         return roleRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + id));
+            .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + id));
     }
 
     public Role guardarRol(Role role) {
@@ -43,6 +41,7 @@ public List<RolDTO> obtenerTodosLosRoles() {
     public Role actualizarRol(Integer id, Role roleActualizado) {
         Role rolExistente = obtenerRolPorId(id);
         rolExistente.setNombre(roleActualizado.getNombre());
+
         return roleRepository.save(rolExistente);
     }
 

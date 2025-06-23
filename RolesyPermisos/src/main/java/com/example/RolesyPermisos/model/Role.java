@@ -1,10 +1,9 @@
 package com.example.RolesyPermisos.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,23 +23,23 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "Rol")
 @NoArgsConstructor
+@Schema(description = "Modelo que representa datos de un rol en el sistema.")
 public class Role {
     // Atributos
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "ID autoincremental del rol")
     private Integer idRole;
 
     // Nombre del rol
     @Column(nullable = false, length = 50)
+    @Schema(description = "Nombre del rol")
     private String nombre;
 
     // Set de permisos que tiene este rol
-@ManyToMany(fetch = FetchType.EAGER)
-@JoinTable(
-    name = "role_permiso",
-    joinColumns = @JoinColumn(name = "role_id"),
-    inverseJoinColumns = @JoinColumn(name = "permiso_id")
-)
-private List<Permiso> permisos = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "role_permiso", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permiso_id"))
+    @Schema(description = "Permisos asociados a este rol")
+    private List<Permiso> permisos = new ArrayList<>();
 
 }
