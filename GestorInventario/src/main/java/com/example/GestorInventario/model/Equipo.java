@@ -21,12 +21,24 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Datos del equipo")
+@Schema(description = "Datos del equipo", example = """
+            {
+              "nombre": "Tractor John Deere X350",
+              "precioVenta": 5500000,
+              "precioArriendo": 150000,
+              "patente": "TRC-350JD",
+              "idModelo": 5,
+              "idMarca": 2,
+              "estado": {
+                "idEstado": 1
+              }
+            }
+        """)
 public class Equipo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "ID autoincremental del equipo")
+    @Schema(description = "ID autoincremental del equipo", accessMode = Schema.AccessMode.READ_ONLY)
     private Integer idEquipo;
 
     @Column(nullable = false, length = 60)
@@ -48,7 +60,7 @@ public class Equipo {
     private Integer idModelo;
     @Schema(description = "ID de la marca asociada al equipo", nullable = false)
     private Integer idMarca;
-    
+
     // variables para devolver el objeto completo
     @Transient
     @Schema(description = "Nombre del modelo asociado al equipo")
@@ -64,13 +76,14 @@ public class Equipo {
     private Estado estado;
 
     // constructor para precargar un equipo sin contar la id
-    public Equipo(String nombre, Double precioVenta, Double precioArriendo, String patente, Integer idModelo, Integer idMarca, Estado estado) {
-    this.nombre = nombre;
-    this.precioVenta = precioVenta;
-    this.precioArriendo = precioArriendo;
-    this.patente = patente;
-    this.idModelo = idModelo;
-    this.idMarca = idMarca;
-    this.estado = estado;
-}
+    public Equipo(String nombre, Double precioVenta, Double precioArriendo, String patente, Integer idModelo,
+            Integer idMarca, Estado estado) {
+        this.nombre = nombre;
+        this.precioVenta = precioVenta;
+        this.precioArriendo = precioArriendo;
+        this.patente = patente;
+        this.idModelo = idModelo;
+        this.idMarca = idMarca;
+        this.estado = estado;
+    }
 }

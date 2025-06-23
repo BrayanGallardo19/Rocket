@@ -101,11 +101,11 @@ public class EquipoController {
     // Guardar un equipo
     @Operation(summary = "Ingresar un nuevo equipo al sistema")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Equipo creado correctamente"),
+            @ApiResponse(responseCode = "201", description = "Equipo creado correctamente", content = @Content(schema = @Schema(implementation = Equipo.class))),
             @ApiResponse(responseCode = "401", description = "Acceso Denegado"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado.Rol inválido"),
             @ApiResponse(responseCode = "404", description = "Marca, modelo o estado no encontrados"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Equipo.class)))
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping("/guardar")
     public ResponseEntity<?> guardarEquipo(@RequestHeader("X-User-Id") Integer idUserConectado,
@@ -128,11 +128,11 @@ public class EquipoController {
     // Buscar equipos por estado
     @Operation(summary = "Buscar equipos por estado")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Equipos encontrados"),
+            @ApiResponse(responseCode = "200", description = "Equipos encontrados", content = @Content(schema = @Schema(implementation = Equipo.class))),
             @ApiResponse(responseCode = "401", description = "Acceso Denegado"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado.Rol inválido"),
             @ApiResponse(responseCode = "404", description = "Equipo no encontrado para el estado dado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Equipo.class)))
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/estado/{nombreEstado}")
     public ResponseEntity<?> buscarEquiposPorEstado(@RequestHeader("X-User-Id") Integer idUserConectado,
@@ -160,7 +160,7 @@ public class EquipoController {
             @ApiResponse(responseCode = "401", description = "Acceso Denegado"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado.Rol inválido"),
             @ApiResponse(responseCode = "404", description = "Equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Equipo.class)))
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminarEquipo(@RequestHeader("X-User-Id") Integer idUserConectado,
@@ -183,10 +183,10 @@ public class EquipoController {
     // Obtener todos los estados locales
     @Operation(summary = "Obtener una lista de todos los estados")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de estados obtenida correctamente"),
+            @ApiResponse(responseCode = "200", description = "Lista de estados obtenida correctamente", content = @Content(schema = @Schema(implementation = Estado.class))),
             @ApiResponse(responseCode = "401", description = "Acceso Denegado"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado.Rol inválido"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Estado.class)))
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/estados")
     public ResponseEntity<?> obtenerEstados(@RequestHeader("X-User-Id") Integer idUserConectado) {
@@ -205,16 +205,16 @@ public class EquipoController {
     // Obtener un estado por id
     @Operation(summary = "Obtener un estado por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Estado encontrado"),
+            @ApiResponse(responseCode = "200", description = "Estado encontrado", content = @Content(schema = @Schema(implementation = Estado.class))),
             @ApiResponse(responseCode = "401", description = "Acceso Denegado"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado.Rol inválido"),
-            @ApiResponse(responseCode = "404", description = "Estado no encontrado", content = @Content(schema = @Schema(implementation = Estado.class)))
+            @ApiResponse(responseCode = "404", description = "Estado no encontrado")
     })
     @GetMapping("/estados/{idEstado}")
     public ResponseEntity<?> obtenerEstadoPorId(@RequestHeader("X-User-Id") Integer idUserConectado,
             @PathVariable Integer idEstado) {
         try {
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(2,3));
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(2, 3));
             if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
                 return autorizacionResponse;
             }
@@ -234,10 +234,10 @@ public class EquipoController {
     // Modificar un equipo por id
     @Operation(summary = "Modificar un equipo por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Equipo modificado correctamente"),
+            @ApiResponse(responseCode = "200", description = "Equipo modificado correctamente", content = @Content(schema = @Schema(implementation = Equipo.class))),
             @ApiResponse(responseCode = "401", description = "Acceso Denegado"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado.Rol inválido"),
-            @ApiResponse(responseCode = "404", description = "Equipo no encontrado", content = @Content(schema = @Schema(implementation = Equipo.class)))
+            @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
     })
     @PutMapping("/modificar/{idEquipo}")
     public ResponseEntity<?> modificarEquipo(@RequestHeader("X-User-Id") Integer idUserConectado,

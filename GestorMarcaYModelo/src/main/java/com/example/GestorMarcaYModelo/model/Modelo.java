@@ -21,11 +21,20 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Datos del modelo")
+@Schema(
+    description = "Datos del modelo",
+    example = """
+        {
+          "idModelo": 5,
+          "nombre": "X350",
+          "idMarca": 2
+        }
+    """
+)
 public class Modelo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "ID autoincremental del modelo")
+    @Schema(description = "ID autoincremental del modelo", accessMode = Schema.AccessMode.READ_ONLY)
     private Integer idModelo;
 
     @Schema(description = "Nombre del modelo")

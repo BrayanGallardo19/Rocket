@@ -18,13 +18,21 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Datos del estado de un equipo")
+@Schema(
+    description = "Datos del estado de un equipo",
+    example = """
+        {
+          "idEstado": 1,
+          "nombreEstado": "Disponible"
+        }
+    """
+)
 public class Estado {
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "ID autoincremental del estado")
+    @Schema(description = "ID autoincremental del estado", accessMode = Schema.AccessMode.READ_ONLY)
     private Integer idEstado;
     @Schema(description = "Nombre del estado del equipo")
     @Column(nullable = false)

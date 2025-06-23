@@ -153,18 +153,12 @@ public class RolController {
     @Operation(summary = "Obtener un rol por nombre. Requiere autorización.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Rol obtenido correctamente"),
-        @ApiResponse(responseCode = "401", description = "No autorizado"),
-        @ApiResponse(responseCode = "403", description = "Prohibido"),
         @ApiResponse(responseCode = "404", description = "Rol no encontrado"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = String.class)))
     })
     @GetMapping("/nombre/{nombre}")
-    public ResponseEntity<?> obtenerRolPorNombre(@RequestHeader ("X-User-Id") Integer idUserConectado, @PathVariable String nombre) {
+    public ResponseEntity<?> obtenerRolPorNombre(@PathVariable String nombre) {
         try {
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 1);
-            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
-                return autorizacionResponse; // 403 o 401 según corresponda
-            }
             Role role = roleService.obtenerRolPorNombre(nombre);
             return ResponseEntity.ok(role);
         } catch (RuntimeException e) {

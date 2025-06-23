@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -13,7 +12,7 @@ import com.example.GestorPedidos.model.Tipo;
 import com.example.GestorPedidos.repository.PedidoRepository;
 import com.example.GestorPedidos.repository.TipoRepository;
 import com.example.GestorPedidos.webclient.EquipoClient;
-import com.example.GestorPedidos.webclient.UsuarioClient;
+import com.example.GestorPedidos.webclient.PagoFacturaClient;
 
 import jakarta.transaction.Transactional;
 
@@ -22,15 +21,15 @@ import jakarta.transaction.Transactional;
 public class PedidoService {
     private final TipoRepository tipoRepository;
     private final PedidoRepository pedidoRepository;
-    private final UsuarioClient usuarioClient;
     private final EquipoClient equipoClient;
+    private final PagoFacturaClient pagoFacturaClient;
 
     public PedidoService(PedidoRepository pedidoRepository, TipoRepository tipoRepository,
-            UsuarioClient usuarioClient, EquipoClient equipoClient) {
+            EquipoClient equipoClient, PagoFacturaClient pagoFacturaClient) {
         this.pedidoRepository = pedidoRepository;
         this.tipoRepository = tipoRepository;
-        this.usuarioClient = usuarioClient;
         this.equipoClient = equipoClient;
+        this.pagoFacturaClient = pagoFacturaClient;
     }
 
     // crear un pedido
@@ -47,7 +46,16 @@ public class PedidoService {
         final int ID_ESTADO_PENDIENTE = 1; // id del estado pendiente
         pedido.setIdEstado(ID_ESTADO_PENDIENTE); // establecer estado por defecto
 
-        return pedidoRepository.save(pedido);
+        Pedido pedidoGuardado = pedidoRepository.save(pedido);
+
+        // informar a pagoyfactura que hay un nuevo pedido confirmado
+        pagoFacturaClient.informarNuevoPedidoConfirmado(pedidoGuardado.getIdPedido())
+                .ifPresentOrElse(
+                        v -> System.out.println("Notificación enviada para pedido " + pedidoGuardado.getIdPedido()),
+                        () -> System.err.println(
+                                "No se pudo notificar a pagoyfactura para pedido " + pedidoGuardado.getIdPedido()));
+
+        return pedidoGuardado;
     }
 
     // mostrar todos los pedidos
@@ -100,21 +108,20 @@ public class PedidoService {
     }
 
     public Pedido modificarPedido(Integer idPedido, Pedido pedidoActualizado, Integer idTipo) {
-    // Buscar el pedido existente
-    Pedido pedidoExistente = pedidoRepository.findById(idPedido)
-            .orElseThrow(() -> new RuntimeException("Pedido no encontrado con id: " + idPedido));
+        // Buscar el pedido existente
+        Pedido pedidoExistente = pedidoRepository.findById(idPedido)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con id: " + idPedido));
 
-  
-    Tipo tipo = tipoRepository.findById(idTipo)
-            .orElseThrow(() -> new RuntimeException("Tipo no encontrado con id: " + idTipo));
+        Tipo tipo = tipoRepository.findById(idTipo)
+                .orElseThrow(() -> new RuntimeException("Tipo no encontrado con id: " + idTipo));
 
-    // Actualizar campos permitidos
-    pedidoExistente.setIdUsuario(pedidoActualizado.getIdUsuario());
-    pedidoExistente.setIdEquipo(pedidoActualizado.getIdEquipo());
-    pedidoExistente.setIdEstado(pedidoActualizado.getIdEstado());
-    pedidoExistente.setTotal(pedidoActualizado.getTotal());
-    pedidoExistente.setTipo(tipo);
+        // Actualizar campos permitidos
+        pedidoExistente.setIdUsuario(pedidoActualizado.getIdUsuario());
+        pedidoExistente.setIdEquipo(pedidoActualizado.getIdEquipo());
+        pedidoExistente.setIdEstado(pedidoActualizado.getIdEstado());
+        pedidoExistente.setTotal(pedidoActualizado.getTotal());
+        pedidoExistente.setTipo(tipo);
 
-    return pedidoRepository.save(pedidoExistente);
-}
+        return pedidoRepository.save(pedidoExistente);
+    }
 }

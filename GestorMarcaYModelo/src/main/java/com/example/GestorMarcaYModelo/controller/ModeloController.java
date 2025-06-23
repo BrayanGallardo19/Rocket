@@ -34,8 +34,8 @@ public class ModeloController {
     // muestra un modelo por id
     @Operation(summary = "Obtener un modelo por ID")
     @ApiResponses(value = {
-            @ApiResponse (responseCode = "200", description = "Modelo encontrado"),
-            @ApiResponse (responseCode = "404", description = "Modelo no encontrado", content = @Content(schema = @Schema(implementation = Modelo.class)))
+            @ApiResponse (responseCode = "200", description = "Modelo encontrado", content = @Content(schema = @Schema(implementation = Modelo.class))),
+            @ApiResponse (responseCode = "404", description = "Modelo no encontrado")
     })
     @GetMapping("/{id}")
     public ResponseEntity<Modelo> obtenerModeloPorId(@PathVariable Integer id) {
@@ -49,8 +49,8 @@ public class ModeloController {
     // muestra todos los modelos
     @Operation(summary = "Obtener una lista de todos los modelos")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de modelos obtenida correctamente"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Modelo.class)))
+            @ApiResponse(responseCode = "200", description = "Lista de modelos obtenida correctamente", content = @Content(schema = @Schema(implementation = Modelo.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping()
     public ResponseEntity<List<Modelo>> listarModelos() {
@@ -64,9 +64,9 @@ public class ModeloController {
     // crea un modelo
     @Operation(summary = "Guardar un nuevo modelo enlazado a una marca")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Modelo creado correctamente"),
+            @ApiResponse(responseCode = "201", description = "Modelo creado correctamente", content = @Content(schema = @Schema(implementation = Modelo.class))),
             @ApiResponse(responseCode = "400", description = "Solicitud incorrecta, datos inválidos"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Modelo.class)))
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping("/guardar")
     public ResponseEntity<Modelo> guardarModelo(@RequestBody Modelo modelo) {
@@ -85,10 +85,10 @@ public class ModeloController {
     // modificar un modelo
     @Operation(summary = "Modificar un modelo por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Modelo modificado correctamente"),
+            @ApiResponse(responseCode = "200", description = "Modelo modificado correctamente", content = @Content(schema = @Schema(implementation = Modelo.class))),
             @ApiResponse(responseCode = "404", description = "Modelo no encontrado"),
             @ApiResponse(responseCode = "400", description = "Solicitud incorrecta, datos inválidos"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Modelo.class)))
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PutMapping("/modificar/{id}")
     public ResponseEntity<Modelo> modificarModelo(@PathVariable Integer id, @RequestBody Modelo modelo) {
@@ -109,9 +109,9 @@ public class ModeloController {
     // eliminar un modelo por id
     @Operation(summary = "Eliminar un modelo por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Modelo eliminado correctamente"),
+            @ApiResponse(responseCode = "204", description = "Modelo eliminado correctamente", content = @Content),
             @ApiResponse(responseCode = "404", description = "Modelo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Modelo.class)))
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminarModelo(@PathVariable Integer id) {

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,8 +61,8 @@ public class PedidoController {
     public ResponseEntity<?> crearPedido(@RequestHeader("X-User-Id") Integer idUserConectado,
             @RequestBody Map<String, Object> body) {
         try {
-            // Validar rol del usuario conectado (esperado: cliente = 3)
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
+            // Validar rol del usuario conectado 
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(3, 6));
             if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
                 return autorizacionResponse;
             }

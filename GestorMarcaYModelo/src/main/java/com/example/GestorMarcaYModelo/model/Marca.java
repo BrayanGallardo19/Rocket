@@ -17,11 +17,19 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Datos de la marca")
+@Schema(
+    description = "Datos de la marca",
+    example = """
+        {
+          "idMarca": 2,
+          "nombre": "John Deere"
+        }
+    """
+)
 public class Marca {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "ID autoincremental de la marca")
+    @Schema(description = "ID autoincremental de la marca", accessMode = Schema.AccessMode.READ_ONLY)
     private Integer idMarca;
     @Schema(description = "Nombre de la marca")
     @Column(nullable = false)

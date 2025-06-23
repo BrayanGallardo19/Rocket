@@ -1,15 +1,13 @@
 package com.example.PagoFactura.Model;
 
-import java.lang.reflect.GenericArrayType;
 import java.time.LocalDate;
 
-import jakarta.annotation.Generated;
-import jakarta.persistence.CascadeType;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,21 +18,26 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
+@Schema(description = "Datos de la factura")
 public class Factura {
    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-   
-    private Integer id;
+    @Schema(description = "ID autoincremental de la factura", accessMode = Schema.AccessMode.READ_ONLY)
+    private Integer idFactura;
 
-    private Integer VentaId;
+    @Schema(description = "ID del pedido asociado", required = true)
+    @Column(nullable = false)
+    private Integer idPedido;
 
-    private LocalDate fechaEmision = LocalDate.now();
+    @Schema(description = "Fecha de emisión de la factura")
+    private LocalDate fechaEmision;
 
-    private Double monto;
+    @Schema(description = "Monto total de la factura", required = true)
+    @Column(nullable = false)
+    private Double montoTotal;
 
-    @OneToMany(mappedBy = "factura",cascade = CascadeType.ALL)
-
-    private Pago pago;
+    @Schema(description = "Estado de la factura (Pendiente, Pagada, Parcial)", example = "Pendiente")
+    @Column(nullable = false, length = 20)
+    private String estado;
 }

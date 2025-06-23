@@ -1,4 +1,4 @@
-package com.example.GestorPedidos.service;
+package com.example.PagoFactura.service;
 
 import java.util.Map;
 import java.util.Optional;
@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.example.GestorPedidos.webclient.UsuarioClient;
-import com.example.GestorPedidos.webclient.UsuarioConectadoClient;
+import com.example.PagoFactura.WebClient.UsuarioClient;
+import com.example.PagoFactura.WebClient.UsuarioConectadoClient;
 
 import jakarta.transaction.Transactional;
 
@@ -82,5 +82,4 @@ public class AutorizacionService {
                     .body("Acceso denegado: " + e.getMessage());
         }
     }
-
 }
