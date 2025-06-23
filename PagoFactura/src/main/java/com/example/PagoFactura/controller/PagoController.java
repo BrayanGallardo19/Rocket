@@ -35,25 +35,27 @@ public class PagoController {
     private AutorizacionService autorizacionService;
 
     @Operation(summary = "Registrar un nuevo pago")
-@ApiResponse(responseCode = "201", description = "Pago registrado correctamente", content = @Content(schema = @Schema(implementation = Pago.class)))
-@ApiResponse(responseCode = "400", description = "Error de validación o datos incorrectos")
-@ApiResponse(responseCode = "500", description = "Error interno del servidor")
-@PostMapping
-public ResponseEntity<?> registrarPago(@RequestHeader("X-User-Id") Integer idUserConectado, @RequestBody Pago pago) {
-    try {
-        // Validar rol del usuario conectado
-        ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(3, 6));
-        if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
-            return autorizacionResponse;
+    @ApiResponse(responseCode = "201", description = "Pago registrado correctamente", content = @Content(schema = @Schema(implementation = Pago.class)))
+    @ApiResponse(responseCode = "400", description = "Error de validación o datos incorrectos")
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    @PostMapping
+    public ResponseEntity<?> registrarPago(@RequestHeader("X-User-Id") Integer idUserConectado,
+            @RequestBody Pago pago) {
+        try {
+            // Validar rol del usuario conectado
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(3, 6));
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
+            Pago nuevo = pagoService.registrarPago(pago);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error de validación: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al registrar el pago: " + e.getMessage());
         }
-        Pago nuevo = pagoService.registrarPago(pago);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
-    } catch (IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body("Error de validación: " + e.getMessage());
-    } catch (RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar el pago: " + e.getMessage());
     }
-}
 
     @Operation(summary = "Listar pagos por id de factura")
     @ApiResponses({
@@ -62,7 +64,8 @@ public ResponseEntity<?> registrarPago(@RequestHeader("X-User-Id") Integer idUse
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/factura/{idFactura}")
-    public ResponseEntity<?> listarPagosPorFactura(@RequestHeader("X-User-Id") Integer idUserConectado, @PathVariable Integer idFactura) {
+    public ResponseEntity<?> listarPagosPorFactura(@RequestHeader("X-User-Id") Integer idUserConectado,
+            @PathVariable Integer idFactura) {
         try {
             // Validar rol del usuario conectado
             ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(3, 6));
@@ -86,7 +89,7 @@ public ResponseEntity<?> registrarPago(@RequestHeader("X-User-Id") Integer idUse
             @ApiResponse(responseCode = "204", description = "Pago eliminado correctamente"),
             @ApiResponse(responseCode = "404", description = "Pago no encontrado")
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminarPago(@RequestHeader("X-User-Id") Integer idUserConectado,
             @PathVariable Integer id) {
         try {

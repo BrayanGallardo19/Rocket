@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @RestController
@@ -34,8 +35,23 @@ public class FacturaController {
     @Autowired
     private AutorizacionService autorizacionService;
 
-    @Operation(summary = "Generar una nueva factura")
-    @ApiResponse(responseCode = "201", description = "Factura generada exitosamente", content = @Content(schema = @Schema(implementation = Factura.class)))
+    @Operation(
+        summary = "Generar una nueva factura",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Debe contener el idPedido del cual se generará la factura",
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "Ejemplo de solicitud",
+                    value = "{\"idPedido\": 1}"
+                )
+            )
+        )
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Factura generada exitosamente", content = @Content(schema = @Schema(implementation = Factura.class)))
+    })
     @PostMapping("/generar")
     public ResponseEntity<?> generarFacturaDesdePedido(@RequestBody Map<String, Integer> body) {
 
@@ -62,7 +78,7 @@ public class FacturaController {
             @ApiResponse(responseCode = "404", description = "Factura no encontrada")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerFactura(@RequestHeader("X-User-Id") Integer idUserConectado,
+    public ResponseEntity<?> obtenerFacturaPorId(@RequestHeader("X-User-Id") Integer idUserConectado,
             @PathVariable Integer id) {
         try {
             // Validar rol del usuario conectado

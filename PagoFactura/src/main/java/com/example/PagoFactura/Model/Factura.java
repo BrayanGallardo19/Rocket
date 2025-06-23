@@ -18,9 +18,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Datos de la factura")
+@Schema(description = "Datos de la factura", example = """
+        {
+      "idFactura": 1,
+      "idPedido": 123,
+      "fechaEmision": "2024-06-23",
+      "montoTotal": 15000.0,
+      "estado": "Pendiente"
+    }
+        """)
 public class Factura {
-   
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "ID autoincremental de la factura", accessMode = Schema.AccessMode.READ_ONLY)
