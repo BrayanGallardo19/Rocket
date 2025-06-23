@@ -1,15 +1,14 @@
-package com.example.GestorInventario.service;
+package com.example.GestorPedidos.service;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.example.GestorInventario.webclient.UsuarioClient;
-import com.example.GestorInventario.webclient.UsuarioConectadoClient;
+import com.example.GestorPedidos.webclient.UsuarioClient;
+import com.example.GestorPedidos.webclient.UsuarioConectadoClient;
 
 import jakarta.transaction.Transactional;
 
@@ -55,20 +54,6 @@ public class AutorizacionService {
         return rol;
     }
 
-    public ResponseEntity<?> validarRoles(Integer idUserConectado, Set<Integer> rolesEsperados) {
-        try {
-            Integer rol = obtenerRolUsuarioConectado(idUserConectado);
-            if (!rolesEsperados.contains(rol)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Acceso denegado: rol inválido");
-            }
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Acceso denegado: " + e.getMessage());
-        }
-    }
-
     public ResponseEntity<?> validarRol(Integer idUserConectado, Integer rolEsperado) {
         try {
             Integer rol = obtenerRolUsuarioConectado(idUserConectado);
@@ -82,4 +67,6 @@ public class AutorizacionService {
                     .body("Acceso denegado: " + e.getMessage());
         }
     }
+
+  
 }

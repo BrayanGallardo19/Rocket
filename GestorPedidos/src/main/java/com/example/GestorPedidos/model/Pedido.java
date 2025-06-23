@@ -29,11 +29,11 @@ public class Pedido {
     private Integer idPedido;
 
     @Schema(description = "ID del usuario que realiza el pedido")
-    @Column(name = "id_usuario")
+    @Column(name = "id_usuario", nullable = false)
     private Integer idUsuario;
 
     @Schema(description = "ID del equipo asociado al pedido")
-    @Column(name = "id_equipo")
+    @Column(name = "id_equipo", nullable = false)
     private Integer idEquipo;
     
     @Schema(description = "Fecha del pedido")
@@ -41,7 +41,7 @@ public class Pedido {
     private LocalDateTime fechaPedido;
 
     @Schema(description = "ID del estado del pedido")
-    @Column(name = "id_estado")
+    @Column(name = "id_estado", nullable = false)
     private Integer idEstado;
 
     @Schema(description = "Costo total del pedido")

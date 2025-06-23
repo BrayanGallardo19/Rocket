@@ -1,159 +1,244 @@
 package com.example.GestorPedidos.controller;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.GestorPedidos.model.Pedido;
+import com.example.GestorPedidos.service.AutorizacionService;
 import com.example.GestorPedidos.service.PedidoService;
 import com.example.GestorPedidos.webclient.UsuarioClient;
+import com.example.GestorPedidos.webclient.UsuarioConectadoClient;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
-@RequestMapping("/api/v1/pedidos")
+@RequestMapping("api/v1/pedidos")
 public class PedidoController {
 
     private final PedidoService pedidoService;
     private final UsuarioClient usuarioClient;
+    private final UsuarioConectadoClient usuarioConectadoClient;
+    private final AutorizacionService autorizacionService;
 
-    public PedidoController(PedidoService pedidoService, UsuarioClient usuarioClient) {
+    public PedidoController(PedidoService pedidoService, UsuarioClient usuarioClient,
+            UsuarioConectadoClient usuarioConectadoClient, AutorizacionService autorizacionService) {
         this.pedidoService = pedidoService;
         this.usuarioClient = usuarioClient;
-
-    }
-
-    // buscar pedidos de cliente por username
-    @Operation(summary = "Obtener pedidos de un cliente por su nombre de usuario")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pedidos encontrados"),
-            @ApiResponse(responseCode = "404", description = "No se encontraron pedidos para el usuario"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Pedido.class)))
-    })
-    @GetMapping("/cliente/{username}")
-    public ResponseEntity<?> obtenerPedidosCliente(@RequestParam String username) {
-        try {
-        List<Map<String, Object>> pedidos = pedidoService.obtenerPedidosParaCliente(username);
-        if (pedidos == null || pedidos.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron pedidos para el usuario");
-        }
-        return ResponseEntity.ok(pedidos);
-    } catch (RuntimeException e) {
-        
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 si no se encuentra usuario, controlado desde el service
-    } catch (Exception e) {
-        
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");// 500 si ocurre un error inesperado
-    }
-    }
-
-    // obtener pedidos dependiendo del rol
-    @GetMapping("/{idPedido}")
-    public ResponseEntity<?> obtenerPedidoPorId(@PathVariable Integer idPedido) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Collection<? extends GrantedAuthority> roles = auth.getAuthorities();
-
-        try {
-            if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_GESTOR_INVENTARIO"))) {
-                Map<String, Object> pedidoCompleto = pedidoService.obtenerPedidoCompleto(idPedido);
-                return ResponseEntity.ok(pedidoCompleto); // ok si se encuentra el pedido
-
-            } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_CLIENTE"))) {
-                // bbtienes el username del auth y usas tu método para cliente
-                String username = auth.getName();
-                List<Map<String, Object>> pedidos = pedidoService.obtenerPedidosParaCliente(username);
-
-                // filtrar el pedido por idPedido
-                Map<String, Object> pedidoBuscado = pedidos.stream()
-                        .filter(p -> idPedido.equals(p.get("idPedido")))
-                        .findFirst()
-                        .orElseThrow(() -> new RuntimeException("Pedido no encontrado para este cliente"));
-
-                return ResponseEntity.ok(pedidoBuscado);
-
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permisos para ver este pedido"); // 403 si el usuario no tiene permisos
-            }
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 si no se encuentra el pedido
-        }
+        this.usuarioConectadoClient = usuarioConectadoClient;
+        this.autorizacionService = autorizacionService;
     }
 
     // crear un nuevo pedido
+    @Operation(summary = "Crear un nuevo pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Pedido creado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Solicitud incorrecta"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PostMapping("/crear")
-    @ApiResponses
-    public ResponseEntity<Pedido> crearPedido(@RequestBody Map<String, Object> body) {
-        // obtener username desde el token
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<?> crearPedido(@RequestHeader("X-User-Id") Integer idUserConectado,
+            @RequestBody Map<String, Object> body) {
+        try {
+            // Validar rol del usuario conectado (esperado: cliente = 3)
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
 
-        // obtener el usuario como Map desde el microservicio de usuarios
-        Map<String, Object> usuario = usuarioClient.obtenerUsuarioPorUsername(username);
-        if (usuario == null || !usuario.containsKey("id")) {
-            throw new RuntimeException("No se pudo obtener el usuario autenticado.");
+            // Obtener ID real del usuario conectado desde el microservicio de sesiones
+            Optional<Map<String, Object>> conectadoOpt = usuarioConectadoClient
+                    .buscarUsuarioConectadoPorId(idUserConectado);
+            if (conectadoOpt.isEmpty() || !conectadoOpt.get().containsKey("userId")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no conectado.");
+            }
+            Integer idUsuario = (Integer) conectadoOpt.get().get("userId");
+
+            // Obtener los datos del usuario real
+            Optional<Map<String, Object>> usuarioOpt = usuarioClient.obtenerUsuarioPorId(idUsuario);
+            if (usuarioOpt.isEmpty() || !usuarioOpt.get().containsKey("id")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No se pudo obtener la información del usuario autenticado.");
+            }
+
+            Map<String, Object> usuario = usuarioOpt.get();
+
+            // Construcción del pedido
+            Pedido pedido = new Pedido();
+            pedido.setIdEquipo((Integer) body.get("idEquipo"));
+            pedido.setTotal(Double.parseDouble(body.get("total").toString()));
+            pedido.setIdUsuario(idUsuario); // usar id real
+
+            // Dirección para encargos (si aplica a otros microservicios)
+            Map<String, Object> direccion = new HashMap<>();
+            direccion.put("ciudad", body.get("ciudad"));
+            direccion.put("comuna", body.get("comuna"));
+            direccion.put("calle", body.get("calle"));
+            direccion.put("numero", body.get("numero"));
+            direccion.put("depto", body.get("depto"));
+            direccion.put("referencia", body.get("referencia"));
+            // nota: puedes enviar esta dirección a otro servicio si lo necesitas
+
+            // Tipo de pedido
+            Integer idTipo = (Integer) body.get("idTipo");
+
+            Pedido nuevoPedido = pedidoService.crearPedido(pedido, idTipo);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido); // 201 Created
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
         }
-
-        // construir el pedido usando los datos del body
-        Pedido pedido = new Pedido();
-        pedido.setIdEquipo((Integer) body.get("idEquipo"));
-        pedido.setTotal(Double.parseDouble(body.get("total").toString()));
-        pedido.setIdUsuario((Integer) usuario.get("id"));
-        // asignar los datos de la dirección
-        Map<String, Object> direccion = new HashMap<>();
-        direccion.put("ciudad", body.get("ciudad"));
-        direccion.put("comuna", body.get("comuna"));
-        direccion.put("calle", body.get("calle"));
-        direccion.put("numero", body.get("numero"));
-        direccion.put("depto", body.get("depto"));
-        direccion.put("referencia", body.get("referencia"));
-
-        // asignar el estado inicial del pedido
-        Integer idTipo = (Integer) body.get("idTipo");
-
-        // crear el pedido con su tipo
-        Pedido nuevoPedido = pedidoService.crearPedido(pedido, idTipo);
-
-        return ResponseEntity.ok(nuevoPedido);
     }
 
     // buscar pedido por id
-    @GetMapping("/id/{idPedido}")
-    public ResponseEntity<Pedido> buscarPedidoPorId(@PathVariable Integer idPedido) {
-        Pedido pedido = pedidoService.obtenerPedidoPorId(idPedido);
-        return ResponseEntity.ok(pedido); // 200
+    @Operation(summary = "Buscar un pedido por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedido encontrado", content = @Content(schema = @Schema(type = "object"))),
+            @ApiResponse(responseCode = "401", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado. Rol inválido"),
+            @ApiResponse(responseCode = "404", description = "Pedido no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/{idPedido}")
+    public ResponseEntity<?> buscarPedidoPorId(@RequestHeader("X-User-Id") Integer idUserConectado,
+            @PathVariable Integer idPedido) {
+        try {
+
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
+
+            Map<String, Object> pedidoCompleto = pedidoService.obtenerPedidoPorId(idPedido, idUserConectado);
+            return ResponseEntity.ok(pedidoCompleto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+        }
     }
 
-    // mostrar todos los pedidos
-    @GetMapping()
-    public ResponseEntity<List<Pedido>> mostrarTodosLosPedidos() {
-        List<Pedido> pedidos = pedidoService.mostrarTodosLosPedidos();
-        return ResponseEntity.ok(pedidos); // 200
+    @Operation(summary = "Mostrar todos los pedidos registrados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedidos obtenidos correctamente", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
+            @ApiResponse(responseCode = "401", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado. Rol inválido"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping
+    public ResponseEntity<?> mostrarTodosLosPedidos(@RequestHeader("X-User-Id") Integer idUserConectado) {
+        try {
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
+
+            List<Pedido> pedidos = pedidoService.mostrarTodosLosPedidos();
+            return ResponseEntity.ok(pedidos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+        }
     }
 
     // eliminar pedido por id
+    @Operation(summary = "Eliminar un pedido por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Pedido eliminado correctamente"),
+            @ApiResponse(responseCode = "401", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado. Rol inválido"),
+            @ApiResponse(responseCode = "404", description = "Pedido no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @DeleteMapping("/eliminar/{idPedido}")
-    public ResponseEntity<Void> eliminarPedidoPorId(@PathVariable Integer idPedido) {
-        pedidoService.eliminarPedidoPorId(idPedido);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> eliminarPedidoPorId(@RequestHeader("X-User-Id") Integer idUserConectado,
+            @PathVariable Integer idPedido) {
+        try {
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
+
+            pedidoService.eliminarPedidoPorId(idPedido);
+            return ResponseEntity.noContent().build(); // 204
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+        }
+    }
+    @Operation(summary = "Modificar un pedido existente")
+@ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Pedido modificado exitosamente"),
+    @ApiResponse(responseCode = "400", description = "Datos inválidos o incompletos"),
+    @ApiResponse(responseCode = "401", description = "Acceso denegado: usuario no conectado"),
+    @ApiResponse(responseCode = "403", description = "Acceso denegado: rol inválido"),
+    @ApiResponse(responseCode = "404", description = "Pedido no encontrado o error en modificación"),
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Pedido.class)))
+})
+    @PutMapping("/modificar/{idPedido}")
+    public ResponseEntity<?> modificarPedido(@RequestHeader("X-User-Id") Integer idUserConectado,
+            @PathVariable Integer idPedido,
+            @RequestBody Map<String, Object> body) {
+        try {
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
+
+            Optional<Map<String, Object>> conectadoOpt = usuarioConectadoClient
+                    .buscarUsuarioConectadoPorId(idUserConectado);
+            if (conectadoOpt.isEmpty() || !conectadoOpt.get().containsKey("userId")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no conectado.");
+            }
+            Integer idUsuario = (Integer) conectadoOpt.get().get("userId");
+
+            // Validar datos requeridos
+            if (!body.containsKey("idEquipo") || !body.containsKey("total") || !body.containsKey("idTipo")) {
+                return ResponseEntity.badRequest().body("Faltan datos obligatorios para modificar el pedido.");
+            }
+
+            // Construir objeto con los datos actualizados
+            Pedido pedidoActualizado = new Pedido();
+            pedidoActualizado.setIdUsuario(idUsuario); // usuario real
+            pedidoActualizado.setIdEquipo((Integer) body.get("idEquipo"));
+            pedidoActualizado.setIdEstado((Integer) body.getOrDefault("idEstado", 1)); // puede venir o no
+            pedidoActualizado.setTotal(Double.parseDouble(body.get("total").toString()));
+
+            Integer idTipo = (Integer) body.get("idTipo");
+
+            Pedido pedidoModificado = pedidoService.modificarPedido(idPedido, pedidoActualizado, idTipo);
+
+            return ResponseEntity.ok(pedidoModificado);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno al modificar el pedido");
+        }
     }
 
 }

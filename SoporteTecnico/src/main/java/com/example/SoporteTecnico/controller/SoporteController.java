@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.SoporteTecnico.model.Soporte;
+import com.example.SoporteTecnico.service.AutorizacionService;
 import com.example.SoporteTecnico.service.SoporteTecnicoService;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -22,10 +24,17 @@ public class SoporteController {
 
     @Autowired
     private SoporteTecnicoService sopService;
+    @Autowired
+    private AutorizacionService autorizacionService;
 
-    @PostMapping
-    public ResponseEntity<?> crearSoporte(@RequestBody Soporte nuevoSoporte) {
+    @PostMapping("/crear")
+    public ResponseEntity<?> crearSoporte(@RequestHeader("X-User-Id") Integer idUserConectado ,@RequestBody Soporte nuevoSoporte) {
         try {
+            // validar rol
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 4);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
             Soporte soporte = sopService.createSoporte(nuevoSoporte);
             return ResponseEntity.status(HttpStatus.CREATED).body(soporte);
         } catch (Exception e) {
@@ -34,9 +43,13 @@ public class SoporteController {
         }
     }
     
-    @PutMapping("/{id}")
-    public ResponseEntity<?> editarSoporte(@PathVariable Integer id, @RequestBody Soporte soporte) {
+    @PutMapping("modificar/{id}")
+    public ResponseEntity<?> editarSoporte(@RequestHeader("X-User-Id") Integer idUserConectado, @PathVariable Integer id, @RequestBody Soporte soporte) {
         try {
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 4);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
             Soporte actualizado = sopService.updateSoporte(id, soporte);
             return ResponseEntity.ok(actualizado);
         } catch (EntityNotFoundException e) {
@@ -48,7 +61,11 @@ public class SoporteController {
     }
     
     @GetMapping
-    public ResponseEntity<List<Soporte>> listarSoportes() {
+    public ResponseEntity<?> listarSoportes(@RequestHeader("X-User-Id") Integer idUserConectado) {
+        ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 4);
+        if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+            return autorizacionResponse;
+        }
         List<Soporte> lista = sopService.getSoportes();
         if (lista.isEmpty()){
             return ResponseEntity.noContent().build();
@@ -56,8 +73,12 @@ public class SoporteController {
         return ResponseEntity.ok(lista);
     }
     
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarSoporte(@PathVariable Integer id) {
+    @DeleteMapping("eliminar/{id}")
+    public ResponseEntity<?> eliminarSoporte(@RequestHeader("X-User-Id") Integer idUserConectado ,@PathVariable Integer id) {
+        ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 4);
+        if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+            return autorizacionResponse;
+        }
         boolean deleted = sopService.deleteSoporteById(id);
         if (deleted) {
             return ResponseEntity.ok("Soporte eliminado correctamente.");

@@ -43,4 +43,6 @@ public class Ticket {
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<TipoSoporte> tiposSportes; //lista de modelos asociados a la marca 
+
 }
+

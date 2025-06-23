@@ -44,9 +44,9 @@ public class Equipo {
     @Column(nullable = false, length = 40)
     @Schema(description = "Patente del equipo")
     private String patente;
-    @Schema(description = "ID del modelo asociado al equipo")
+    @Schema(description = "ID del modelo asociado al equipo", nullable = false)
     private Integer idModelo;
-    @Schema(description = "ID de la marca asociada al equipo")
+    @Schema(description = "ID de la marca asociada al equipo", nullable = false)
     private Integer idMarca;
     
     // variables para devolver el objeto completo

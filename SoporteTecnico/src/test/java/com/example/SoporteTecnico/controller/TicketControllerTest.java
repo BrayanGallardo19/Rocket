@@ -1,6 +1,8 @@
 package com.example.SoporteTecnico.controller;
 
 import com.example.SoporteTecnico.model.Ticket;
+import com.example.SoporteTecnico.repository.TicketRepository;
+import com.example.SoporteTecnico.service.AutorizacionService;
 import com.example.SoporteTecnico.service.SoporteTecnicoService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -8,188 +10,160 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(TicketController.class)
 public class TicketControllerTest {
 
-    @Mock
-    SoporteTecnicoService sopService;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @InjectMocks
-    TicketController ticketController;
+    @MockBean
+    private SoporteTecnicoService sopService;
+
+    @MockBean
+    private AutorizacionService autorizacionService;
+
+    @MockBean
+    private TicketRepository ticketRepository;
+
+    private final Integer idUser = 4; // Rol soporte
+    Integer idUserConectado = 123;
 
     @Test
-    void testObtenerTickets_ConDatos() {
-        Ticket t1 = new Ticket(1, new Date(), null, "desc1", 1, null, null);
-        Ticket t2 = new Ticket(2, new Date(), new Date(), "desc2", 2, null, null);
-        List<Ticket> lista = Arrays.asList(t1, t2);
+    void obtenerTickets_returnsOkAndJson() throws Exception {
+        Ticket ticket = new Ticket();
+        ticket.setId(1);
+        ticket.setFecha_inicio(new Date());
+        ticket.setDescripcion("Revisión");
+        ticket.setIdUsuario(101);
 
-        when(sopService.getTickets()).thenReturn(lista);
+        when(autorizacionService.validarRol(idUserConectado, 4))
+                .thenReturn(ResponseEntity.ok().build());
+        when(sopService.getTickets())
+                .thenReturn(List.of(ticket));
 
-        ResponseEntity<List<Ticket>> response = ticketController.obtenerTickets();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(lista);
+        mockMvc.perform(get("/api/v1/tickets")
+                .header("X-User-Id", idUserConectado))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].descripcion").value("Revisión"));
     }
 
     @Test
-    void testObtenerTickets_SinDatos() {
-        when(sopService.getTickets()).thenReturn(List.of());
+    void crearTicket_returnsCreatedAndJson() throws Exception {
+        Ticket nuevoTicket = new Ticket();
+        nuevoTicket.setDescripcion("Error UI");
+        nuevoTicket.setIdUsuario(idUserConectado);
+        nuevoTicket.setFecha_inicio(new Date());
 
-        ResponseEntity<List<Ticket>> response = ticketController.obtenerTickets();
+        Ticket guardadoTicket = new Ticket();
+        guardadoTicket.setId(2);
+        guardadoTicket.setDescripcion("Error UI");
+        guardadoTicket.setIdUsuario(idUserConectado);
+        guardadoTicket.setFecha_inicio(nuevoTicket.getFecha_inicio());
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(204);
-        assertThat(response.getBody()).isNull();
+        when(autorizacionService.validarRol(idUserConectado, 4))
+                .thenReturn(ResponseEntity.ok().build());
+        when(sopService.saveTicket(any(Ticket.class)))
+                .thenReturn(guardadoTicket);
+
+        String jsonBody = """
+                {
+                    "descripcion": "Error UI",
+                    "idUsuario": 4
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/tickets")
+                .header("X-User-Id", idUserConectado)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.descripcion").value("Error UI"));
     }
 
     @Test
-    void testCrearProyecto_Exitoso() {
-        Ticket ticketMock = new Ticket(1, new Date(), null, "desc", 1, null, null);
-        when(sopService.saveTicket(any(Ticket.class))).thenReturn(ticketMock);
-
-        Ticket nuevo = new Ticket();
-        nuevo.setDescripcion("desc");
-        nuevo.setFecha_inicio(new Date());
-        nuevo.setIdUsuario(1);
-
-        ResponseEntity<?> response = ticketController.crearProyecto(nuevo);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(201);
-        assertThat(response.getBody()).isEqualTo(ticketMock);
-    }
-
-    @Test
-    void testCrearProyecto_ErrorRuntime() {
-        when(sopService.saveTicket(any(Ticket.class))).thenThrow(new RuntimeException("usuario no encontrado"));
-
-        Ticket nuevo = new Ticket();
-        nuevo.setDescripcion("desc");
-        nuevo.setFecha_inicio(new Date());
-        nuevo.setIdUsuario(99);
-
-        ResponseEntity<?> response = ticketController.crearProyecto(nuevo);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
-        assertThat(response.getBody().toString()).contains("usuario no encontrado");
-    }
-
-
-    @Test
-    void testEliminarTicket_Exitoso() {
+    void eliminarTicket_returnsOk() throws Exception {
+        when(autorizacionService.validarRol(idUserConectado, 4))
+                .thenReturn(ResponseEntity.ok().build());
         when(sopService.deleteTicketById(1)).thenReturn(true);
 
-        ResponseEntity<String> response = ticketController.deleteTicket(1);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo("Ticket eliminado correctamente.");
+        mockMvc.perform(delete("/api/v1/tickets/1")
+                .header("X-User-Id", idUserConectado))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Ticket eliminado correctamente."));
     }
 
     @Test
-    void testEliminarTicket_NoEncontrado() {
-        when(sopService.deleteTicketById(999)).thenReturn(false);
+    void actualizarTicket_returnsOkAndJson() throws Exception {
+        Ticket ticketActualizado = new Ticket();
+        ticketActualizado.setId(1);
+        ticketActualizado.setDescripcion("Detalle actualizado");
+        ticketActualizado.setIdUsuario(idUserConectado);
+        ticketActualizado.setFecha_inicio(new Date());
 
-        ResponseEntity<String> response = ticketController.deleteTicket(999);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
-        assertThat(response.getBody()).isEqualTo("Ticket no encontrado.");
-    }
-
-    @Test
-    void testActualizarTicket_Exitoso() {
-        Ticket actualizado = new Ticket(1, new Date(), null, "desc actualizado", 1, null, null);
-
-        when(sopService.actualizarTicket(eq(1), any(Ticket.class))).thenReturn(actualizado);
-
-        Ticket aActualizar = new Ticket();
-        aActualizar.setDescripcion("desc actualizado");
-        aActualizar.setFecha_inicio(new Date());
-        aActualizar.setIdUsuario(1);
-
-        ResponseEntity<?> response = ticketController.actualizarTicket(1, aActualizar);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(actualizado);
-    }
-
-    @Test
-    void testActualizarTicket_NoEncontrado() {
-        when(sopService.actualizarTicket(eq(999), any(Ticket.class)))
-            .thenThrow(new EntityNotFoundException("Ticket no encontrado"));
-
-        Ticket aActualizar = new Ticket();
-        aActualizar.setDescripcion("desc");
-        aActualizar.setFecha_inicio(new Date());
-        aActualizar.setIdUsuario(1);
-
-        ResponseEntity<?> response = ticketController.actualizarTicket(999, aActualizar);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
-        assertThat(response.getBody()).isEqualTo("Ticket no encontrado");
-    }
-
-    @Test
-    void testActualizarTicket_ErrorIntegridadDatos() {
+        when(autorizacionService.validarRol(idUserConectado, 4))
+                .thenReturn(ResponseEntity.ok().build());
         when(sopService.actualizarTicket(eq(1), any(Ticket.class)))
-            .thenThrow(new DataIntegrityViolationException("Datos invalidos"));
+                .thenReturn(ticketActualizado);
 
-        Ticket aActualizar = new Ticket();
-        aActualizar.setDescripcion("desc");
-        aActualizar.setFecha_inicio(new Date());
-        aActualizar.setIdUsuario(1);
+        String jsonBody = """
+                {
+                    "descripcion": "Detalle actualizado",
+                    "idUsuario": 4
+                }
+                """;
 
-        ResponseEntity<?> response = ticketController.actualizarTicket(1, aActualizar);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(400);
-        assertThat(response.getBody()).isEqualTo("Datos inválidos para el ticket");
+        mockMvc.perform(put("/api/v1/tickets/1")
+                .header("X-User-Id", idUserConectado)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.descripcion").value("Detalle actualizado"));
     }
 
     @Test
-    void testActualizarTicket_ErrorGenerico() {
-        when(sopService.actualizarTicket(eq(1), any(Ticket.class)))
-            .thenThrow(new RuntimeException("Error inesperado"));
+    void listarTicketsPorUsuario_returnsOkAndJson() throws Exception {
+        Ticket ticket = new Ticket();
+        ticket.setId(3);
+        ticket.setDescripcion("Consulta resuelta");
+        ticket.setIdUsuario(10);
+        ticket.setFecha_inicio(new Date());
 
-        Ticket aActualizar = new Ticket();
-        aActualizar.setDescripcion("desc");
-        aActualizar.setFecha_inicio(new Date());
-        aActualizar.setIdUsuario(1);
+        when(autorizacionService.validarRol(idUserConectado, 4))
+                .thenReturn(ResponseEntity.ok().build());
+        when(sopService.getTicketsByUsuarioId(10))
+                .thenReturn(List.of(ticket));
 
-        ResponseEntity<?> response = ticketController.actualizarTicket(1, aActualizar);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(500);
-        assertThat(response.getBody()).isEqualTo("Error al actualizar el ticket");
-    }
-
-    @Test
-    void testListarTicketsPorUsuario_ConDatos() {
-        Ticket t1 = new Ticket(1, new Date(), null, "desc1", 1, null, null);
-        Ticket t2 = new Ticket(2, new Date(), null, "desc2", 1, null, null);
-        List<Ticket> lista = Arrays.asList(t1, t2);
-
-        when(sopService.getTicketsByUsuarioId(1)).thenReturn(lista);
-
-        ResponseEntity<List<Ticket>> response = ticketController.listarTicketsPorUsuario(1);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(lista);
-    }
-
-    @Test
-    void testListarTicketsPorUsuario_SinDatos() {
-        when(sopService.getTicketsByUsuarioId(999)).thenReturn(List.of());
-
-        ResponseEntity<List<Ticket>> response = ticketController.listarTicketsPorUsuario(999);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(204);
-        assertThat(response.getBody()).isNull();
+        mockMvc.perform(get("/api/v1/tickets/usuario/10")
+                .header("X-User-Id", idUserConectado))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(3))
+                .andExpect(jsonPath("$[0].descripcion").value("Consulta resuelta"));
     }
 }

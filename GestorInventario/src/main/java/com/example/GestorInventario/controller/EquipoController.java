@@ -1,6 +1,7 @@
 package com.example.GestorInventario.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -82,7 +83,7 @@ public class EquipoController {
     public ResponseEntity<?> obtenerEquipoPorId(@RequestHeader("X-User-Id") Integer idUserConectado,
             @PathVariable Integer idEquipo) {
         try {
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 2);
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(2, 3));
             if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
                 return autorizacionResponse;
             }
@@ -213,7 +214,7 @@ public class EquipoController {
     public ResponseEntity<?> obtenerEstadoPorId(@RequestHeader("X-User-Id") Integer idUserConectado,
             @PathVariable Integer idEstado) {
         try {
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 2);
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of(2,3));
             if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
                 return autorizacionResponse;
             }

@@ -73,17 +73,27 @@ public class LoadDatabase {
     soporte.setPassword(passwordEncoder.encode("soporte123"));
     soporte.setIdRol(getIdFromRole(soporteRole));
 
-    // CLIENTE
-    User cliente = new User();
-    cliente.setNombre("Cliente");
-    cliente.setAppaterno("Usuario");
-    cliente.setApmaterno("Demo");
-    cliente.setRut("55555555-5");
-    cliente.setUsername("cliente1");
-    cliente.setPassword(passwordEncoder.encode("cliente123"));
-    cliente.setIdRol(getIdFromRole(clienteRole));
+    // CLIENTE 1
+    User cliente1 = new User();
+    cliente1.setNombre("Cliente");
+    cliente1.setAppaterno("Usuario");
+    cliente1.setApmaterno("Demo");
+    cliente1.setRut("55555555-5");
+    cliente1.setUsername("cliente1");
+    cliente1.setPassword(passwordEncoder.encode("cliente123"));
+    cliente1.setIdRol(getIdFromRole(clienteRole));
 
-    userRepository.saveAll(List.of(admin, gestorInv, coordLog, soporte, cliente));
+    // CLIENTE 2
+    User cliente2 = new User();
+    cliente2.setNombre("Cliente2");
+    cliente2.setAppaterno("Usuario2");
+    cliente2.setApmaterno("Demo");
+    cliente2.setRut("66666666-6");
+    cliente2.setUsername("cliente2");
+    cliente2.setPassword(passwordEncoder.encode("cliente123"));
+    cliente2.setIdRol(getIdFromRole(clienteRole));
+
+    userRepository.saveAll(List.of(admin, gestorInv, coordLog, soporte, cliente1, cliente2));
     System.out.println("Usuarios precargados con roles.");
             } else {
                 System.out.println("Ya existen usuarios en la base, no se cargó nada nuevo.");

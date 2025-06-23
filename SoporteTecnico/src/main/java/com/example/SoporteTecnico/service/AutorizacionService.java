@@ -1,15 +1,14 @@
-package com.example.GestorInventario.service;
+package com.example.SoporteTecnico.service;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.example.GestorInventario.webclient.UsuarioClient;
-import com.example.GestorInventario.webclient.UsuarioConectadoClient;
+import com.example.SoporteTecnico.webclient.UsuarioConectadoClient;
+import com.example.SoporteTecnico.webclient.UsuarioUser;
 
 import jakarta.transaction.Transactional;
 
@@ -17,9 +16,9 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class AutorizacionService {
     private final UsuarioConectadoClient usuarioConectadoClient;
-    private final UsuarioClient usuarioClient;
+    private final UsuarioUser usuarioClient;
 
-    public AutorizacionService(UsuarioConectadoClient usuarioConectadoClient, UsuarioClient usuarioClient) {
+    public AutorizacionService(UsuarioConectadoClient usuarioConectadoClient, UsuarioUser usuarioClient) {
         this.usuarioConectadoClient = usuarioConectadoClient;
         this.usuarioClient = usuarioClient;
     }
@@ -32,11 +31,12 @@ public class AutorizacionService {
         }
         Integer idUsuario = (Integer) conectadoOpt.get().get("userId");
 
-        Optional<Map<String, Object>> usuarioOpt = usuarioClient.obtenerUsuarioPorId(idUsuario);
-        if (usuarioOpt.isEmpty() || !usuarioOpt.get().containsKey("idRol")) {
+        Map<String, Object> usuario = usuarioClient.getUsuarioPorId(idUsuario);
+
+        if (usuario == null || !usuario.containsKey("idRol")) {
             throw new RuntimeException("Usuario sin rol válido");
         }
-        Object rolObj = usuarioOpt.get().get("idRol");
+        Object rolObj = usuario.get("idRol");
         Integer rol = null;
         if (rolObj instanceof Integer) {
             rol = (Integer) rolObj;
@@ -55,20 +55,6 @@ public class AutorizacionService {
         return rol;
     }
 
-    public ResponseEntity<?> validarRoles(Integer idUserConectado, Set<Integer> rolesEsperados) {
-        try {
-            Integer rol = obtenerRolUsuarioConectado(idUserConectado);
-            if (!rolesEsperados.contains(rol)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Acceso denegado: rol inválido");
-            }
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Acceso denegado: " + e.getMessage());
-        }
-    }
-
     public ResponseEntity<?> validarRol(Integer idUserConectado, Integer rolEsperado) {
         try {
             Integer rol = obtenerRolUsuarioConectado(idUserConectado);
@@ -82,4 +68,5 @@ public class AutorizacionService {
                     .body("Acceso denegado: " + e.getMessage());
         }
     }
+
 }

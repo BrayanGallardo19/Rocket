@@ -1,7 +1,6 @@
 package com.example.SoporteTecnico.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,11 +12,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.SoporteTecnico.model.Ticket;
 import com.example.SoporteTecnico.repository.TicketRepository;
+import com.example.SoporteTecnico.service.AutorizacionService;
 import com.example.SoporteTecnico.service.SoporteTecnicoService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -28,12 +29,18 @@ public class TicketController {
 
 
     @Autowired 
-    SoporteTecnicoService sopService;
+    private SoporteTecnicoService sopService;
+    @Autowired
+    private AutorizacionService autorizacionService;
     @Autowired
     private TicketRepository ticketRepository;
 
     @GetMapping("/tickets")
-    public ResponseEntity<List<Ticket>> obtenerTickets(){
+    public ResponseEntity<?> obtenerTickets(@RequestHeader("X-User-Id") Integer idUserConectado){
+        ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 4);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
         List<Ticket> tickets = sopService.getTickets();
         if(tickets.isEmpty()){
             return ResponseEntity.noContent().build();
@@ -41,8 +48,13 @@ public class TicketController {
         }
         return ResponseEntity.ok(tickets);
     }
-    @PostMapping("/tickets")
-    public ResponseEntity<?> crearProyecto(@RequestBody Ticket nuevoTicket) {
+    @PostMapping("/tickets/crear")
+    public ResponseEntity<?> crearProyecto(@RequestHeader("X-User-Id") Integer idUserConectado, @RequestBody Ticket nuevoTicket) {
+        ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 4);
+        if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+            return autorizacionResponse;
+        }
+
         try {
             Ticket tk = sopService.saveTicket(nuevoTicket);
             return ResponseEntity.status(201).body(tk);
@@ -55,8 +67,13 @@ public class TicketController {
 
 
 
-    @DeleteMapping("tickets/{id}")
-    public ResponseEntity<String> deleteTicket(@PathVariable Integer id) {
+    @DeleteMapping("tickets/eliminar/{id}")
+    public ResponseEntity<?> deleteTicket(@RequestHeader("X-User-Id") Integer idUserConectado, @PathVariable Integer id) {
+        ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 4);
+        if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+            return autorizacionResponse;
+        }
+
         boolean deleted = sopService.deleteTicketById(id);
         if (deleted) {
             return ResponseEntity.ok("Ticket eliminado correctamente.");
@@ -65,8 +82,12 @@ public class TicketController {
         }
     }
 
-@PutMapping("/tickets/{id}")
-public ResponseEntity<?> actualizarTicket(@PathVariable Integer id, @RequestBody Ticket ticket) {
+@PutMapping("/tickets/modificar/{id}")
+public ResponseEntity<?> actualizarTicket(@RequestHeader("X-User-Id") Integer idUserConectado, @PathVariable Integer id, @RequestBody Ticket ticket) {
+    ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 4);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
     if (id == null || id <= 0) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ID de ticket no válido"); // 400 Bad Request
     }
@@ -85,8 +106,12 @@ public ResponseEntity<?> actualizarTicket(@PathVariable Integer id, @RequestBody
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar el ticket"); // 500
     }
 }
-    @GetMapping("/tickets/usuario/  {id}")
-  public ResponseEntity<List<Ticket>> listarTicketsPorUsuario(@PathVariable Integer id) {
+    @GetMapping("/tickets/usuario/{id}")
+    public ResponseEntity<?> listarTicketsPorUsuario(@RequestHeader("X-User-Id") Integer idUserConectado, @PathVariable Integer id) {
+        ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 4);
+            if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
+                return autorizacionResponse;
+            }
         List<Ticket> tickets = sopService.getTicketsByUsuarioId(id);
         if (tickets == null || tickets.isEmpty()) {
             return ResponseEntity.noContent().build();

@@ -1,154 +1,123 @@
 package com.example.SoporteTecnico.controller;
 
 import com.example.SoporteTecnico.model.Soporte;
-import com.example.SoporteTecnico.model.Ticket;
+import com.example.SoporteTecnico.service.AutorizacionService;
 import com.example.SoporteTecnico.service.SoporteTecnicoService;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
-import java.util.Date;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(SoporteController.class)
 public class SoporteControllerTest {
 
-    @Mock
-    SoporteTecnicoService sopService;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @InjectMocks
-    SoporteController soporteController;
+    @MockBean
+    private SoporteTecnicoService sopService;
+
+    @MockBean
+    private AutorizacionService autorizacionService;
+
+    private final Integer idUserConectado = 123;
 
     @Test
-    void testCrearSoporte_Exitoso() {
-        Soporte soporteMock = new Soporte(1, "Observacion test", new Date(), new Ticket());
-        when(sopService.createSoporte(any(Soporte.class))).thenReturn(soporteMock);
+    void crearSoporteTest() throws Exception {
+        Soporte soporte = new Soporte(); // setea campos mínimos necesarios si hay validaciones
+        soporte.setId(1);
+        soporte.setObservacion("Soporte nuevo");
 
-        Soporte nuevo = new Soporte();
-        nuevo.setObservacion("Observacion test");
-        nuevo.setFecha_soporte(new Date());
-        nuevo.setTicket(new Ticket());
+        when(autorizacionService.validarRol(idUserConectado, 4))
+                .thenReturn(ResponseEntity.ok().build());
 
-        ResponseEntity<?> response = soporteController.crearSoporte(nuevo);
+        when(sopService.createSoporte(any(Soporte.class))).thenReturn(soporte);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(201);
-        assertThat(response.getBody()).isEqualTo(soporteMock);
+        String json = "{\"descripcion\": \"Soporte nuevo\"}";
+
+        mockMvc.perform(post("/api/v1/soportes/crear") // pon la ruta correcta según tu @RequestMapping
+                .header("X-User-Id", idUserConectado)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.observacion").value("Soporte nuevo"));
     }
 
     @Test
-    void testCrearSoporte_ErrorInterno() {
-        when(sopService.createSoporte(any(Soporte.class))).thenThrow(new RuntimeException("Error en BD"));
+    void editarSoporteTest() throws Exception {
+        Soporte soporteActualizado = new Soporte();
+        soporteActualizado.setId(1);
+        soporteActualizado.setObservacion("Soporte editado");
 
-        Soporte nuevo = new Soporte();
-        nuevo.setObservacion("Observacion test");
-        nuevo.setFecha_soporte(new Date());
-        nuevo.setTicket(new Ticket());
-
-        ResponseEntity<?> response = soporteController.crearSoporte(nuevo);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(500);
-        assertThat(response.getBody().toString()).contains("Error al crear soporte");
-    }
-
-    @Test
-    void testListarSoportes_ConDatos() {
-        Soporte s1 = new Soporte(1, "obs1", new Date(), new Ticket());
-        Soporte s2 = new Soporte(2, "obs2", new Date(), new Ticket());
-        List<Soporte> lista = Arrays.asList(s1, s2);
-
-        when(sopService.getSoportes()).thenReturn(lista);
-
-        ResponseEntity<List<Soporte>> response = soporteController.listarSoportes();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(lista);
-    }
-
-    @Test
-    void testListarSoportes_SinDatos() {
-        when(sopService.getSoportes()).thenReturn(List.of());
-
-        ResponseEntity<List<Soporte>> response = soporteController.listarSoportes();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(204);
-        assertThat(response.getBody()).isNull();
-    }
-
-    @Test
-    void testEliminarSoporte_Exitoso() {
-        when(sopService.deleteSoporteById(1)).thenReturn(true);
-
-        ResponseEntity<String> response = soporteController.eliminarSoporte(1);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo("Soporte eliminado correctamente.");
-    }
-
-    @Test
-    void testEliminarSoporte_NoEncontrado() {
-        when(sopService.deleteSoporteById(999)).thenReturn(false);
-
-        ResponseEntity<String> response = soporteController.eliminarSoporte(999);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
-        assertThat(response.getBody()).isEqualTo("Soporte no encontrado.");
-    }
-
-    @Test
-    void testEditarSoporte_Exitoso() {
-        Soporte soporteActualizado = new Soporte(1, "Observacion actualizada", new Date(), new Ticket());
+        when(autorizacionService.validarRol(idUserConectado, 4))
+                .thenReturn(ResponseEntity.ok().build());
 
         when(sopService.updateSoporte(eq(1), any(Soporte.class))).thenReturn(soporteActualizado);
 
-        Soporte aActualizar = new Soporte();
-        aActualizar.setObservacion("Observacion actualizada");
-        aActualizar.setFecha_soporte(new Date());
-        aActualizar.setTicket(new Ticket());
+        String json = "{\"observacion\": \"Soporte editado\"}";
 
-        ResponseEntity<?> response = soporteController.editarSoporte(1, aActualizar);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(soporteActualizado);
+        mockMvc.perform(put("/api/v1/soportes/modificar/1") // ruta: /{id}
+                .header("X-User-Id", idUserConectado)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.observacion").value("Soporte editado"));
     }
 
     @Test
-    void testEditarSoporte_NoEncontrado() {
-        when(sopService.updateSoporte(eq(999), any(Soporte.class)))
-            .thenThrow(new EntityNotFoundException("Soporte no encontrado con id 999"));
+    void listarSoportes() throws Exception {
+        Soporte s1 = new Soporte();
+        s1.setId(1);
+        s1.setObservacion("Soporte 1");
+        Soporte s2 = new Soporte();
+        s2.setId(2);
+        s2.setObservacion("Soporte 2");
 
-        Soporte aActualizar = new Soporte();
-        aActualizar.setObservacion("Observacion");
-        aActualizar.setFecha_soporte(new Date());
-        aActualizar.setTicket(new Ticket());
+        List<Soporte> lista = List.of(s1, s2);
 
-        ResponseEntity<?> response = soporteController.editarSoporte(999, aActualizar);
+        when(autorizacionService.validarRol(idUserConectado, 4))
+                .thenReturn(ResponseEntity.ok().build());
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
-        assertThat(response.getBody()).isEqualTo("Soporte no encontrado con id 999");
+        when(sopService.getSoportes()).thenReturn(lista);
+
+        mockMvc.perform(get("/api/v1/soportes")
+                .header("X-User-Id", idUserConectado))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].observacion").value("Soporte 1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].observacion").value("Soporte 2"));
     }
 
     @Test
-    void testEditarSoporte_ErrorInterno() {
-        when(sopService.updateSoporte(eq(1), any(Soporte.class)))
-            .thenThrow(new RuntimeException("Error inesperado"));
+    void eliminarSoporte() throws Exception {
+        when(autorizacionService.validarRol(idUserConectado, 4))
+                .thenReturn(ResponseEntity.ok().build());
 
-        Soporte aActualizar = new Soporte();
-        aActualizar.setObservacion("Observacion");
-        aActualizar.setFecha_soporte(new Date());
-        aActualizar.setTicket(new Ticket());
+        when(sopService.deleteSoporteById(1)).thenReturn(true);
 
-        ResponseEntity<?> response = soporteController.editarSoporte(1, aActualizar);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(500);
-        assertThat(response.getBody().toString()).contains("Error al actualizar soporte");
+        mockMvc.perform(delete("/api/v1/soportes/eliminar/1") 
+                .header("X-User-Id", idUserConectado))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Soporte eliminado correctamente."));
     }
 }

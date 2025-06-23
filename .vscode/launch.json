@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "SoporteTecnicoApplication",
+            "request": "launch",
+            "mainClass": "com.example.SoporteTecnico.SoporteTecnicoApplication",
+            "projectName": "proyecto"
+        },
+        {
+            "type": "java",
             "name": "PagoFacturaApplication",
             "request": "launch",
             "mainClass": "com.example.PagoFactura.PagoFacturaApplication",

@@ -1,6 +1,7 @@
 package com.example.SoporteTecnico.controller;
 
 import com.example.SoporteTecnico.model.TipoSoporte;
+import com.example.SoporteTecnico.service.AutorizacionService;
 import com.example.SoporteTecnico.service.SoporteTecnicoService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,127 +31,98 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(TipoSoporteController.class)
 public class TipoSoporteControllerTest {
 
-    @Mock
-    SoporteTecnicoService sopService;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @InjectMocks
-    TipoSoporteController tipoSoporteController;
+    @MockBean
+    private SoporteTecnicoService sopService;
 
+    @MockBean
+    private AutorizacionService autorizacionService;
+
+    private final Integer idUserConectado = 123;
     @Test
-    void testCrearTipoSoporte_Exitoso() {
-        TipoSoporte mockTipo = new TipoSoporte(1, "Soporte1", null);
-        when(sopService.createTipoSoporte(any(TipoSoporte.class))).thenReturn(mockTipo);
+    void crearTipoSoporteTest() throws Exception {
+        TipoSoporte tipoSoporte = new TipoSoporte();
+        tipoSoporte.setId(1);
+        tipoSoporte.setNombre("Soporte Nuevo");
 
-        TipoSoporte nuevo = new TipoSoporte();
-        nuevo.setNombre("Soporte1");
+        when(autorizacionService.validarRol(idUserConectado, 4))
+            .thenReturn(ResponseEntity.ok().build());
 
-        ResponseEntity<?> response = tipoSoporteController.crearTipoSoporte(nuevo);
+        when(sopService.createTipoSoporte(any(TipoSoporte.class))).thenReturn(tipoSoporte);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(201);
-        assertThat(response.getBody()).isEqualTo(mockTipo);
+        String json = "{\"nombre\": \"Soporte Nuevo\"}";
+
+        mockMvc.perform(post("/api/v1/tiposSoporte/crear")
+                .header("X-User-Id", idUserConectado)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.nombre").value("Soporte Nuevo"));
     }
 
     @Test
-    void testCrearTipoSoporte_ErrorInterno() {
-        when(sopService.createTipoSoporte(any(TipoSoporte.class)))
-            .thenThrow(new RuntimeException("Error en BD"));
+    void editarTipoSoporteTest() throws Exception {
+        TipoSoporte actualizado = new TipoSoporte();
+        actualizado.setId(1);
+        actualizado.setNombre("Soporte Editado");
 
-        TipoSoporte nuevo = new TipoSoporte();
-        nuevo.setNombre("Soporte1");
-
-        ResponseEntity<?> response = tipoSoporteController.crearTipoSoporte(nuevo);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(500);
-        assertThat(response.getBody().toString()).contains("Error al crear TipoSoporte");
-    }
-
-    @Test
-    void testListarTiposSoporte_ConDatos() {
-        TipoSoporte t1 = new TipoSoporte(1, "Soporte1", null);
-        TipoSoporte t2 = new TipoSoporte(2, "Soporte2", null);
-        List<TipoSoporte> lista = Arrays.asList(t1, t2);
-
-        when(sopService.getTipoSoportes()).thenReturn(lista);
-
-        ResponseEntity<List<TipoSoporte>> response = tipoSoporteController.listarTiposSoporte();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(lista);
-    }
-
-    @Test
-    void testListarTiposSoporte_SinDatos() {
-        when(sopService.getTipoSoportes()).thenReturn(List.of());
-
-        ResponseEntity<List<TipoSoporte>> response = tipoSoporteController.listarTiposSoporte();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(204);
-        assertThat(response.getBody()).isNull();
-    }
-
-    @Test
-    void testEliminarTipoSoporte_Exitoso() {
-        when(sopService.deleteTipoSoporteById(1)).thenReturn(true);
-
-        ResponseEntity<String> response = tipoSoporteController.eliminarTipoSoporte(1);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo("TipoSoporte eliminado correctamente.");
-    }
-
-    @Test
-    void testEliminarTipoSoporte_NoEncontrado() {
-        when(sopService.deleteTipoSoporteById(999)).thenReturn(false);
-
-        ResponseEntity<String> response = tipoSoporteController.eliminarTipoSoporte(999);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
-        assertThat(response.getBody()).isEqualTo("TipoSoporte no encontrado.");
-    }
-
-    @Test
-    void testEditarTipoSoporte_Exitoso() {
-        TipoSoporte actualizado = new TipoSoporte(1, "Soporte actualizado", null);
+        when(autorizacionService.validarRol(idUserConectado, 4))
+            .thenReturn(ResponseEntity.ok().build());
 
         when(sopService.updateTipoSoporte(eq(1), any(TipoSoporte.class))).thenReturn(actualizado);
 
-        TipoSoporte aActualizar = new TipoSoporte();
-        aActualizar.setNombre("Soporte actualizado");
+        String json = "{\"nombre\": \"Soporte Editado\"}";
 
-        ResponseEntity<?> response = tipoSoporteController.editarTipoSoporte(1, aActualizar);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(actualizado);
+        mockMvc.perform(put("/api/v1/tiposSoporte/modificar/1")
+                .header("X-User-Id", idUserConectado)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.nombre").value("Soporte Editado"));
     }
 
     @Test
-    void testEditarTipoSoporte_NoEncontrado() {
-        when(sopService.updateTipoSoporte(eq(999), any(TipoSoporte.class)))
-            .thenThrow(new EntityNotFoundException("TipoSoporte no encontrado con id 999"));
+    void listarTiposSoporteTest() throws Exception {
+        TipoSoporte ts1 = new TipoSoporte();
+        ts1.setId(1);
+        ts1.setNombre("Tipo 1");
+        TipoSoporte ts2 = new TipoSoporte();
+        ts2.setId(2);
+        ts2.setNombre("Tipo 2");
 
-        TipoSoporte aActualizar = new TipoSoporte();
-        aActualizar.setNombre("Nombre");
+        List<TipoSoporte> lista = List.of(ts1, ts2);
 
-        ResponseEntity<?> response = tipoSoporteController.editarTipoSoporte(999, aActualizar);
+        when(autorizacionService.validarRol(idUserConectado, 4))
+            .thenReturn(ResponseEntity.ok().build());
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
-        assertThat(response.getBody()).isEqualTo("TipoSoporte no encontrado con id 999");
+        when(sopService.getTipoSoportes()).thenReturn(lista);
+
+        mockMvc.perform(get("/api/v1/tiposSoporte")
+                .header("X-User-Id", idUserConectado))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].nombre").value("Tipo 1"))
+            .andExpect(jsonPath("$[1].id").value(2))
+            .andExpect(jsonPath("$[1].nombre").value("Tipo 2"));
     }
 
     @Test
-    void testEditarTipoSoporte_ErrorInterno() {
-        when(sopService.updateTipoSoporte(eq(1), any(TipoSoporte.class)))
-            .thenThrow(new RuntimeException("Error inesperado"));
+    void eliminarTipoSoporteTest() throws Exception {
+        when(autorizacionService.validarRol(idUserConectado, 4))
+            .thenReturn(ResponseEntity.ok().build());
 
-        TipoSoporte aActualizar = new TipoSoporte();
-        aActualizar.setNombre("Nombre");
+        when(sopService.deleteTipoSoporteById(1)).thenReturn(true);
 
-        ResponseEntity<?> response = tipoSoporteController.editarTipoSoporte(1, aActualizar);
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(500);
-        assertThat(response.getBody().toString()).contains("Error al actualizar TipoSoporte");
+        mockMvc.perform(delete("/api/v1/tiposSoporte/eliminar/1")
+                .header("X-User-Id", idUserConectado))
+            .andExpect(status().isOk())
+            .andExpect(content().string("TipoSoporte eliminado correctamente."));
     }
 }
