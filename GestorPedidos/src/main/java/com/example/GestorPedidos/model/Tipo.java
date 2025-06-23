@@ -16,13 +16,22 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Datos del tipo de pedido")
+@Schema(description = "Entidad que representa un tipo de pedido. Por ejemplo: Compra, Alquiler, Reparación.")
 public class Tipo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_tipo")
+    @Schema(
+        description = "ID autogenerado del tipo de pedido",
+        example = "1"
+    )
     private Integer idTipo;
 
     @Column(name = "nombre", nullable = false, length = 40)
+    @Schema(
+        description = "Nombre descriptivo del tipo de pedido",
+        example = "Alquiler"
+    )
     private String nombre;
 }

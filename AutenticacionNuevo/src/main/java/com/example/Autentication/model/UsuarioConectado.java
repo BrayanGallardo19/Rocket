@@ -34,4 +34,5 @@ public class UsuarioConectado {
     @Column(nullable = false)
     @Schema(description = "Token JWT asociado a la sesión activa", example = "eyJhbGciOiJIUzI1NiIsIn...")
     private String token;
+    
 }
