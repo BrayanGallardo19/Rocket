@@ -21,7 +21,7 @@ public class PedidoClient {
     public Map<String, Object> obtenerPedidoPorId(Integer idPedido) {
         try {
             return webClient.get()
-                    .uri("/{idPedido}", idPedido)
+                    .uri("/pedidos/{idPedido}", idPedido)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
                     })

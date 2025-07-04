@@ -22,7 +22,7 @@ public class UsuarioConectadoClient {
     public Optional<Map<String, Object>> buscarUsuarioConectadoPorId(Integer id) {
         try {
             Map<String, Object> usuarioConectado = webClient.get()
-                    .uri("/{id}", id)
+                    .uri("/auth/{id}", id)
                     .retrieve()
                     .onStatus(
                             status -> status.is4xxClientError() || status.is5xxServerError(),

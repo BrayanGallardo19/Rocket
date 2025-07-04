@@ -52,7 +52,7 @@ public class PedidoController {
     // crear un nuevo pedido
     @Operation(summary = "Crear un nuevo pedido")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Pedido creado exitosamente"),
+            @ApiResponse(responseCode = "201", description = "Pedido creado exitosamente", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
             @ApiResponse(responseCode = "400", description = "Solicitud incorrecta"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -115,7 +115,7 @@ public class PedidoController {
     // buscar pedido por id
     @Operation(summary = "Buscar un pedido por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pedido encontrado", content = @Content(schema = @Schema(type = "object"))),
+            @ApiResponse(responseCode = "200", description = "Pedido encontrado", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
             @ApiResponse(responseCode = "401", description = "Acceso denegado"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado. Rol inválido"),
             @ApiResponse(responseCode = "404", description = "Pedido no encontrado"),
@@ -183,12 +183,12 @@ public class PedidoController {
     }
     @Operation(summary = "Modificar un pedido existente")
 @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "Pedido modificado exitosamente"),
+    @ApiResponse(responseCode = "200", description = "Pedido modificado exitosamente", content = @Content(schema = @Schema(implementation = Pedido.class))),
     @ApiResponse(responseCode = "400", description = "Datos inválidos o incompletos"),
     @ApiResponse(responseCode = "401", description = "Acceso denegado: usuario no conectado"),
     @ApiResponse(responseCode = "403", description = "Acceso denegado: rol inválido"),
     @ApiResponse(responseCode = "404", description = "Pedido no encontrado o error en modificación"),
-    @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Pedido.class)))
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor")
 })
     @PutMapping("/modificar/{idPedido}")
     public ResponseEntity<?> modificarPedido(@RequestHeader("X-User-Id") Integer idUserConectado,

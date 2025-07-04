@@ -45,11 +45,11 @@ public class EquipoController {
     // mostrar todos los equipos
     @Operation(summary = "Mostrar la lista con todos los equipos")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Equipos encontrados"),
+            @ApiResponse(responseCode = "200", description = "Equipos encontrados",content = @Content(schema = @Schema(implementation = Equipo.class))),
             @ApiResponse(responseCode = "401", description = "Acceso Denegado"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado.Rol inválido"),
             @ApiResponse(responseCode = "404", description = "No se encontraron equipos"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Equipo.class)))
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping
     public ResponseEntity<?> mostrarTodosLosEquipos(@RequestHeader("X-User-Id") Integer idUserConectado) {
@@ -73,11 +73,11 @@ public class EquipoController {
     // obtener equipo por id
     @Operation(summary = "Obtener un equipo por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Equipo encontrado"),
+            @ApiResponse(responseCode = "200", description = "Equipo encontrado", content = @Content(schema = @Schema(implementation = Equipo.class))),
             @ApiResponse(responseCode = "401", description = "Acceso Denegado"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado.Rol inválido"),
             @ApiResponse(responseCode = "404", description = "Equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Equipo.class)))
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/{idEquipo}")
     public ResponseEntity<?> obtenerEquipoPorId(@PathVariable Integer idEquipo) {

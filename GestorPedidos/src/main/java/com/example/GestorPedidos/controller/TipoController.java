@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,10 +37,10 @@ public class TipoController {
 
     @Operation(summary = "Devuelve una lista con todos los tipos de pedidos")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tipos encontrados"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(schema = @Schema(implementation = Tipo.class)))
+            @ApiResponse(responseCode = "200", description = "Tipos encontrados", content = @Content(schema = @Schema(implementation = Tipo.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    @RequestMapping()
+    @GetMapping
     public ResponseEntity<?> mostrarTodos(@RequestHeader("X-User-Id") Integer idUserConectado) {
         try {
             ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
@@ -56,10 +57,10 @@ public class TipoController {
 
     @Operation(summary = "Crea un nuevo tipo de pedido")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Tipo creado correctamente"),
+            @ApiResponse(responseCode = "201", description = "Tipo creado correctamente", content = @Content(schema = @Schema(implementation = Tipo.class))),
             @ApiResponse(responseCode = "400", description = "Solicitud inválida")
     })
-    @PostMapping
+    @PostMapping("/crear")
     public ResponseEntity<?> crearTipo(@RequestHeader("X-User-Id") Integer idUserConectado, @RequestBody Tipo tipo) {
         try {
             ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
@@ -75,11 +76,11 @@ public class TipoController {
 
     @Operation(summary = "Obtiene un tipo de pedido por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tipo encontrado"),
+            @ApiResponse(responseCode = "200", description = "Tipo encontrado", content = @Content(schema = @Schema(implementation = Tipo.class))),
             @ApiResponse(responseCode = "404", description = "Tipo no encontrado"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    @RequestMapping("/{idTipo}")
+    @GetMapping("/{idTipo}")
     public ResponseEntity<?> obtenerPorId(@RequestHeader("X-User-Id") Integer idUserConectado, @PathVariable Integer idTipo) {
         try {
             ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 3);
@@ -97,7 +98,7 @@ public class TipoController {
 
     @Operation(summary = "Actualiza un tipo de pedido existente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tipo actualizado correctamente"),
+            @ApiResponse(responseCode = "200", description = "Tipo actualizado correctamente", content = @Content(schema = @Schema(implementation = Tipo.class))),
             @ApiResponse(responseCode = "404", description = "Tipo no encontrado")
     })
     @PutMapping("/modificar/{idTipo}")

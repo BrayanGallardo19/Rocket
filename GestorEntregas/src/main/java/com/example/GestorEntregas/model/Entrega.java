@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 @Table(name = "entrega")
 @Data
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "Entidad que representa una entrega asociada a un pedido.")

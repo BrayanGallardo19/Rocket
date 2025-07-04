@@ -93,7 +93,7 @@ public class LoadDatabase {
                 cliente2.setUsername("cliente2");
                 cliente2.setPassword(passwordEncoder.encode("cliente123"));
                 cliente2.setIdRol(getIdFromRole(clienteRole));
-
+                
                 User finanzas = new User();
                 finanzas.setNombre("Encargado");
                 finanzas.setAppaterno("Finanzas");

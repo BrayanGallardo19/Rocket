@@ -41,7 +41,7 @@ public class MarcaControllerTest {
             .andExpect(jsonPath("$[0].idMarca").value(1))
             .andExpect(jsonPath("$[0].nombre").value("Marca A"));
     }
-
+    
     // obtener marca por ID existente
     @Test
     void obtenerMarcaPorId_existingId_returnsOKAndJson() throws Exception {

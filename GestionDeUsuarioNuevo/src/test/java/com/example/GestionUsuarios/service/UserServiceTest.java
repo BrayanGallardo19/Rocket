@@ -33,7 +33,7 @@ public class UserServiceTest {
 
         assertThat(result).isPresent().contains(user);
     }
-
+    
     @Test
     void testUpdateUserSuccess() {
         User original = User.builder().id(1).username("juan").build();
