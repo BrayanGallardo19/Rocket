@@ -41,10 +41,11 @@ public class EstadoClient {
                 }
         }
 
-        public List<Map<String, Object>> obtenerTodosLosEstados() {
+        public List<Map<String, Object>> obtenerTodosLosEstados(Integer idUserConectado) {
                 try {
                         return webClient.get()
                                         .uri("/equipos/estados")
+                                        .header("X-User-Id", idUserConectado.toString())
                                         .retrieve()
                                         .onStatus(
                                         status -> status.is4xxClientError(),
@@ -62,8 +63,8 @@ public class EstadoClient {
                 }
         }
 
-        public Map<String, Object> obtenerEstadoPorNombre(String nombreEstado) {
-                List<Map<String, Object>> estados = obtenerTodosLosEstados();
+        public Map<String, Object> obtenerEstadoPorNombre(String nombreEstado, Integer idUserConectado) {
+                List<Map<String, Object>> estados = obtenerTodosLosEstados(idUserConectado);
                 return estados.stream()
                                 .filter(estado -> estado.get("nombreEstado").toString().equalsIgnoreCase(nombreEstado))
                                 .findFirst()

@@ -185,7 +185,7 @@ public class EquipoController {
     @GetMapping("/estados")
     public ResponseEntity<?> obtenerEstados(@RequestHeader("X-User-Id") Integer idUserConectado) {
         try {
-            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRol(idUserConectado, 2);
+            ResponseEntity<?> autorizacionResponse = autorizacionService.validarRoles(idUserConectado, Set.of( 2, 3));
             if (!autorizacionResponse.getStatusCode().is2xxSuccessful()) {
                 return autorizacionResponse;
             }

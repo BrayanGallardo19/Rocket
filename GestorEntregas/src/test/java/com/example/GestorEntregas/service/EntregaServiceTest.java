@@ -1,17 +1,11 @@
 package com.example.GestorEntregas.service;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,8 +27,6 @@ import com.example.GestorEntregas.webclient.PedidoClient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
-
 @ExtendWith(MockitoExtension.class)
 public class EntregaServiceTest {
     @Mock
@@ -43,7 +35,7 @@ public class EntregaServiceTest {
     private EstadoClient estadoClient;
     @Mock
     private PedidoClient pedidoClient;
-    
+
     @InjectMocks
     private EntregaService entregaService;
 
@@ -53,20 +45,19 @@ public class EntregaServiceTest {
         entrega.setIdPedido(10);
 
         Map<String, Object> pedidoMock = new HashMap<>();
-        pedidoMock.put("idEstado", 5);
-
-        Map<String, Object> estadoPedidoMock = new HashMap<>();
-        estadoPedidoMock.put("nombreEstado", "Listo para entrega");
+        pedidoMock.put("estado", "Pendiente de entrega");
 
         Map<String, Object> estadoInicialEntrega = new HashMap<>();
         estadoInicialEntrega.put("nombreEstado", "Pendiente de entrega");
 
         when(pedidoClient.obtenerPedidoPorId(10)).thenReturn(pedidoMock);
-        when(estadoClient.obtenerEstadoPorId(5)).thenReturn(estadoPedidoMock);
-        when(estadoClient.obtenerEstadoPorNombre("Pendiente de entrega")).thenReturn(estadoInicialEntrega);
+
+        when(estadoClient.obtenerEstadoPorNombre(anyString(), anyInt()))
+                .thenReturn(estadoInicialEntrega);
+
         when(entregaRepository.save(any(Entrega.class))).thenAnswer(i -> i.getArgument(0));
 
-        Entrega resultado = entregaService.crearEntrega(entrega);
+        Entrega resultado = entregaService.crearEntrega(entrega, 5);
 
         assertNotNull(resultado);
         assertEquals("Pendiente de entrega", resultado.getEstado());
@@ -94,10 +85,12 @@ public class EntregaServiceTest {
         estadoMap.put("nombreEstado", "Entregado");
 
         when(entregaRepository.findById(1)).thenReturn(Optional.of(entrega));
-        when(estadoClient.obtenerEstadoPorNombre("Entregado")).thenReturn(estadoMap);
+
+        when(estadoClient.obtenerEstadoPorNombre(anyString(), anyInt())).thenReturn(estadoMap);
+
         when(entregaRepository.save(any(Entrega.class))).thenAnswer(i -> i.getArgument(0));
 
-        Entrega resultado = entregaService.actualizarEstadoEntrega(1, "Entregado");
+        Entrega resultado = entregaService.actualizarEstadoEntrega(1, "Entregado", 5);
 
         assertEquals("Entregado", resultado.getEstado());
         assertNotNull(resultado.getFechaEntrega());

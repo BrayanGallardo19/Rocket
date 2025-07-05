@@ -28,7 +28,7 @@ public class EntregaService {
     }
 
     // metodo para crear una nueva entrega
-    public Entrega crearEntrega(Entrega entrega) {
+    public Entrega crearEntrega(Entrega entrega,Integer idUserConectado) {
         if (entrega.getIdEntrega() != null) {
             throw new RuntimeException("No debes enviar el id al crear una nueva entrega");
         }
@@ -38,22 +38,24 @@ public class EntregaService {
             throw new RuntimeException("Pedido no encontrado");
         }
 
-        // estado del pedido
-        Integer idEstadoPedido = (Integer) pedidoData.get("idEstado");
-        if (idEstadoPedido == null) {
+        // obtener el estado del pedido
+        Object estadoObj = pedidoData.get("estado");
+        if (!(estadoObj instanceof String)) {
             throw new RuntimeException("El pedido no tiene estado asignado");
         }
 
-        // consultar nombre del estado via estadoClient
-        Map<String, Object> estadoPedidoMap = estadoClient.obtenerEstadoPorId(idEstadoPedido);
-        String nombreEstadoPedido = estadoPedidoMap != null ? (String) estadoPedidoMap.get("nombreEstado") : null;
+        String nombreEstadoPedido = (String) estadoObj;
 
-        if (!"Listo para entrega".equalsIgnoreCase(nombreEstadoPedido)) {
+        if (!"Pendiente de entrega".equalsIgnoreCase(nombreEstadoPedido)) {
             throw new RuntimeException("Pedido no está listo para entrega");
         }
 
-        // obtener estado inicial para entrega
-        Map<String, Object> estadoMap = estadoClient.obtenerEstadoPorNombre("Pendiente de entrega");
+        // Obtener estado inicial para la entrega
+        Map<String, Object> estadoMap = estadoClient.obtenerEstadoPorNombre("Pendiente de entrega", idUserConectado);
+        if (estadoMap == null || estadoMap.get("nombreEstado") == null) {
+            throw new RuntimeException("No se pudo obtener el estado inicial de entrega");
+        }
+
         entrega.setEstado(estadoMap.get("nombreEstado").toString());
 
         return entregaRepository.save(entrega);
@@ -69,12 +71,12 @@ public class EntregaService {
     }
 
     // metodo para modificar el estado de una entrega
-    public Entrega actualizarEstadoEntrega(Integer idEntrega, String nuevoEstado) {
+    public Entrega actualizarEstadoEntrega(Integer idEntrega, String nuevoEstado, Integer idUserConectado) {
         Entrega entrega = entregaRepository.findById(idEntrega)
                 .orElseThrow(() -> new RuntimeException("Entrega no encontrada con id: " + idEntrega));
 
         // llamamos al WebClient usando Map
-        Map<String, Object> estadoMap = estadoClient.obtenerEstadoPorNombre(nuevoEstado);
+        Map<String, Object> estadoMap = estadoClient.obtenerEstadoPorNombre(nuevoEstado, idUserConectado);
 
         String nombreEstado = estadoMap.get("nombreEstado").toString();
 

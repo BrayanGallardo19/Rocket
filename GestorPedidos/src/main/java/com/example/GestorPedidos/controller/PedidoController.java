@@ -87,16 +87,6 @@ public class PedidoController {
         pedido.setTotal(Double.parseDouble(body.get("total").toString()));
         pedido.setIdUsuario(idUsuario); // usar id real
 
-        // Dirección para encargos 
-        Map<String, Object> direccion = new HashMap<>();
-        direccion.put("ciudad", body.get("ciudad"));
-        direccion.put("comuna", body.get("comuna"));
-        direccion.put("calle", body.get("calle"));
-        direccion.put("numero", body.get("numero"));
-        direccion.put("depto", body.get("depto"));
-        direccion.put("referencia", body.get("referencia"));
-
-
         // Tipo de pedido
         Integer idTipo = (Integer) body.get("idTipo");
 

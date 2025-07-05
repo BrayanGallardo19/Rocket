@@ -61,7 +61,7 @@ public class MarcaControllerTest {
 
         when(marcaService.guardarMarca(any(Marca.class))).thenReturn(creada);
 
-        mockMvc.perform(post("/api/v1/marcas/crear")
+        mockMvc.perform(post("/api/v1/marcas/guardar")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\": \"Marca Nueva\"}"))
             .andExpect(status().isCreated())

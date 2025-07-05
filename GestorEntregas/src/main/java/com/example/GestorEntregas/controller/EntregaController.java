@@ -58,7 +58,7 @@ public class EntregaController {
             if (entrega.getIdEntrega() != null) {
                 return ResponseEntity.badRequest().body("No debes enviar el id al crear una nueva entrega");
             }
-            Entrega nuevaEntrega = entregaService.crearEntrega(entrega);
+            Entrega nuevaEntrega = entregaService.crearEntrega(entrega, idUserConectado);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaEntrega); // 201
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 si hay error de lógica
@@ -120,7 +120,8 @@ public class EntregaController {
             if (nuevoEstado == null || nuevoEstado.isEmpty()) {
                 return ResponseEntity.badRequest().body("El nuevo estado es requerido");
             }
-            Entrega entregaActualizada = entregaService.actualizarEstadoEntrega(idEntrega, nuevoEstado);
+            Entrega entregaActualizada = entregaService.actualizarEstadoEntrega(idEntrega, nuevoEstado,
+                    idUserConectado);
             return ResponseEntity.ok(entregaActualizada); // 200
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 si no existe entrega o

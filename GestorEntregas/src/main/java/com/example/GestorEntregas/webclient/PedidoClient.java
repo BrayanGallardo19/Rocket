@@ -13,21 +13,21 @@ public class PedidoClient {
     private final WebClient webClient;
 
     public PedidoClient(@Value("${pedidos-service.url}") String baseUrl) {
-                this.webClient = WebClient.builder()
-                                .baseUrl(baseUrl)
-                                .build();
-        }
+        this.webClient = WebClient.builder()
+                .baseUrl(baseUrl)
+                .build();
+    }
 
     public Map<String, Object> obtenerPedidoPorId(Integer idPedido) {
         try {
             return webClient.get()
-                    .uri("/pedidos/{idPedido}", idPedido)
+                    .uri("/{idPedido}", idPedido)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
                     })
-                    .block(); 
+                    .block();
         } catch (WebClientResponseException.NotFound e) {
-            return null; // pedido no encontrado
+            throw new RuntimeException("Pedido no encontrado");
         } catch (Exception e) {
             throw new RuntimeException("Error al llamar a microservicio Pedidos: " + e.getMessage());
         }

@@ -62,7 +62,7 @@ public class ModeloControllerTest {
 
         when(modeloService.guardarModelo(any(Modelo.class))).thenReturn(modeloGuardado);
 
-        mockMvc.perform(post("/api/v1/modelos/crear")
+        mockMvc.perform(post("/api/v1/modelos/guardar")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\": \"Modelo Nuevo\"}"))
                 .andExpect(status().isCreated())

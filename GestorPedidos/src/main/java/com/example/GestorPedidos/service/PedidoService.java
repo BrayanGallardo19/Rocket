@@ -75,34 +75,28 @@ public class PedidoService {
         pedidoRepository.deleteById(idPedido);
     }
 
-    // obtener pedido completo para el encargado
+    // obtener pedido completo 
     public Map<String, Object> obtenerPedidoPorId(Integer idPedido) {
         Pedido pedido = pedidoRepository.findById(idPedido)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
         Integer idUsuario = pedido.getIdUsuario();
-
         Map<String, Object> equipo = equipoClient.obtenerEquipoPorId(pedido.getIdEquipo());
-
         Tipo tipo = pedido.getTipo();
         if (tipo == null) {
             throw new RuntimeException("El pedido no tiene tipo asignado");
         }
-
         Map<String, Object> estado = equipoClient.obtenerEstadoPorId(pedido.getIdEstado());
         if (estado == null) {
             throw new RuntimeException("El pedido no tiene estado asignado");
         }
-
         Map<String, Object> resultado = new HashMap<>();
         resultado.put("idPedido", pedido.getIdPedido());
         resultado.put("fecha", pedido.getFechaPedido());
-        resultado.put("estado", estado.get("nombreEstado")); // campo según microservicio inventario
+        resultado.put("estado", estado.get("nombreEstado"));
         resultado.put("total", pedido.getTotal());
-
         resultado.put("idUsuario", idUsuario);
         resultado.put("equipo", equipo);
-        resultado.put("tipo", tipo.getNombre()); // usa objeto local Tipo
-
+        resultado.put("tipo", tipo.getNombre());
         return resultado;
     }
 
